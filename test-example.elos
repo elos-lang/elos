@@ -1,0 +1,10 @@
+body [
+  txt "Example text"
+  img "https://dummyimage.com/600x400/000/fff"
+  -
+  txt "Example text #2"
+  img "https://dummyimage.com/600x400/000/fff"
+  -
+  txt "Example text #3"
+  img "https://dummyimage.com/600x400/000/fff"
+]
