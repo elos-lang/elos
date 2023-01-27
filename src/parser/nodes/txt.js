@@ -22,6 +22,11 @@ export default class Txt extends Node {
     }
 
     compile(compiler) {
-        compiler.writeLn(`<div>${this.getVal()}</div>`);
+
+        compiler.writeLn(`<table width="100%;" cellspacing="0" cellpadding="0" style="width: 100%; max-width:${compiler.get('width')}px;border:none;border-spacing:0;text-align:left;">`);
+        compiler.writeLn('<tr>');
+        compiler.writeLn(`<td>${this.getVal()}</td>`);
+        compiler.writeLn('</tr>');
+        compiler.writeLn('</table>');
     }
 }

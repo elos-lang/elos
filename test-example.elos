@@ -1,32 +1,62 @@
 def width 600
 def edge 10
 def gap 10
-def preview "Dit is dus een mooie preview tekst"
 
 body [
-    img "https://dummyimage.com/300x100/000/fff"
-    -
-    space
-    txt "Your newsletter title"
-    space
-    -
-    space
+    space - space - space txt "Maité" space - space - space
+    img "https://dummyimage.com/600x400/000/fff"
+    space - space
     cols
         col [
-            img "https://dummyimage.com/300x200/000/fff"
-            txt "This is a title"
+            img "https://dummyimage.com/600x400/000/fff"
+            space
+            txt "Maitéetje"
+            space
+            -
             txt "
-                Hier komt dan ook body tekst die maar
-                blijft gaan uiteraard! Het kan op meerdere lijnen
-                komen zo blijkt.
+              Lorem Ipsum is simply dummy text of the printing
+              and typesetting industry. Lorem Ipsum is simply dummy
+              text of the printing and typesetting industry.
             "
         ]
         col [
-            img "https://dummyimage.com/300x200/000/fff"
-            txt "This is another title"
-            txt "Body text"
+            img "https://dummyimage.com/600x400/ccc/000"
+            space
+            txt "Maekeltje!"
+            space
+            -
+            txt "
+              Lorem Ipsum is simply dummy text of the printing
+              and typesetting industry. Lorem Ipsum is simply dummy
+              text of the printing and typesetting industry.
+            "
         ]
     space - space
-    txt "Copyright 2023 – Helden vh verzet"
+    group [
+        img "https://dummyimage.com/600x400/000/fff"
+        space
+        txt "Maekeltje!"
+        space
+    ]
+    space
+    cols
+        col [
+            img "https://dummyimage.com/600x400/000/fff" space txt "Maekeltje!"
+        ]
+        col [
+            img "https://dummyimage.com/600x400/ccc/000"
+            space
+            txt "Maekeltje!"
+        ]
+        col [
+            img "https://dummyimage.com/600x400/ccc/000"
+            space
+            txt "Maekeltje!"
+        ]
+    space
+    -
+    space
+    space
+    -
     space
 ]

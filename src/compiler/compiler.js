@@ -6,7 +6,9 @@ export default class Compiler {
         this.head = '';
         this.body = '';
         this.memory = {
+            colsId: 0,
             edge: 35,
+            gap: 10,
             width: 650
         };
     }
@@ -29,10 +31,11 @@ export default class Compiler {
 
     define(name, value) {
         this.memory[name] = value;
+        return value;
     }
 
     get(name) {
-        return this.memory[name] || null;
+        return (typeof this.memory[name] === 'undefined' ? null : this.memory[name]);
     }
 
     compile(ast) {

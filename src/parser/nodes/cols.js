@@ -27,8 +27,18 @@ export default class Cols extends Node {
 
     compile(compiler) {
 
-        const mediaQueryWidth = (parseInt(compiler.get('width')) + parseInt(compiler.get('edge')) * 2);
-        const colWidth = compiler.get('width') / this.getChildren().length;
+        const colsId = compiler.define('colsId', parseInt(compiler.get('colsId')) + 1);
+
+        const scrollBarWidth = 15;
+        const colCount = this.getChildren().length;
+        const width = parseInt(compiler.get('width'));
+        const mediaQueryWidth = width + parseInt(compiler.get('edge')) * 2 + scrollBarWidth;
+        const gap = parseInt(compiler.get('gap'));
+        const colWidth = (width / colCount) - gap + Math.floor(gap / colCount);
+
+        compiler.writeLn(`<table width="100%;" cellspacing="0" cellpadding="0" style="width: 100%; max-width:${compiler.get('width')}px;border:none;border-spacing:0;text-align:left;">`);
+        compiler.writeLn('<tr>');
+        compiler.writeLn('<td>');
 
         compiler.writeLn('<!--[if mso]>');
         compiler.writeLn('<table role="presentation" width="100%">');
@@ -38,16 +48,26 @@ export default class Cols extends Node {
         this.getChildren().forEach((child, i) => {
 
             compiler.writeLnHead(`<style media="screen and (min-width:${mediaQueryWidth}px)">`);
-            compiler.writeLnHead(`.elos-col-${i} {`);
+            compiler.writeLnHead(`.elos-col-${colsId}-${i} {`);
             compiler.writeLnHead(`float: left;`);
             compiler.writeLnHead(`max-width: ${colWidth}px !important;`);
+            compiler.writeLnHead(`padding-left: ${gap/2}px;`);
+
+            if (i < colCount-1) {
+                compiler.writeLnHead(`padding-right: ${gap/2}px;`);
+            }
+
+            if (i===0) {
+                compiler.writeLnHead(`margin-left: -${gap/2}px;`);
+            }
+
             compiler.writeLnHead('}');
             compiler.writeLnHead('</style>');
 
             compiler.writeLn('<!--[if mso]>');
             compiler.writeLn(`<td style="width: ${colWidth}px; padding: 0;" align="left" valign="top">`);
             compiler.writeLn('<![endif]-->');
-            compiler.writeLn(`<div class="elos-col-${i}" style="display:inline-block; width:100%; vertical-align:top; text-align:left;">`);
+            compiler.writeLn(`<div class="elos-col-${colsId}-${i}" style="display:inline-block; width:100%; vertical-align:top; text-align:left;">`);
 
             child.compile(compiler);
 
@@ -62,5 +82,9 @@ export default class Cols extends Node {
         compiler.writeLn('</tr>');
         compiler.writeLn('</table>');
         compiler.writeLn('<![endif]-->');
+
+        compiler.writeLn('</td>');
+        compiler.writeLn('</tr>');
+        compiler.writeLn('</table>');
     }
 }
