@@ -1,10 +1,32 @@
+def width 600
+def edge 10
+def gap 10
+def preview "Dit is dus een mooie preview tekst"
+
 body [
-  txt "Example text"
-  img "https://dummyimage.com/600x400/000/fff"
-  -
-  txt "Example text #2"
-  img "https://dummyimage.com/600x400/000/fff"
-  -
-  txt "Example text #3"
-  img "https://dummyimage.com/600x400/000/fff"
+    img "https://dummyimage.com/300x100/000/fff"
+    -
+    space
+    txt "Your newsletter title"
+    space
+    -
+    space
+    cols
+        col [
+            img "https://dummyimage.com/300x200/000/fff"
+            txt "This is a title"
+            txt "
+                Hier komt dan ook body tekst die maar
+                blijft gaan uiteraard! Het kan op meerdere lijnen
+                komen zo blijkt.
+            "
+        ]
+        col [
+            img "https://dummyimage.com/300x200/000/fff"
+            txt "This is another title"
+            txt "Body text"
+        ]
+    space - space
+    txt "Copyright 2023 – Helden vh verzet"
+    space
 ]

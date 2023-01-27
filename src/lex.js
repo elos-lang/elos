@@ -17,8 +17,13 @@ const MODE_NEWLINE = 7;
 const MODE_STRING = 8;
 
 let mode = MODE_ALL;
+
 let cursor = 0;
 let end = 0;
+
+let currLine = 1;
+let currLinePos = 0;
+
 let tokens = [];
 let currTokenValue;
 let currCharacter;
@@ -60,11 +65,14 @@ function lexIdent() {
 
     currTokenValue += currCharacter;
     cursor++;
+    currLinePos++;
 
     if (! nextCharacter || ! REGEX_IDENT.exec(nextCharacter)) {
         tokens.push({
             type: 'ident',
-            value: currTokenValue
+            value: currTokenValue,
+            line: currLine,
+            position: currLinePos
         });
         mode = MODE_ALL;
     }
@@ -80,21 +88,27 @@ function lexString() {
     if (REGEX_STRING_DELIMITER.exec(nextCharacter)) {
         tokens.push({
             type: 'string',
-            value: currTokenValue
+            value: currTokenValue,
+            line: currLine,
+            position: currLinePos
         });
         mode = MODE_ALL;
         cursor++;
+        currLinePos++;
     }
 }
 
 function lexNumber() {
     currTokenValue += currCharacter;
     cursor++;
+    currLinePos++;
 
     if (!nextCharacter || !REGEX_NUMBER.exec(nextCharacter)) {
         tokens.push({
             type: 'number',
-            value: currTokenValue
+            value: currTokenValue,
+            line: currLine,
+            position: currLinePos
         });
         mode = MODE_ALL;
     }
@@ -103,26 +117,23 @@ function lexNumber() {
 function lexSymbol() {
     tokens.push({
         type: 'symbol',
-        value: currCharacter
+        value: currCharacter,
+        line: currLine,
+        position: currLinePos
     });
     cursor++;
+    currLinePos++;
     mode = MODE_ALL;
 }
 
 function lexNewline() {
-    tokens.push({
-        type: 'newline',
-        value: currCharacter
-    });
     cursor++;
+    currLine++;
+    currLinePos = 0;
     mode = MODE_ALL;
 }
 
 function lexWhitespace() {
-    tokens.push({
-        type: 'whitespace',
-        value: currCharacter
-    });
     cursor++;
     mode = MODE_ALL;
 }
@@ -130,9 +141,12 @@ function lexWhitespace() {
 function lexUnknown() {
     tokens.push({
         type: 'unknown',
-        value: currCharacter
+        value: currCharacter,
+        line: currLine,
+        position: currLinePos
     });
     cursor++;
+    currLinePos++;
     mode = MODE_ALL;
 }
 

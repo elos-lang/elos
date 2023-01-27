@@ -1,9 +1,7 @@
 "use strict";
 
 import Node from "../node.js";
-import Img from "./img.js";
-import Divider from "./divider.js";
-import Txt from "./txt.js";
+import parseAll from "../parse-all.js";
 
 export default class Body extends Node {
 
@@ -12,9 +10,7 @@ export default class Body extends Node {
     static parse(parser) {
 
         if (parser.acceptWithVal('ident', 'body')) {
-
             parser.advance();
-            parser.skip('whitespace');
 
             if (parser.acceptWithVal('symbol','[')) {
                 parser.advance();
@@ -22,13 +18,7 @@ export default class Body extends Node {
                 parser.insert(new Body());
                 parser.in();
 
-                while (
-                    parser.skip('newline') ||
-                    parser.skip('whitespace') ||
-                    Img.parse(parser) ||
-                    Divider.parse(parser) ||
-                    Txt.parse(parser)
-                );
+                parseAll(parser);
 
                 if (parser.acceptWithVal('symbol',']')) {
                     parser.out();
@@ -37,15 +27,43 @@ export default class Body extends Node {
 
                 return true;
             }
-
         }
 
         return false;
     }
 
     compile(compiler) {
-        compiler.write('<body>')
-        this.getChildren().forEach(child => compiler.compile(child));
-        compiler.write('</body>');
+
+        const width = parseInt(compiler.get('width'));
+        const edge = parseInt(compiler.get('edge'));
+        const totalWidth = width+edge*2;
+
+        compiler.writeLn('<div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">');
+        compiler.writeLn(compiler.get('preview'));
+        compiler.writeLn(`</div>`);
+
+        compiler.writeLn('<table role="presentation" style="width:100%;border:none;border-spacing:0;">');
+        compiler.writeLn('<tr>');
+        compiler.writeLn('<td align="center" style="padding:0;">');
+
+        compiler.writeLn(`<table role="presentation" style="width:100%;max-width:${totalWidth}px;border:none;border-spacing:0;text-align:left;font-family:Arial,sans-serif;font-size:16px;line-height:22px;color:#363636;">`);
+        compiler.writeLn('<tr>');
+        compiler.writeLn(`<td width="${edge}">`);
+        compiler.writeLn('</td>');
+        compiler.writeLn(`<td style="max-width: ${width}px;">`);
+
+        this.getChildren().forEach(child => {
+            child.compile(compiler);
+        });
+
+        compiler.writeLn('</td>');
+        compiler.writeLn(`<td width="${edge}">`);
+        compiler.writeLn('</td>');
+        compiler.writeLn('</tr>');
+        compiler.writeLn('</table>');
+
+        compiler.writeLn('</td>');
+        compiler.writeLn('</tr>');
+        compiler.writeLn('</table>');
     }
 }

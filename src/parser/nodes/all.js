@@ -2,7 +2,7 @@
 
 import Node from "../node.js";
 import Body from "./body.js";
-import Img from "./img.js";
+import Def from "./def.js";
 
 export default class All extends Node {
 
@@ -10,14 +10,12 @@ export default class All extends Node {
 
     static parse(parser) {
 
+        while (Def.parse(parser));
+
         if (Body.parse(parser)) {
             parser.advance();
             return true;
         }
-
-        while (parser.skip('newline') || parser.skip('whitespace'));
-        Img.parse(parser);
-        while (parser.skip('newline') || parser.skip('whitespace'));
 
         return false;
     }

@@ -11,11 +11,6 @@ export default class Txt extends Node {
         if (parser.acceptWithVal('ident', 'txt')) {
             parser.advance();
 
-            while (
-                parser.skip('newline') ||
-                parser.skip('whitespace')
-            );
-
             parser.expect('string');
             parser.insert(new Txt(parser.getCurrVal()));
             parser.advance();
@@ -27,6 +22,6 @@ export default class Txt extends Node {
     }
 
     compile(compiler) {
-        compiler.write(`<h1>${this.getVal()}</h1>`);
+        compiler.writeLn(`<div>${this.getVal()}</div>`);
     }
 }

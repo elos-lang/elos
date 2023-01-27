@@ -11,11 +11,6 @@ export default class Img extends Node {
         if (parser.acceptWithVal('ident', 'img')) {
             parser.advance();
 
-            while (
-                parser.skip('newline') ||
-                parser.skip('whitespace')
-            );
-
             parser.expect('string');
             parser.insert(new Img(parser.getCurrVal()));
             parser.advance();
@@ -27,6 +22,6 @@ export default class Img extends Node {
     }
 
     compile(compiler) {
-        compiler.write(`<img src="${this.getVal()}"/>`);
+        compiler.writeLn(`<img src="${this.getVal()}" style="display:block;width:100%;"/>`);
     }
 }
