@@ -1,42 +1,63 @@
 def width 600
 def edge 10
-def gap 10
+def gap 25
+
+class hero [ size 50 weight "bold" color "#f15000" transform "uppercase" ]
+class title [ size 25 transform "uppercase" color "#f15000" ]
+class default [ size 12 color "#f15000" ]
+class line [ height 5 bgcolor "#f15000" ]
+class big [ height 35 ]
+class small [ height 15 ]
 
 body [
-    space - space - space txt "Maité" space - space - space
+    space.big
+    -.line
+    space.small
+    txt.hero "Maité" -> "http://www.google.be"
+    space.small
+    -.line
+    space.small
     img "https://dummyimage.com/600x400/000/fff"
-    space - space
+    space.small
+    -.line
+    space.small
+    txt.title "Dit is een titel"
+    space.small
     cols
         col [
             img "https://dummyimage.com/600x400/000/fff"
-            space
-            txt "Maitéetje"
-            space
-            -
-            txt "
+            space.small
+            txt.title "Maitéetje"
+            space.small
+            -.line
+            space.small
+            txt.default "
               Lorem Ipsum is simply dummy text of the printing
               and typesetting industry. Lorem Ipsum is simply dummy
               text of the printing and typesetting industry.
             "
         ]
         col [
-            img "https://dummyimage.com/600x400/ccc/000"
-            space
-            txt "Maekeltje!"
-            space
-            -
-            txt "
+            img "https://dummyimage.com/600x400/000/fff"
+            space.small
+            txt.title "Maitéetje"
+            space.small
+            -.line
+            space.small
+            txt.default "
               Lorem Ipsum is simply dummy text of the printing
               and typesetting industry. Lorem Ipsum is simply dummy
               text of the printing and typesetting industry.
             "
         ]
-    space - space
+    space.small
+    -.line
+    space.small
     group [
         img "https://dummyimage.com/600x400/000/fff"
-        space
-        txt "Maekeltje!"
-        space
+        space.small
+        txt.default "Maekeltje!"
+        space.small
     ]
     space
     cols
@@ -45,18 +66,18 @@ body [
         ]
         col [
             img "https://dummyimage.com/600x400/ccc/000"
-            space
+            space.small
             txt "Maekeltje!"
         ]
         col [
             img "https://dummyimage.com/600x400/ccc/000"
-            space
-            txt "Maekeltje!"
+            space.small
+            txt.default "Maekeltje!"
         ]
-    space
-    -
-    space
-    space
-    -
-    space
+    space.small
+    -.line
+    space.small
+    space.small
+    -.line
+    space.small
 ]

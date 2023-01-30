@@ -1,7 +1,7 @@
 "use strict";
 
 import Node from "../node.js";
-import parseAll from "../parse-all.js";
+import parseAll from "../helpers/parse-all.js";
 
 export default class Col extends Node {
 

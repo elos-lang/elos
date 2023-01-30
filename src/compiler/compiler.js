@@ -9,7 +9,8 @@ export default class Compiler {
             colsId: 0,
             edge: 35,
             gap: 10,
-            width: 650
+            width: 650,
+            classes: {}
         };
     }
 

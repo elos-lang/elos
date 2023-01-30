@@ -1,11 +1,11 @@
 "use strict";
 
-import Img from "./nodes/img.js";
-import Divider from "./nodes/divider.js";
-import Txt from "./nodes/txt.js";
-import Group from "./nodes/group.js";
-import Cols from "./nodes/cols.js";
-import Space from "./nodes/space.js";
+import Img from "../nodes/img.js";
+import Divider from "../nodes/divider.js";
+import Txt from "../nodes/txt.js";
+import Group from "../nodes/group.js";
+import Cols from "../nodes/cols.js";
+import Space from "../nodes/space.js";
 
 export default function parseAll(parser) {
     while (

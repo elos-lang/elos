@@ -73,6 +73,14 @@ export default class Parser {
         return false;
     }
 
+    skipWithVal(type, value) {
+        if (this.acceptWithVal(type, value)) {
+            this.advance();
+            return true;
+        }
+        return false;
+    }
+
     acceptAt(type, offset) {
         let token = this.getOffsetToken(offset);
         return (token && token.type === type);
