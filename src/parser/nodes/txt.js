@@ -34,9 +34,9 @@ export default class Txt extends Node {
 
                 parser.expect('string');
                 let urlValue = parser.getCurrVal();
-                parser.advance();
 
                 parser.insert(new Txt(textValue, className, urlValue));
+                parser.advance();
                 return true;
             }
 

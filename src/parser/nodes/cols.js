@@ -18,7 +18,6 @@ export default class Cols extends Node {
             while (Col.parse(parser));
 
             parser.out();
-
             return true;
         }
 
@@ -52,6 +51,7 @@ export default class Cols extends Node {
             compiler.writeLnHead(`float: left;`);
             compiler.writeLnHead(`max-width: ${colWidth}px !important;`);
             compiler.writeLnHead(`padding-left: ${gap/2}px;`);
+            compiler.writeLnHead(`margin-bottom: 0;`);
 
             if (i < colCount-1) {
                 compiler.writeLnHead(`padding-right: ${gap/2}px;`);
@@ -67,7 +67,7 @@ export default class Cols extends Node {
             compiler.writeLn('<!--[if mso]>');
             compiler.writeLn(`<td style="width: ${colWidth}px; padding: 0;" align="left" valign="top">`);
             compiler.writeLn('<![endif]-->');
-            compiler.writeLn(`<div class="elos-col-${colsId}-${i}" style="display:inline-block; width:100%; vertical-align:top; text-align:left;">`);
+            compiler.writeLn(`<div class="elos-col-${colsId}-${i}" style="display:inline-block; margin-bottom: ${gap}px; width:100%; vertical-align:top; text-align:left;">`);
 
             child.compile(compiler);
 

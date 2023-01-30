@@ -35,15 +35,30 @@ export default class Group extends Node {
     }
 
     compile(compiler) {
+
         compiler.writeLn(`<table width="100%;" cellspacing="0" cellpadding="0" style="width:${compiler.get('width')}px;border:none;border-spacing:0;text-align:left;">`);
+
+        compiler.writeLn('<tr>');
+        compiler.writeLn('<td bgcolor="#cccccc" width="25"></td>');
+        compiler.writeLn('<td bgcolor="#cccccc" height="25"></td>');
+        compiler.writeLn('<td bgcolor="#cccccc" width="25"></td>');
+        compiler.writeLn('</tr>');
 
         this.getChildren().forEach(child => {
             compiler.writeLn('<tr>');
-            compiler.writeLn('<td bgcolor="aqua">');
+            compiler.writeLn('<td bgcolor="#cccccc" width="25"></td>');
+            compiler.writeLn('<td bgcolor="#cccccc">');
             child.compile(compiler);
             compiler.writeLn('</td>');
+            compiler.writeLn('<td bgcolor="#cccccc" width="25"></td>');
             compiler.writeLn('</tr>');
         });
+
+        compiler.writeLn('<tr>');
+        compiler.writeLn('<td bgcolor="#cccccc" width="25"></td>');
+        compiler.writeLn('<td bgcolor="#cccccc" height="25"></td>');
+        compiler.writeLn('<td bgcolor="#cccccc" width="25"></td>');
+        compiler.writeLn('</tr>');
 
         compiler.writeLn('</table>');
     }
