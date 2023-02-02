@@ -3,28 +3,87 @@
 
 ### Language design example
 ```
-width 750
-body [
-  img "https://dummyimage.com/600x400/000/fff"
-  -
-  cols
-    col [
-      img "https://dummyimage.com/300x200/000/fff"
-      txt "This is a title"
-      txt "Text"
-    ]
-    col [
-      img "https://dummyimage.com/300x200/000/fff"
-      txt "This is another title"
-      txt "Text"
-    ]
-  row [
-    txt "This is another title"
-    txt "Text"
-  ]
-  -
-  row [
-    txt "Copyright 2023"
-  ]
-]
+def width 750
+def hgap 25
+def vgap 25
+
+style group {
+    padding 25
+}
+
+style btn {
+    size 14
+    bgcolor "#f14000"
+}
+
+style txt {
+    size 14
+    color "#333333"
+}
+
+style .footer {
+    bgcolor "#cccccc"
+}
+
+style .cta {
+    padding 50
+    bgcolor "#f10000"
+}
+
+style .h {
+    color "red"
+    size 18
+    transform "uppercase"
+}
+
+style .hh {
+    color "blue"
+    size 16
+}
+
+body {
+    space
+    img "https://dummyimage.com/600x200/000/fff" -> "https://www.google.be"
+    group {
+        txt.h "Hallo Maïté!"
+        space
+        cols
+            col {
+                img "https://dummyimage.com/600x400/000/fff"
+            }
+            col {
+                img "https://dummyimage.com/600x400/000/fff"
+            }
+            col {
+                img "https://dummyimage.com/600x400/000/fff"
+            }
+    }
+    group.cta {
+        btn "Ontdek ons aanbod" -> "https://www.reinvanoyen.be"
+    }
+    group {
+        cols
+            col {
+                txt "Hallo dit is leuk"
+                img "https://dummyimage.com/600x400/000/fff"
+            }
+            col {
+                txt "Hallo dit is leuk"
+                img "https://dummyimage.com/600x400/000/fff"
+            }
+    }
+    -
+    group.footer {
+        cols
+            col {
+                txt.hh "Hallo dit is leuk"
+                img "https://dummyimage.com/600x400/000/fff"
+            }
+            col {
+                txt.hh "Hallo dit is leuk"
+                img "https://dummyimage.com/600x400/000/fff"
+            }
+    }
+    space
+}
 ```
