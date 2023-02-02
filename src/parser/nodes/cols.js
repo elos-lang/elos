@@ -26,16 +26,17 @@ export default class Cols extends Node {
 
     compile(compiler) {
 
-        const colsId = compiler.define('colsId', parseInt(compiler.get('colsId')) + 1);
+        const colsId = compiler.remember('colsId', parseInt(compiler.get('colsId')) + 1);
 
         const scrollBarWidth = 15;
         const colCount = this.getChildren().length;
-        const width = parseInt(compiler.get('width'));
-        const mediaQueryWidth = width + parseInt(compiler.get('edge')) * 2 + scrollBarWidth;
-        const gap = parseInt(compiler.get('gap'));
-        const colWidth = (width / colCount) - gap + Math.floor(gap / colCount);
+        const currWidth = parseInt(compiler.get('currWidth'));
+        const width = parseInt(compiler.variable('width'));
+        const mediaQueryWidth = width + parseInt(compiler.variable('edge')) * 2 + scrollBarWidth;
+        const gap = parseInt(compiler.variable('hgap'));
+        const colWidth = (currWidth / colCount) - gap + Math.floor(gap / colCount);
 
-        compiler.writeLn(`<table width="100%;" cellspacing="0" cellpadding="0" style="width: 100%; max-width:${compiler.get('width')}px;border:none;border-spacing:0;text-align:left;">`);
+        compiler.writeLn(`<table width="100%;" cellspacing="0" cellpadding="0" style="width: 100%; max-width:${width}px;border:none;border-spacing:0;text-align:left;">`);
         compiler.writeLn('<tr>');
         compiler.writeLn('<td>');
 
@@ -46,12 +47,14 @@ export default class Cols extends Node {
 
         this.getChildren().forEach((child, i) => {
 
+            compiler.remember('currWidth', colWidth);
+
             compiler.writeLnHead(`<style media="screen and (min-width:${mediaQueryWidth}px)">`);
             compiler.writeLnHead(`.elos-col-${colsId}-${i} {`);
             compiler.writeLnHead(`float: left;`);
             compiler.writeLnHead(`max-width: ${colWidth}px !important;`);
             compiler.writeLnHead(`padding-left: ${gap/2}px;`);
-            compiler.writeLnHead(`margin-bottom: 0;`);
+            compiler.writeLnHead(`margin-bottom: 0 !important;`);
 
             if (i < colCount-1) {
                 compiler.writeLnHead(`padding-right: ${gap/2}px;`);
@@ -77,6 +80,8 @@ export default class Cols extends Node {
             compiler.writeLn('<![endif]-->');
 
         });
+
+        compiler.remember('currWidth', currWidth);
 
         compiler.writeLn('<!--[if mso]>');
         compiler.writeLn('</tr>');

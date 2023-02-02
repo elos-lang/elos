@@ -1,25 +1,83 @@
-def width 560
-def edge 10
-def gap 25
+def width 750
+def hgap 25
+def vgap 25
 
-class hero [ size 50 weight "bold" color "#f15000" transform "uppercase" ]
-class title [ size 18 transform "uppercase" color "#f15000" ]
-class default [ size 12 color "#f15000" ]
-class line [ height 5 bgcolor "#f15000" ]
-class big [ height 35 ]
-class small [ height 15 ]
+style group {
+    padding 25
+}
 
-body [
+style btn {
+    size 14
+    bgcolor "#f14000"
+}
+
+style txt {
+    size 14
+    color "#333333"
+}
+
+style .footer {
+    bgcolor "#cccccc"
+}
+
+style .cta {
+    padding 50
+    bgcolor "#f10000"
+}
+
+style .h {
+    color "red"
+    size 18
+    transform "uppercase"
+}
+
+style .hh {
+    color "blue"
+    size 16
+}
+
+body {
     space
-    cols
-        col [
-            img "https://dummyimage.com/600x400/000/fff" -> "https://www.google.be"
-            space.small
-            txt.title "test"
-        ]
-        col [
-            img "https://dummyimage.com/600x400/000/fff" -> "https://www.google.be"
-            space.small
-            txt.title "test"
-        ]
-]
+    img "https://dummyimage.com/600x200/000/fff" -> "https://www.google.be"
+    group {
+        txt.h "Hallo Maïté!"
+        space
+        cols
+            col {
+                img "https://dummyimage.com/600x400/000/fff"
+            }
+            col {
+                img "https://dummyimage.com/600x400/000/fff"
+            }
+            col {
+                img "https://dummyimage.com/600x400/000/fff"
+            }
+    }
+    group.cta {
+        btn "Ontdek ons aanbod" -> "https://www.reinvanoyen.be"
+    }
+    group {
+        cols
+            col {
+                txt "Hallo dit is leuk"
+                img "https://dummyimage.com/600x400/000/fff"
+            }
+            col {
+                txt "Hallo dit is leuk"
+                img "https://dummyimage.com/600x400/000/fff"
+            }
+    }
+    -
+    group.footer {
+        cols
+            col {
+                txt.hh "Hallo dit is leuk"
+                img "https://dummyimage.com/600x400/000/fff"
+            }
+            col {
+                txt.hh "Hallo dit is leuk"
+                img "https://dummyimage.com/600x400/000/fff"
+            }
+    }
+    space
+}

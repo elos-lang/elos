@@ -47,10 +47,24 @@ export default class Img extends Node {
     }
 
     compile(compiler) {
+
+        const scrollBarWidth = 15;
+        const width = parseInt(compiler.variable('width'));
+        const mediaQueryWidth = width + parseInt(compiler.variable('edge')) * 2 + scrollBarWidth;
+
+        const imgId = compiler.remember('imgId', parseInt(compiler.get('imgId')) + 1);
+        const currWidth = compiler.get('currWidth');
+
+        compiler.writeLnHead(`<style media="screen and (min-width:${mediaQueryWidth}px)">`);
+        compiler.writeLnHead(`.elos-img-${imgId} {`);
+        compiler.writeLnHead(`width: ${currWidth}px !important;`);
+        compiler.writeLnHead('}');
+        compiler.writeLnHead('</style>');
+
         if (this.url) {
             compiler.writeLn(`<a href="${this.url}" target="_blank" style="text-decoration: none;">`);
         }
-        compiler.writeLn(`<img border="0" src="${this.getVal()}" style="display:block; border: 0; width:100%;"/>`);
+        compiler.writeLn(`<img class="elos-img-${imgId}" border="0" src="${this.getVal()}" style="display:block; border: 0; width: 100%;"/>`);
         if (this.url) {
             compiler.writeLn(`</a>`);
         }

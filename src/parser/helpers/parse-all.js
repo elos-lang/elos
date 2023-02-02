@@ -6,6 +6,7 @@ import Txt from "../nodes/txt.js";
 import Group from "../nodes/group.js";
 import Cols from "../nodes/cols.js";
 import Space from "../nodes/space.js";
+import Btn from "../nodes/btn.js";
 
 export default function parseAll(parser) {
     while (
@@ -14,6 +15,7 @@ export default function parseAll(parser) {
         Group.parse(parser) ||
         Img.parse(parser) ||
         Divider.parse(parser) ||
-        Txt.parse(parser)
+        Txt.parse(parser) ||
+        Btn.parse(parser)
     );
 }

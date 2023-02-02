@@ -2,6 +2,8 @@
 
 import Node from "../node.js";
 import parseAll from "../helpers/parse-all.js";
+import compilerHelpers from "../../compiler/helpers/compile-with-vgap.js";
+import config from "../../config.js";
 
 export default class Col extends Node {
 
@@ -12,7 +14,7 @@ export default class Col extends Node {
         if (parser.acceptWithVal('ident', 'col')) {
             parser.advance();
 
-            if (parser.acceptWithVal('symbol','[')) {
+            if (parser.acceptWithVal('symbol', config.BLOCK_OPEN_SYMBOL)) {
                 parser.advance();
 
                 parser.insert(new Col());
@@ -20,7 +22,7 @@ export default class Col extends Node {
 
                 parseAll(parser);
 
-                if (parser.acceptWithVal('symbol',']')) {
+                if (parser.acceptWithVal('symbol',config.BLOCK_CLOSE_SYMBOL)) {
                     parser.out();
                     parser.advance();
                 }
@@ -34,8 +36,6 @@ export default class Col extends Node {
     }
 
     compile(compiler) {
-        this.getChildren().forEach(child => {
-            child.compile(compiler);
-        });
+        compilerHelpers.compileWithVgap(compiler, this.getChildren());
     }
 }

@@ -2,6 +2,8 @@
 
 import Node from "../node.js";
 import parseAll from "../helpers/parse-all.js";
+import compilerHelpers from "../../compiler/helpers/compile-with-vgap.js";
+import config from "../../config.js";
 
 export default class Body extends Node {
 
@@ -12,7 +14,7 @@ export default class Body extends Node {
         if (parser.acceptWithVal('ident', 'body')) {
             parser.advance();
 
-            if (parser.acceptWithVal('symbol','[')) {
+            if (parser.acceptWithVal('symbol', config.BLOCK_OPEN_SYMBOL)) {
                 parser.advance();
 
                 parser.insert(new Body());
@@ -20,7 +22,7 @@ export default class Body extends Node {
 
                 parseAll(parser);
 
-                if (parser.acceptWithVal('symbol',']')) {
+                if (parser.acceptWithVal('symbol',config.BLOCK_CLOSE_SYMBOL)) {
                     parser.out();
                     parser.advance();
                 }
@@ -34,12 +36,14 @@ export default class Body extends Node {
 
     compile(compiler) {
 
-        const width = parseInt(compiler.get('width'));
-        const edge = parseInt(compiler.get('edge'));
+        const width = parseInt(compiler.variable('width'));
+        const edge = parseInt(compiler.variable('edge'));
         const totalWidth = width+edge*2;
 
+        compiler.remember('currWidth', width);
+
         compiler.writeLn('<div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">');
-        compiler.writeLn(compiler.get('preview'));
+        compiler.writeLn(compiler.variable('preview'));
         compiler.writeLn(`</div>`);
 
         compiler.writeLn('<table role="presentation" style="width:100%;border:none;border-spacing:0;">');
@@ -52,9 +56,7 @@ export default class Body extends Node {
         compiler.writeLn('</td>');
         compiler.writeLn(`<td style="max-width: ${width}px;">`);
 
-        this.getChildren().forEach(child => {
-            child.compile(compiler);
-        });
+        compilerHelpers.compileWithVgap(compiler, this.getChildren());
 
         compiler.writeLn('</td>');
         compiler.writeLn(`<td width="${edge}">`);

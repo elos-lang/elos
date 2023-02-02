@@ -2,7 +2,7 @@
 
 import Node from "../node.js";
 import parseClass from "../helpers/parse-class.js";
-import compileClassAttrs from "../helpers/compile-class-attrs.js";
+import styleCompiler from "../helpers/compile-style-attrs.js";
 
 export default class Txt extends Node {
 
@@ -49,23 +49,29 @@ export default class Txt extends Node {
 
     compile(compiler) {
 
-        let css = compileClassAttrs(compiler, this.className, {
+        const width = compiler.variable('width');
+
+        const css = styleCompiler.compileStyleAttrs(compiler, 'txt', this.className, {
             'font-size': '12px',
             'color': '#000000',
             'line-height': '16px',
             'text-decoration': 'none'
         });
 
-        compiler.writeLn(`<table width="100%;" cellspacing="0" cellpadding="0" style="width: 100%; max-width:${compiler.get('width')}px;border:none;border-spacing:0;text-align:left;">`);
+        const cssString = styleCompiler.attrsToCssString(css);
+
+        compiler.writeLn(`<table cellspacing="0" cellpadding="0" style="max-width:${width}px;border:none;border-spacing:0;text-align:left;">`);
         compiler.writeLn('<tr>');
-        compiler.writeLn(`<td style="${css}">`);
+        compiler.writeLn(`<td style="${cssString}">`);
+
         if (this.url) {
-            compiler.writeLn(`<a href="${this.url}" target="_blank" style="${css}">`);
+            compiler.writeLn(`<a href="${this.url}" target="_blank" style="${cssString}">`);
             compiler.writeLn(`${this.getVal()}`);
             compiler.writeLn(`</a>`);
         } else {
             compiler.writeLn(`${this.getVal()}`);
         }
+
         compiler.writeLn(`</td>`);
         compiler.writeLn('</tr>');
         compiler.writeLn('</table>');

@@ -6,11 +6,16 @@ export default class Compiler {
         this.head = '';
         this.body = '';
         this.memory = {
+            variables: {
+                edge: 35,
+                hgap: 10,
+                vgap: 10,
+                width: 650
+            },
             colsId: 0,
-            edge: 35,
-            gap: 10,
-            width: 650,
-            classes: {}
+            imgId: 0,
+            classes: {},
+            identStyles: {}
         };
     }
 
@@ -31,6 +36,15 @@ export default class Compiler {
     }
 
     define(name, value) {
+        this.memory.variables[name] = value;
+        return value;
+    }
+
+    variable(name) {
+        return (typeof this.memory.variables[name] === 'undefined' ? null : this.memory.variables[name]);
+    }
+
+    remember(name, value) {
         this.memory[name] = value;
         return value;
     }

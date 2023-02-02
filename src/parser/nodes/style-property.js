@@ -2,9 +2,9 @@
 
 import Node from "../node.js";
 
-export default class ClassProperty extends Node {
+export default class StyleProperty extends Node {
 
-    static name = 'class-property';
+    static name = 'style-property';
 
     constructor(property, value) {
         super(value);
@@ -14,13 +14,14 @@ export default class ClassProperty extends Node {
     static parse(parser) {
 
         if (parser.accept('ident')) {
+
             let property = parser.getCurrVal();
             parser.advance();
 
             if (parser.accept('number') || parser.accept('string')) {
                 let value = parser.getCurrVal();
                 parser.advance();
-                parser.insert(new ClassProperty(property, value));
+                parser.insert(new StyleProperty(property, value));
 
                 return true;
             }
@@ -31,12 +32,14 @@ export default class ClassProperty extends Node {
 
     compile(compiler) {
 
-        const className = this.getParent().getVal();
-        const classes = compiler.get('classes');
+        const parent = this.getParent();
+        const name = parent.getVal();
+        const style = (parent.isClass ? compiler.get('classes') : compiler.get('identStyles'));
 
-        if (! classes[className]) {
-            classes[className] = [];
+        if (! style[name]) {
+            style[name] = [];
         }
-        classes[className] = [...classes[className], [this.property, this.getVal()]];
+
+        style[name] = [...style[name], [this.property, this.getVal()]];
     }
 }

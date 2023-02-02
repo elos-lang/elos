@@ -2,7 +2,7 @@
 
 import Node from "../node.js";
 import parseClass from "../helpers/parse-class.js";
-import compileClassAttrs from "../helpers/compile-class-attrs.js";
+import styleCompiler from "../helpers/compile-style-attrs.js";
 
 export default class Divider extends Node {
 
@@ -27,14 +27,18 @@ export default class Divider extends Node {
 
     compile(compiler) {
 
-        let css = compileClassAttrs(compiler, this.className,{
+        const width = parseInt(compiler.variable('width'));
+
+        const css = styleCompiler.compileStyleAttrs(compiler, 'divider', this.className,{
             "height": '3px',
-            "background-color": '#000'
+            "background-color": '#000000'
         });
 
-        compiler.writeLn(`<table width="100%;" cellspacing="0" cellpadding="0" style="width: 100%; max-width:${compiler.get('width')}px;border:none;border-spacing:0;text-align:left;">`);
+        const cssString = styleCompiler.attrsToCssString(css);
+
+        compiler.writeLn(`<table width="100%;" cellspacing="0" cellpadding="0" style="width: 100%; max-width:${width}px;border:none;border-spacing:0;text-align:left;">`);
         compiler.writeLn('<tr>');
-        compiler.writeLn(`<td style="${css}></td>`);
+        compiler.writeLn(`<td style="${cssString}"></td>`);
         compiler.writeLn('</tr>');
         compiler.writeLn('</table>');
     }
