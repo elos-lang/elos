@@ -69,11 +69,6 @@ export default class Btn extends Node {
 
         const cssString = styleCompiler.attrsToCssString(css);
 
-        compiler.writeLn(`<table border="0" cellPadding="0" cellSpacing="0" role="presentation" style="width:100%;max-width:${width}px;border-collapse:separate;line-height:100%;">`);
-        compiler.writeLn('<tbody>');
-        compiler.writeLn('<tr>');
-        compiler.writeLn('<td align="center" role="presentation" style="border:none;" valign="middle">');
-
         compiler.writeLn(`<table border="0" cellPadding="0" cellSpacing="0" role="presentation" style="border-collapse:separate;line-height:100%;">`);
         compiler.writeLn('<tbody>');
         compiler.writeLn('<tr>');
@@ -81,11 +76,6 @@ export default class Btn extends Node {
         compiler.writeLn(`<a href="${this.url ? this.url : '#'}" style="display:inline-block;margin:0;${cssString}" target="_blank">`);
         compiler.writeLn(this.getVal());
         compiler.writeLn('</a>');
-        compiler.writeLn('</td>');
-        compiler.writeLn('</tr>');
-        compiler.writeLn('</tbody>');
-        compiler.writeLn('</table>');
-
         compiler.writeLn('</td>');
         compiler.writeLn('</tr>');
         compiler.writeLn('</tbody>');

@@ -7,6 +7,7 @@ export default class Compiler {
         this.body = '';
         this.memory = {
             variables: {
+                preview: '',
                 edge: 35,
                 hgap: 10,
                 vgap: 10,

@@ -1,3 +1,10 @@
 {
-  "type": "module"
+  "type": "module",
+  "scripts": {
+    "elos": "node index.js",
+    "mail": "node index.js && node mail.js"
+  },
+  "devDependencies": {
+    "nodemailer": "^6.9.1"
+  }
 }

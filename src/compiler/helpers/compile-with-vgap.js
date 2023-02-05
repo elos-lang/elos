@@ -1,17 +1,15 @@
 "use strict";
 
 export default {
-    compileWithVgap(compiler, children) {
+    compileWithVgap(compiler, children, center = false) {
 
         const childCount = children.length;
         const vgap = compiler.variable('vgap');
 
-        const width = parseInt(compiler.variable('width'));
-        const edge = parseInt(compiler.variable('edge'));
-        const totalWidth = width+edge*2;
+        const cssString = (center ? '' : 'width: 100%;');
 
         if (childCount) {
-            compiler.writeLn(`<table role="presentation" style="width:100%;max-width:${totalWidth}px;border:none;border-spacing:0;text-align:left;font-family:Arial,sans-serif;font-size:16px;line-height:22px;color:#363636;">`);
+            compiler.writeLn(`<table role="presentation" style="${cssString}border:none;border-spacing:0;text-align:left;font-family:Arial,sans-serif;font-size:16px;line-height:22px;color:#363636;">`);
 
             children.forEach((child, i) => {
 

@@ -34,9 +34,9 @@ export default class Cols extends Node {
         const width = parseInt(compiler.variable('width'));
         const mediaQueryWidth = width + parseInt(compiler.variable('edge')) * 2 + scrollBarWidth;
         const gap = parseInt(compiler.variable('hgap'));
-        const colWidth = (currWidth / colCount) - gap + Math.floor(gap / colCount);
+        const colWidth = Math.floor((currWidth / colCount) - gap + Math.floor(gap / colCount));
 
-        compiler.writeLn(`<table width="100%;" cellspacing="0" cellpadding="0" style="width: 100%; max-width:${width}px;border:none;border-spacing:0;text-align:left;">`);
+        compiler.writeLn(`<table width="100%;" cellspacing="0" cellpadding="0" style="width: 100%; max-width:${currWidth}px;border:none;border-spacing:0;text-align:left;">`);
         compiler.writeLn('<tr>');
         compiler.writeLn('<td>');
 
@@ -53,15 +53,15 @@ export default class Cols extends Node {
             compiler.writeLnHead(`.elos-col-${colsId}-${i} {`);
             compiler.writeLnHead(`float: left;`);
             compiler.writeLnHead(`max-width: ${colWidth}px !important;`);
-            compiler.writeLnHead(`padding-left: ${gap/2}px;`);
+            //compiler.writeLnHead(`padding-left: ${gap/2}px;`);
             compiler.writeLnHead(`margin-bottom: 0 !important;`);
 
             if (i < colCount-1) {
-                compiler.writeLnHead(`padding-right: ${gap/2}px;`);
+                compiler.writeLnHead(`padding-right: ${gap}px !important;`);
             }
 
             if (i===0) {
-                compiler.writeLnHead(`margin-left: -${gap/2}px;`);
+                //compiler.writeLnHead(`margin-left: -${gap/2}px;`);
             }
 
             compiler.writeLnHead('}');

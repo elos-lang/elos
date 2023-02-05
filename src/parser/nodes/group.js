@@ -4,7 +4,8 @@ import Node from "../node.js";
 import parseAll from "../helpers/parse-all.js";
 import styleCompiler from "../helpers/compile-style-attrs.js";
 import parseClass from "../helpers/parse-class.js";
-import config from "../../config.js";
+import config from "../../grammar.js";
+import compilerHelpers from "../../compiler/helpers/compile-with-vgap.js";
 
 export default class Group extends Node {
 
@@ -65,15 +66,15 @@ export default class Group extends Node {
         compiler.writeLn(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
         compiler.writeLn('</tr>');
 
-        this.getChildren().forEach(child => {
-            compiler.writeLn('<tr>');
-            compiler.writeLn(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
-            compiler.writeLn(`<td bgcolor="${bgColor}" align="${align}">`);
-            child.compile(compiler);
-            compiler.writeLn('</td>');
-            compiler.writeLn(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
-            compiler.writeLn('</tr>');
-        });
+        compiler.writeLn('<tr>');
+        compiler.writeLn(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
+        compiler.writeLn(`<td bgcolor="${bgColor}" align="${align}">`);
+
+        compilerHelpers.compileWithVgap(compiler, this.getChildren(), (align === 'center'));
+
+        compiler.writeLn('</td>');
+        compiler.writeLn(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
+        compiler.writeLn('</tr>');
 
         compiler.writeLn('<tr>');
         compiler.writeLn(`<td bgcolor="${bgColor}" width="${padding}"></td>`);

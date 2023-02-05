@@ -3,7 +3,7 @@
 import Node from "../node.js";
 import parseAll from "../helpers/parse-all.js";
 import compilerHelpers from "../../compiler/helpers/compile-with-vgap.js";
-import config from "../../config.js";
+import config from "../../grammar.js";
 
 export default class Body extends Node {
 
@@ -50,7 +50,7 @@ export default class Body extends Node {
         compiler.writeLn('<tr>');
         compiler.writeLn('<td align="center" style="padding:0;">');
 
-        compiler.writeLn(`<table role="presentation" style="width:100%;max-width:${totalWidth}px;border:none;border-spacing:0;text-align:left;font-family:Arial,sans-serif;font-size:16px;line-height:22px;color:#363636;">`);
+        compiler.writeLn(`<table role="presentation-" style="width:100%;max-width:${totalWidth}px;border:none;border-spacing:0;text-align:left;font-family:Arial,sans-serif;font-size:16px;line-height:22px;color:#363636;">`);
         compiler.writeLn('<tr>');
         compiler.writeLn(`<td width="${edge}">`);
         compiler.writeLn('</td>');

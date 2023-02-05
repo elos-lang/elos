@@ -3,7 +3,7 @@
 import Node from "../node.js";
 import parseAll from "../helpers/parse-all.js";
 import compilerHelpers from "../../compiler/helpers/compile-with-vgap.js";
-import config from "../../config.js";
+import config from "../../grammar.js";
 
 export default class Col extends Node {
 

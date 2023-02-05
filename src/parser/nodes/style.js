@@ -3,7 +3,7 @@
 import Node from "../node.js";
 import StyleProperty from "./style-property.js";
 import parseClass from "../helpers/parse-class.js";
-import config from "../../config.js";
+import config from "../../grammar.js";
 
 export default class Style extends Node {
 

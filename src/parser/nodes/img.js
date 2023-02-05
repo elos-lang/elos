@@ -53,7 +53,7 @@ export default class Img extends Node {
         const mediaQueryWidth = width + parseInt(compiler.variable('edge')) * 2 + scrollBarWidth;
 
         const imgId = compiler.remember('imgId', parseInt(compiler.get('imgId')) + 1);
-        const currWidth = compiler.get('currWidth');
+        const currWidth = parseInt(compiler.get('currWidth'));
 
         compiler.writeLnHead(`<style media="screen and (min-width:${mediaQueryWidth}px)">`);
         compiler.writeLnHead(`.elos-img-${imgId} {`);
