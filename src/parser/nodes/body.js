@@ -22,7 +22,7 @@ export default class Body extends Node {
 
                 parseAll(parser);
 
-                if (parser.acceptWithVal('symbol',config.BLOCK_CLOSE_SYMBOL)) {
+                if (parser.acceptWithVal('symbol', config.BLOCK_CLOSE_SYMBOL)) {
                     parser.out();
                     parser.advance();
                 }

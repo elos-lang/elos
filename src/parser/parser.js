@@ -43,6 +43,12 @@ export default class Parser {
         return this.tokens[this.cursor + offset];
     }
 
+    setAttribute(name) {
+        const last = this.getLastNode();
+        this.getScope().removeLastChild();
+        this.getScope().setAttribute(name, last);
+    }
+
     getCurrVal() {
         return this.getCurrToken().value;
     }
@@ -163,6 +169,29 @@ export default class Parser {
     insert(node) {
         node.setParent(this.scope);
         this.scope.addChild(node);
+    }
+
+    setScope(node) {
+        this.scope = node;
+    }
+
+    traverseUp() {
+        this.setScope(this.getLastNode());
+    }
+
+    traverseDown() {
+        const parent = this.getScope().getParent();
+        this.setScope(parent);
+    }
+
+    wrap(node) {
+        const last = this.getLastNode();
+        this.getScope().removeLastChild();
+
+        this.insert(node);
+        this.traverseUp();
+
+        this.insert(last);
     }
 
     getAst() {

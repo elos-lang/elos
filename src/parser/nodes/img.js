@@ -2,15 +2,15 @@
 
 import Node from "../node.js";
 import parseClass from "../helpers/parse-class.js";
+import Expression from "./expression.js";
 
 export default class Img extends Node {
 
     static name = 'img';
 
-    constructor(value, className, url = null) {
+    constructor(value, className) {
         super(value);
         this.className = className;
-        this.url = url;
     }
 
     static parse(parser) {
@@ -24,6 +24,8 @@ export default class Img extends Node {
             let value = parser.getCurrVal();
             parser.advance();
 
+            parser.insert(new Img(value, className));
+
             if (
                 parser.accept('symbol', '-') &&
                 parser.acceptAtWithVal('symbol', 1, '>')
@@ -31,15 +33,14 @@ export default class Img extends Node {
                 parser.advance();
                 parser.advance();
 
-                parser.expect('string');
-                let urlValue = parser.getCurrVal();
-
-                parser.insert(new Img(value, className, urlValue));
-                parser.advance();
-                return true;
+                if (Expression.parse(parser)) {
+                    console.log('setting url', parser.getScope());
+                    parser.setAttribute('url');
+                } else {
+                    // @TODO throw error
+                }
             }
 
-            parser.insert(new Img(value, className));
             return true;
         }
 
@@ -61,11 +62,15 @@ export default class Img extends Node {
         compiler.writeLnHead('}');
         compiler.writeLnHead('</style>');
 
-        if (this.url) {
-            compiler.writeLn(`<a href="${this.url}" target="_blank" style="text-decoration: none;">`);
+        console.log(this.getAttribute('url'));
+
+        if (this.getAttribute('url')) {
+            compiler.writeLn(`<a href="${this.getAttribute('url')}" target="_blank" style="text-decoration: none;">`);
         }
+
         compiler.writeLn(`<img class="elos-img-${imgId}" border="0" src="${this.getVal()}" style="display:block; border: 0; width: 100%;"/>`);
-        if (this.url) {
+
+        if (this.getAttribute('url')) {
             compiler.writeLn(`</a>`);
         }
     }

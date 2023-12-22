@@ -6,6 +6,7 @@ export default class Node {
         this.value = value;
         this.parent = null;
         this.children = [];
+        this.attributes = {};
     }
 
     getName() {
@@ -38,6 +39,22 @@ export default class Node {
 
     hasChildren() {
         return (this.children.length > 0);
+    }
+
+    setAttribute(name, value) {
+        this.attributes[name] = value;
+    }
+
+    getAttribute(name) {
+        return this.attributes[name];
+    }
+
+    removeLastChild() {
+        this.children.pop();
+    }
+
+    removeLastChild() {
+        this.children.pop();
     }
 
     parse(parser) {

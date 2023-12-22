@@ -5,10 +5,10 @@ import lex from "./src/lex.js";
 import parse from "./src/parse.js";
 import compile from "./src/compile.js";
 
-let code = fs.readFileSync('./example/test.elos', 'utf8');
+const code = fs.readFileSync('./example/primitives.elos', 'utf8');
 
-let tokens = lex(code);
-let ast = parse(tokens);
-let output = compile(ast);
+const tokens = lex(code);
+const ast = parse(tokens);
+const output = compile(ast);
 
-fs.writeFileSync('./example/test.html', output);
+fs.writeFileSync('./example/primitives.html', output);
