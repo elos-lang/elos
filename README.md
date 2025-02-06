@@ -25,6 +25,15 @@ letting you focus on design and content while ensuring rock-solid email compatib
 Say goodbye to email development frustration and hello to ELOS.<br />
 Let’s make HTML emails enjoyable again. 🚀
 
+## Roadmap
+- npm package
+- Primitives: Variables (assignment, printing), String, Number, Colors
+- Improved (cleanup) styling system
+- 100% test coverage
+- cli
+- Conditionals
+- Raw / Print node
+
 ## Getting started
 
 ## Language design example
