@@ -1,7 +1,11 @@
+style txt.h {
+	size 25
+}
+
 style btn {
 	bgcolor "blue"
 }
 
 style group {
-	padding 15
+	bgcolor "red"
 }

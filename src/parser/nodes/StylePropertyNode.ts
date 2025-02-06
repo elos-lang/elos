@@ -2,6 +2,7 @@ import Node from "../Node";
 import {TokenType} from "../../types/token-type";
 import Parser from "../Parser";
 import StyleNode from "./StyleNode";
+import Compiler from "../../compiler/Compiler";
 
 export default class StylePropertyNode extends Node {
 
@@ -31,7 +32,7 @@ export default class StylePropertyNode extends Node {
         return false;
     }
 
-    compile(compiler) {
+    compile(compiler: Compiler) {
 
         const parent = this.getParent() as StyleNode;
         const name = parent.getVal();

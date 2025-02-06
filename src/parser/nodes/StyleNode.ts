@@ -4,42 +4,41 @@ import parseClass from "../helpers/parse-class.js";
 import config from "../../grammar.js";
 import {TokenType} from "../../types/token-type";
 import Parser from "../Parser";
+import Compiler from "../../compiler/Compiler";
 
 export default class StyleNode extends Node {
 
     public isClass: boolean;
 
-    constructor(name: string, isClass = false) {
+    constructor(name: string, isClass: boolean) {
         super(name);
         this.isClass = isClass;
     }
 
     static parse(parser: Parser): boolean {
 
-        if (parser.acceptWithVal(TokenType.IDENT, 'style')) {
-            parser.advance();
+        if (parser.skipWithVal(TokenType.IDENT, 'style')) {
 
-            let className = parseClass(parser);
-            let isClass = true;
+            let identifier = '';
 
-            if (className === null) {
-                if (parser.accept(TokenType.IDENT)) {
-                    className = parser.getCurrVal();
-                    isClass = ! isClass;
-                    parser.advance();
-                }
+            if (parser.expect(TokenType.IDENT)) {
+                identifier = parser.getCurrVal();
+                parser.advance();
             }
 
-            if (parser.acceptWithVal(TokenType.SYMBOL, config.BLOCK_OPEN_SYMBOL)) {
+            let className = parseClass(parser);
+            let isClass = (className !== null);
+
+            if (parser.expectWithVal(TokenType.SYMBOL, config.BLOCK_OPEN_SYMBOL)) {
                 parser.advance();
 
-                parser.insert(new StyleNode(className, isClass));
+                parser.insert(new StyleNode(className ? className : identifier, isClass));
                 parser.in();
             }
 
             while (StylePropertyNode.parse(parser));
 
-            if (parser.acceptWithVal(TokenType.SYMBOL, config.BLOCK_CLOSE_SYMBOL)) {
+            if (parser.expectWithVal(TokenType.SYMBOL, config.BLOCK_CLOSE_SYMBOL)) {
                 parser.out();
                 parser.advance();
             }
@@ -50,7 +49,7 @@ export default class StyleNode extends Node {
         return false;
     }
 
-    compile(compiler) {
+    compile(compiler: Compiler) {
         this.getChildren().forEach(child => child.compile(compiler));
     }
 }

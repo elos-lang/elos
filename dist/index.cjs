@@ -828,29 +828,26 @@ var StylePropertyNode = class _StylePropertyNode extends Node {
 // src/parser/nodes/StyleNode.ts
 var StyleNode = class _StyleNode extends Node {
   isClass;
-  constructor(name, isClass = false) {
+  constructor(name, isClass) {
     super(name);
     this.isClass = isClass;
   }
   static parse(parser) {
-    if (parser.acceptWithVal("Ident" /* IDENT */, "style")) {
-      parser.advance();
-      let className = parseClass(parser);
-      let isClass = true;
-      if (className === null) {
-        if (parser.accept("Ident" /* IDENT */)) {
-          className = parser.getCurrVal();
-          isClass = !isClass;
-          parser.advance();
-        }
-      }
-      if (parser.acceptWithVal("Symbol" /* SYMBOL */, grammar_default.BLOCK_OPEN_SYMBOL)) {
+    if (parser.skipWithVal("Ident" /* IDENT */, "style")) {
+      let identifier = "";
+      if (parser.expect("Ident" /* IDENT */)) {
+        identifier = parser.getCurrVal();
         parser.advance();
-        parser.insert(new _StyleNode(className, isClass));
+      }
+      let className = parseClass(parser);
+      let isClass = className !== null;
+      if (parser.expectWithVal("Symbol" /* SYMBOL */, grammar_default.BLOCK_OPEN_SYMBOL)) {
+        parser.advance();
+        parser.insert(new _StyleNode(className ? className : identifier, isClass));
         parser.in();
       }
       while (StylePropertyNode.parse(parser)) ;
-      if (parser.acceptWithVal("Symbol" /* SYMBOL */, grammar_default.BLOCK_CLOSE_SYMBOL)) {
+      if (parser.expectWithVal("Symbol" /* SYMBOL */, grammar_default.BLOCK_CLOSE_SYMBOL)) {
         parser.out();
         parser.advance();
       }

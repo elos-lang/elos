@@ -45,7 +45,7 @@ export default class GroupNode extends Node {
 
     compile(compiler) {
 
-        const css = styleCompiler.compileStyleAttrs(compiler, 'group', this.className,{
+        const css = styleCompiler.compileStyleAttrs(compiler, 'group', this.className, {
             'background-color': '#f0f0f0',
             'padding': '25px',
             'text-align': 'left'
