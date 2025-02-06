@@ -1,10 +1,12 @@
-# Elos
 <p align="center">
   <a href="https://github.com/reinvanoyen/elos">
     <img width="200" src="https://raw.githubusercontent.com/reinvanoyen/elos/main/icon.png">
   </a>
 </p>
-## Build HTML Emails, Without the Torture
+
+# ELOS
+## Build HTML emails, without the torture
+
 Crafting HTML emails has always been a pain—inline styles, inconsistent 
 rendering across email clients, and a sea of outdated quirks to navigate. 
 Elos changes that.
