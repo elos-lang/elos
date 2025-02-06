@@ -5,7 +5,7 @@
 </p>
 
 # ELOS
-## Build HTML emails, without the torture
+## Build HTML emails, but without the torture
 
 Crafting HTML emails has always been a pain—inline styles, inconsistent 
 rendering across email clients, and a sea of outdated quirks to navigate. 
