@@ -26,7 +26,7 @@ Say goodbye to email development frustration and hello to ELOS.<br />
 Let’s make HTML emails enjoyable again. 🚀
 
 ## Roadmap
-- npm package
+- Correct the location of files in includes
 - Primitives: Variables (assignment, printing), String, Number, Colors
 - Improved (cleanup) styling system
 - 100% test coverage
