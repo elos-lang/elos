@@ -1,0 +1,19 @@
+group {
+	txt.h "Welcome to Elos"
+	cols
+		col {
+			img "https://dummyimage.com/600x400/000/fff"
+			txt "Nice"
+			line
+		}
+		col {
+			img "https://dummyimage.com/600x400/000/fff"
+			txt "Nice"
+			line
+		}
+		col {
+			img "https://dummyimage.com/600x400/000/fff"
+			txt "Nice"
+			line
+		}
+}

@@ -1,0 +1,10 @@
+export enum LexMode {
+	ALL,
+	UNKNOWN,
+	IDENT,
+	NUMBER,
+	SYMBOL,
+	WHITESPACE,
+	NEWLINE,
+	STRING,
+}

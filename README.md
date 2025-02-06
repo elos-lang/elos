@@ -1,7 +1,31 @@
 # Elos
-## Emailing Language on Steroids 💪
+<p align="center">
+  <a href="https://github.com/reinvanoyen/elos">
+    <img width="200" src="https://raw.githubusercontent.com/reinvanoyen/elos/main/icon.png">
+  </a>
+</p>
+## Build HTML Emails, Without the Torture
+Crafting HTML emails has always been a pain—inline styles, inconsistent 
+rendering across email clients, and a sea of outdated quirks to navigate. 
+Elos changes that.
 
-### Language design example
+Elos is a declarative, developer-friendly language designed specifically for 
+building responsive, accessible, and beautifully branded HTML emails. Forget about 
+manually wrestling with tables and obscure CSS hacks—Elos abstracts the complexities, 
+letting you focus on design and content while ensuring rock-solid email compatibility.
+
+### With Elos, you get:
+✅ Simplified Syntax – Write structured, readable code that compiles into bulletproof HTML.<br />
+✅ Smart Defaults – No more worrying about missing styles or broken layouts.<br />
+✅ Reusable Components – Build once, reuse everywhere.<br />
+✅ Responsive by Default – Emails that look great on any device, without extra hassle.<br />
+
+Say goodbye to email development frustration and hello to Elos.<br />
+Let’s make HTML emails enjoyable again. 🚀
+
+## Getting started
+
+## Language design example
 ```
 def width 750
 def hgap 25
@@ -72,7 +96,7 @@ body {
                 img "https://dummyimage.com/600x400/000/fff"
             }
     }
-    -
+    line
     group.footer {
         cols
             col {
@@ -87,3 +111,6 @@ body {
     space
 }
 ```
+
+### Credits
+<a href="https://www.flaticon.com/free-icons/pet" title="pet icons">Pet icons created by Freepik - Flaticon</a>

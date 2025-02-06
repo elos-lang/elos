@@ -1,10 +1,14 @@
 {
   "type": "module",
   "scripts": {
-    "elos": "node index.js",
-    "mail": "node index.js && node mail.js"
+    "elos": "tsup && node dist/index.js",
+    "build": "tsup"
   },
-  "devDependencies": {
-    "nodemailer": "^6.9.1"
+  "dependencies": {
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.3.6",
+    "typescript": "^5.7.3"
   }
 }

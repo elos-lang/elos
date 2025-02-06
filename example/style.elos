@@ -1,0 +1,7 @@
+style btn {
+	bgcolor "red"
+}
+
+style group {
+	padding 15
+}

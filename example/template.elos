@@ -1,0 +1,39 @@
+img "https://dummyimage.com/600x200/000/fff" -> "https://www.google.be"
+include "welcome"
+group {
+	txt "
+		Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sagittis arcu ut mi commodo, vitae semper ipsum
+		tempus. Vestibulum dignissim, quam ac elementum fringilla, ligula dui rhoncus nisl, eget dictum lorem magna
+		non nisl. Donec eu dui suscipit, sollicitudin tortor nec, tempor diam. Sed condimentum, urna in fringilla
+		feugiat, velit leo sodales nunc, nec suscipit nunc orci ut nisl. Pellentesque tempus ex justo, eu dapibus
+		sem vehicula sit amet. Proin eros lectus, eleifend tincidunt lectus non, consequat posuere ipsum. Proin a
+		quam eu velit scelerisque vehicula. Proin dictum, augue non finibus facilisis, est leo egestas sem, eu
+		mattis urna massa vel quam. Integer eleifend fringilla purus, quis interdum lorem vestibulum quis. Sed
+		ornare elementum aliquet. Nunc commodo auctor dignissim. Nam vitae rhoncus leo, ut auctor enim.
+	"
+	btn "Ontdek ons aanbod" -> "https://www.reinvanoyen.be"
+}
+group {
+	cols
+		col {
+			txt "Welcome to Elos"
+			img "https://dummyimage.com/600x400/000/fff" -> "https://www.google.be"
+		}
+		col {
+			txt "Welcome to Elos"
+			img "https://dummyimage.com/600x400/000/fff"
+		}
+}
+line
+group {
+	cols
+		col {
+			txt.hh "Hallo dit is leuk"
+			img "https://dummyimage.com/600x400/000/fff"
+		}
+		col {
+			txt.hh "Hallo dit is leuk"
+			img "https://dummyimage.com/600x400/000/fff"
+		}
+}
+space

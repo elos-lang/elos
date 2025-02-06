@@ -1,0 +1,3 @@
+def width 550
+def hgap 10
+def vgap 10
