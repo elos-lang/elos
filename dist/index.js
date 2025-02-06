@@ -1,6 +1,3 @@
-// index.ts
-import * as fs2 from "fs";
-
 // src/grammar.ts
 var grammar_default = {
   REGEX_IDENT: /[a-zA-ZÆÐƎƏƐƔĲŊŒẞÞǷȜæðǝəɛɣĳŋœĸſßþƿȝĄƁÇĐƊĘĦĮƘŁØƠŞȘŢȚŦŲƯY̨Ƴąɓçđɗęħįƙłøơşșţțŧųưy̨ƴÁÀÂÄǍĂĀÃÅǺĄÆǼǢƁĆĊĈČÇĎḌĐƊÐÉÈĖÊËĚĔĒĘẸƎƏƐĠĜǦĞĢƔáàâäǎăāãåǻąæǽǣɓćċĉčçďḍđɗðéèėêëěĕēęẹǝəɛġĝǧğģɣĤḤĦIÍÌİÎÏǏĬĪĨĮỊĲĴĶƘĹĻŁĽĿʼNŃN̈ŇÑŅŊÓÒÔÖǑŎŌÕŐỌØǾƠŒĥḥħıíìiîïǐĭīĩįịĳĵķƙĸĺļłľŀŉńn̈ňñņŋóòôöǒŏōõőọøǿơœŔŘŖŚŜŠŞȘṢẞŤŢṬŦÞÚÙÛÜǓŬŪŨŰŮŲỤƯẂẀŴẄǷÝỲŶŸȲỸƳŹŻŽẒŕřŗſśŝšşșṣßťţṭŧþúùûüǔŭūũűůųụưẃẁŵẅƿýỳŷÿȳỹƴźżžẓ]/,
@@ -371,11 +368,11 @@ var compile_style_attrs_default = {
     return css;
   },
   attrsToCssString(cssProps) {
-    let output2 = "";
+    let output = "";
     for (let prop in cssProps) {
-      output2 += `${prop}: ${cssProps[prop]};`;
+      output += `${prop}: ${cssProps[prop]};`;
     }
-    return output2;
+    return output;
   }
 };
 
@@ -848,16 +845,16 @@ var IncludeNode = class _IncludeNode extends Node {
     return false;
   }
   compile(compiler) {
-    const code2 = fs.readFileSync(`./example/${this.getVal()}.elos`, "utf8");
-    const tokens2 = lex(code2);
+    const code = fs.readFileSync(`./example/${this.getVal()}.elos`, "utf8");
+    const tokens = lex(code);
     const parser = new Parser();
-    parser.setTokenStream(tokens2);
+    parser.setTokenStream(tokens);
     parseHead(parser);
     parseBody(parser);
-    const ast2 = parser.getAst();
-    ast2.setParent(this.getParent());
+    const ast = parser.getAst();
+    ast.setParent(this.getParent());
     const clonedCompiler = compiler.clone();
-    compile_with_vgap_default.compileWithVgap(clonedCompiler, ast2.getChildren());
+    compile_with_vgap_default.compileWithVgap(clonedCompiler, ast.getChildren());
     compiler.setMemory(clonedCompiler.getMemory());
     compiler.writeHead(clonedCompiler.getHead());
     compiler.write(clonedCompiler.getBody());
@@ -948,11 +945,11 @@ var Parser = class {
   tokens;
   ast = new AstNode();
   scope = this.ast;
-  setTokenStream(tokens2) {
-    this.tokens = tokens2;
+  setTokenStream(tokens) {
+    this.tokens = tokens;
   }
-  parse(tokens2) {
-    this.setTokenStream(tokens2);
+  parse(tokens) {
+    this.setTokenStream(tokens);
     this.parseAll();
     return this.ast;
   }
@@ -1099,8 +1096,8 @@ var Parser = class {
 };
 
 // src/parse.ts
-function parse(tokens2) {
-  return new Parser().parse(tokens2);
+function parse(tokens) {
+  return new Parser().parse(tokens);
 }
 
 // src/compiler/Compiler.ts
@@ -1166,8 +1163,8 @@ var Compiler = class _Compiler {
   clone() {
     return new _Compiler(this.memory);
   }
-  compile(ast2) {
-    ast2.compile(this);
+  compile(ast) {
+    ast.compile(this);
     return `
             <!doctype html>
             <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -1196,14 +1193,12 @@ var Compiler = class _Compiler {
 };
 
 // src/compile.ts
-function compile(ast2) {
-  return new Compiler().compile(ast2);
+function compile(ast) {
+  return new Compiler().compile(ast);
 }
-
-// index.ts
-var code = fs2.readFileSync("./example/test.elos", "utf8");
-var tokens = lex(code);
-var ast = parse(tokens);
-var output = compile(ast);
-fs2.writeFileSync("./example/test.html", output);
+export {
+  compile,
+  lex,
+  parse
+};
 //# sourceMappingURL=index.js.map

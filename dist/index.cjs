@@ -4,6 +4,10 @@ var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
 var __copyProps = (to, from, except, desc) => {
   if (from && typeof from === "object" || typeof from === "function") {
     for (let key of __getOwnPropNames(from))
@@ -20,9 +24,16 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
   mod
 ));
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// index.ts
-var fs2 = __toESM(require("fs"), 1);
+// src/index.ts
+var index_exports = {};
+__export(index_exports, {
+  compile: () => compile,
+  lex: () => lex,
+  parse: () => parse
+});
+module.exports = __toCommonJS(index_exports);
 
 // src/grammar.ts
 var grammar_default = {
@@ -394,11 +405,11 @@ var compile_style_attrs_default = {
     return css;
   },
   attrsToCssString(cssProps) {
-    let output2 = "";
+    let output = "";
     for (let prop in cssProps) {
-      output2 += `${prop}: ${cssProps[prop]};`;
+      output += `${prop}: ${cssProps[prop]};`;
     }
-    return output2;
+    return output;
   }
 };
 
@@ -871,16 +882,16 @@ var IncludeNode = class _IncludeNode extends Node {
     return false;
   }
   compile(compiler) {
-    const code2 = fs.readFileSync(`./example/${this.getVal()}.elos`, "utf8");
-    const tokens2 = lex(code2);
+    const code = fs.readFileSync(`./example/${this.getVal()}.elos`, "utf8");
+    const tokens = lex(code);
     const parser = new Parser();
-    parser.setTokenStream(tokens2);
+    parser.setTokenStream(tokens);
     parseHead(parser);
     parseBody(parser);
-    const ast2 = parser.getAst();
-    ast2.setParent(this.getParent());
+    const ast = parser.getAst();
+    ast.setParent(this.getParent());
     const clonedCompiler = compiler.clone();
-    compile_with_vgap_default.compileWithVgap(clonedCompiler, ast2.getChildren());
+    compile_with_vgap_default.compileWithVgap(clonedCompiler, ast.getChildren());
     compiler.setMemory(clonedCompiler.getMemory());
     compiler.writeHead(clonedCompiler.getHead());
     compiler.write(clonedCompiler.getBody());
@@ -971,11 +982,11 @@ var Parser = class {
   tokens;
   ast = new AstNode();
   scope = this.ast;
-  setTokenStream(tokens2) {
-    this.tokens = tokens2;
+  setTokenStream(tokens) {
+    this.tokens = tokens;
   }
-  parse(tokens2) {
-    this.setTokenStream(tokens2);
+  parse(tokens) {
+    this.setTokenStream(tokens);
     this.parseAll();
     return this.ast;
   }
@@ -1122,8 +1133,8 @@ var Parser = class {
 };
 
 // src/parse.ts
-function parse(tokens2) {
-  return new Parser().parse(tokens2);
+function parse(tokens) {
+  return new Parser().parse(tokens);
 }
 
 // src/compiler/Compiler.ts
@@ -1189,8 +1200,8 @@ var Compiler = class _Compiler {
   clone() {
     return new _Compiler(this.memory);
   }
-  compile(ast2) {
-    ast2.compile(this);
+  compile(ast) {
+    ast.compile(this);
     return `
             <!doctype html>
             <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -1219,14 +1230,13 @@ var Compiler = class _Compiler {
 };
 
 // src/compile.ts
-function compile(ast2) {
-  return new Compiler().compile(ast2);
+function compile(ast) {
+  return new Compiler().compile(ast);
 }
-
-// index.ts
-var code = fs2.readFileSync("./example/test.elos", "utf8");
-var tokens = lex(code);
-var ast = parse(tokens);
-var output = compile(ast);
-fs2.writeFileSync("./example/test.html", output);
+// Annotate the CommonJS export names for ESM import in node:
+0 && (module.exports = {
+  compile,
+  lex,
+  parse
+});
 //# sourceMappingURL=index.cjs.map

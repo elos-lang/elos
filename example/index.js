@@ -1,7 +1,5 @@
 import * as fs from "fs";
-import lex from "./src/lex";
-import parse from "./src/parse";
-import compile from "./src/compile";
+import {lex, parse, compile} from "../dist/index.js";
 
 const code = fs.readFileSync('./example/test.elos', 'utf8');
 
