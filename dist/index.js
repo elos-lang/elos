@@ -1037,7 +1037,6 @@ var IncludeNode = class _IncludeNode extends Node {
   compile(compiler) {
     const path = compiler.get("path");
     const filename = `${path}/${this.getVal()}.elos`;
-    console.log(filename);
     const code = fs.readFileSync(filename, "utf8");
     Manager.emit("fileTouch" /* FILE_TOUCH */, {
       filename
