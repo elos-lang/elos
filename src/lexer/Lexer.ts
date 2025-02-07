@@ -1,167 +1,81 @@
-"use strict";
-
-import grammar from "../grammar.js";
+import grammar from "../grammar";
 import {LexMode} from "../types/lex-mode";
 import {TokenStream} from "../types/token-stream";
 import {TokenType} from "../types/token-type";
 
 export class Lexer {
 
+    /**
+     *
+     * @private
+     */
     private mode: LexMode = LexMode.ALL;
 
+    /**
+     *
+     * @private
+     */
     private cursor: number = 0;
 
+    /**
+     *
+     * @private
+     */
     private end: number = 0;
 
-    private currLine: number = 1;
+    /**
+     *
+     * @private
+     */
+    private line: number = 1;
 
-    private currLinePos: number = 1;
+    /**
+     *
+     * @private
+     */
+    private column: number = 1;
 
+    /**
+     *
+     * @private
+     */
     private tokens: TokenStream = [];
 
-    private currTokenValue: string = '';
+    /**
+     *
+     * @private
+     */
+    private value: string = '';
 
-    private currCharacter: string = '';
+    /**
+     *
+     * @private
+     */
+    private character: string = '';
 
+    /**
+     *
+     * @private
+     */
     private nextCharacter: string = '';
 
-    private tokenDelimiter: string = '';
+    /**
+     *
+     * @private
+     */
+    private delimiter: string = '';
 
-    determineMode(): LexMode {
-
-        // Reset the current token value
-        this.currTokenValue = '';
-
-        if (grammar.REGEX_IDENT.exec(this.currCharacter)) {
-            return LexMode.IDENT;
-        }
-
-        if (grammar.REGEX_STRING_DELIMITER.exec(this.currCharacter)) {
-            this.tokenDelimiter = this.currCharacter;
-            return LexMode.STRING;
-        }
-
-        if (grammar.REGEX_NUMBER.exec(this.currCharacter)) {
-            return LexMode.NUMBER;
-        }
-
-        if (grammar.REGEX_SYMBOL.exec(this.currCharacter)) {
-            return LexMode.SYMBOL;
-        }
-
-        if (grammar.REGEX_NEWLINE.exec(this.currCharacter)) {
-            return LexMode.NEWLINE;
-        }
-
-        if (grammar.REGEX_WHITESPACE.exec(this.currCharacter)) {
-            return LexMode.WHITESPACE;
-        }
-
-        return LexMode.UNKNOWN;
-    }
-
-    lexIdent() {
-
-        this.currTokenValue += this.currCharacter;
-        this.cursor++;
-        this.currLinePos++;
-
-        if (! this.nextCharacter || ! grammar.REGEX_IDENT.exec(this.nextCharacter)) {
-            this.tokens.push({
-                type: TokenType.IDENT,
-                value: this.currTokenValue,
-                line: this.currLine,
-                position: this.currLinePos,
-                end: this.cursor < this.end
-            });
-            this.mode = LexMode.ALL;
-        }
-    }
-
-    lexString() {
-
-        if (this.tokenDelimiter !== this.currCharacter) {
-            this.currTokenValue += this.currCharacter;
-        }
-        this.cursor++;
-
-        if (this.nextCharacter === this.tokenDelimiter) {
-            this.tokens.push({
-                type: TokenType.STRING,
-                value: this.currTokenValue,
-                line: this.currLine,
-                position: this.currLinePos,
-                end: this.cursor < this.end
-            });
-            this.mode = LexMode.ALL;
-            this.cursor++;
-            this.currLinePos++;
-            this.tokenDelimiter = '';
-        }
-    }
-
-    lexNumber() {
-        this.currTokenValue += this.currCharacter;
-        this.cursor++;
-        this.currLinePos++;
-
-        if (!this.nextCharacter || !grammar.REGEX_NUMBER.exec(this.nextCharacter)) {
-            this.tokens.push({
-                type: TokenType.NUMBER,
-                value: this.currTokenValue,
-                line: this.currLine,
-                position: this.currLinePos,
-                end: this.cursor < this.end
-            });
-            this.mode = LexMode.ALL;
-        }
-    }
-
-    lexSymbol() {
-        this.tokens.push({
-            type: TokenType.SYMBOL,
-            value: this.currCharacter,
-            line: this.currLine,
-            position: this.currLinePos,
-            end: this.cursor < this.end
-        });
-        this.cursor++;
-        this.currLinePos++;
-        this.mode = LexMode.ALL;
-    }
-
-    lexNewline() {
-        this.cursor++;
-        this.currLine++;
-        this.currLinePos = 0;
-        this.mode = LexMode.ALL;
-    }
-
-    lexWhitespace() {
-        this.cursor++;
-        this.mode = LexMode.ALL;
-    }
-
-    lexUnknown() {
-        this.tokens.push({
-            type: TokenType.UNKNOWN,
-            value: this.currCharacter,
-            line: this.currLine,
-            position: this.currLinePos,
-            end: this.cursor < this.end
-        });
-        this.cursor++;
-        this.currLinePos++;
-        this.mode = LexMode.ALL;
-    }
-
+    /**
+     * Transforms code into a TokenStream
+     * @param text
+     */
     tokenize(text: string): TokenStream {
 
         this.end = text.length;
 
         while (this.cursor < this.end) {
 
-            this.currCharacter = text[this.cursor];
+            this.character = text[this.cursor];
             this.nextCharacter = text[this.cursor+1] || null;
 
             // Determine the mode
@@ -195,5 +109,141 @@ export class Lexer {
         }
 
         return this.tokens;
+    }
+
+    private atEnd(): boolean {
+        return this.cursor <= this.end;
+    }
+
+    /**
+     * Determines the lexing mode based on the current character
+     * @private
+     */
+    private determineMode(): LexMode {
+
+        // Reset the current token value
+        this.value = '';
+
+        if (grammar.REGEX_IDENT.exec(this.character)) {
+            return LexMode.IDENT;
+        }
+
+        if (grammar.REGEX_STRING_DELIMITER.exec(this.character)) {
+            this.delimiter = this.character;
+            return LexMode.STRING;
+        }
+
+        if (grammar.REGEX_NUMBER.exec(this.character)) {
+            return LexMode.NUMBER;
+        }
+
+        if (grammar.REGEX_SYMBOL.exec(this.character)) {
+            return LexMode.SYMBOL;
+        }
+
+        if (grammar.REGEX_NEWLINE.exec(this.character)) {
+            return LexMode.NEWLINE;
+        }
+
+        if (grammar.REGEX_WHITESPACE.exec(this.character)) {
+            return LexMode.WHITESPACE;
+        }
+
+        return LexMode.UNKNOWN;
+    }
+
+    private lexIdent() {
+
+        this.value += this.character;
+        this.cursor++;
+        this.column++;
+
+        if (! this.nextCharacter || ! grammar.REGEX_IDENT.exec(this.nextCharacter)) {
+            this.tokens.push({
+                type: TokenType.IDENT,
+                value: this.value,
+                line: this.line,
+                position: this.column,
+                end: this.atEnd(),
+            });
+            this.mode = LexMode.ALL;
+        }
+    }
+
+    private lexString() {
+
+        if (this.delimiter !== this.character) {
+            this.value += this.character;
+        }
+        this.cursor++;
+
+        if (this.nextCharacter === this.delimiter) {
+            this.tokens.push({
+                type: TokenType.STRING,
+                value: this.value,
+                line: this.line,
+                position: this.column,
+                end: this.atEnd(),
+            });
+            this.mode = LexMode.ALL;
+            this.cursor++;
+            this.column++;
+            this.delimiter = '';
+        }
+    }
+
+    private lexNumber() {
+        this.value += this.character;
+        this.cursor++;
+
+        if (!this.nextCharacter || !grammar.REGEX_NUMBER.exec(this.nextCharacter)) {
+            this.tokens.push({
+                type: TokenType.NUMBER,
+                value: this.value,
+                line: this.line,
+                position: this.column,
+                end: this.atEnd(),
+            });
+            this.column++;
+            this.mode = LexMode.ALL;
+        }
+    }
+
+    private lexSymbol() {
+        this.tokens.push({
+            type: TokenType.SYMBOL,
+            value: this.character,
+            line: this.line,
+            position: this.column,
+            end: this.atEnd(),
+        });
+        this.cursor++;
+        this.column++;
+        this.mode = LexMode.ALL;
+    }
+
+    private lexNewline() {
+        this.cursor++;
+        this.line++;
+        this.column = 0;
+        this.mode = LexMode.ALL;
+    }
+
+    private lexWhitespace() {
+        this.cursor++;
+        this.mode = LexMode.ALL;
+    }
+
+    private lexUnknown() {
+        this.tokens.push({
+            type: TokenType.UNKNOWN,
+            value: this.character,
+            line: this.line,
+            position: this.column,
+            end: this.atEnd(),
+        });
+        this.cursor++;
+        this.column++;
+        this.mode = LexMode.ALL;
     }
 }

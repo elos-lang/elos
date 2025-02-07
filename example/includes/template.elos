@@ -1,5 +1,5 @@
 img "https://dummyimage.com/600x200/000/fff" -> "https://www.google.be"
-include "welcome"
+include "includes/welcome"
 group {
 	txt "
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sagittis arcu ut mi commodo, vitae semper ipsum

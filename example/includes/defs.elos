@@ -1,0 +1,4 @@
+def width 500
+def hgap 25
+def vgap 25
+def preview "ok"

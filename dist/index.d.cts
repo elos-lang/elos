@@ -1,3 +1,18 @@
+type EventListener = (data: object) => void;
+
+declare class Elos {
+    /**
+     * @param code
+     * @param path
+     */
+    static make(code: string, path?: string): string;
+    /**
+     * @param eventId
+     * @param listener
+     */
+    static on(eventId: string, listener: EventListener): void;
+}
+
 declare enum TokenType {
     UNKNOWN = "Unknown",
     IDENT = "Ident",
@@ -90,4 +105,4 @@ declare function parse(tokens: TokenStream): AstNode;
 
 declare function compile(ast: AstNode): string;
 
-export { compile, lex, parse };
+export { Elos, compile, lex, parse };

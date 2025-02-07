@@ -1,3 +1,94 @@
+// src/compiler/Compiler.ts
+var Compiler = class _Compiler {
+  head = "";
+  body = "";
+  memory = {
+    path: "",
+    variables: {
+      preview: "",
+      edge: 35,
+      hgap: 10,
+      vgap: 10,
+      width: 650
+    },
+    colsId: 0,
+    imgId: 0,
+    classes: {},
+    identStyles: {}
+  };
+  constructor(memory = {}) {
+    Object.assign(this.memory, memory);
+  }
+  getMemory() {
+    return this.memory;
+  }
+  setMemory(memory) {
+    this.memory = memory;
+  }
+  write(string) {
+    this.body += string;
+  }
+  writeLn(string) {
+    this.write("\n" + string);
+  }
+  writeHead(string) {
+    this.head += string;
+  }
+  writeLnHead(string) {
+    this.writeHead("\n" + string);
+  }
+  define(name, value) {
+    this.memory.variables[name] = value;
+    return value;
+  }
+  variable(name) {
+    return typeof this.memory.variables[name] === "undefined" ? null : this.memory.variables[name];
+  }
+  remember(name, value) {
+    this.memory[name] = value;
+    return value;
+  }
+  get(name) {
+    return typeof this.memory[name] === "undefined" ? null : this.memory[name];
+  }
+  getHead() {
+    return this.head;
+  }
+  getBody() {
+    return this.body;
+  }
+  clone() {
+    return new _Compiler(this.memory);
+  }
+  compile(ast) {
+    ast.compile(this);
+    return `
+            <!doctype html>
+            <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+                <head>
+                    <!--[if !mso]><!-->
+                    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                    <!--<![endif]-->
+                    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                        <style type="text/css">
+                          * { padding: 0; margin: 0; }
+                          #outlook a { padding:0; }
+                          body { margin:0;padding:0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%; }
+                          table, td { border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt; }
+                          img { border:0;height:auto;line-height:100%; outline:none;text-decoration:none;-ms-interpolation-mode:bicubic; }
+                          p { display:block;margin:13px 0; }
+                        </style>
+                    ${this.getHead()}
+                </head>
+                <body>
+                    ${this.getBody()}
+                </body>
+            </html>
+        `;
+  }
+};
+
 // src/grammar.ts
 var grammar_default = {
   REGEX_IDENT: /[a-zA-ZÆÐƎƏƐƔĲŊŒẞÞǷȜæðǝəɛɣĳŋœĸſßþƿȝĄƁÇĐƊĘĦĮƘŁØƠŞȘŢȚŦŲƯY̨Ƴąɓçđɗęħįƙłøơşșţțŧųưy̨ƴÁÀÂÄǍĂĀÃÅǺĄÆǼǢƁĆĊĈČÇĎḌĐƊÐÉÈĖÊËĚĔĒĘẸƎƏƐĠĜǦĞĢƔáàâäǎăāãåǻąæǽǣɓćċĉčçďḍđɗðéèėêëěĕēęẹǝəɛġĝǧğģɣĤḤĦIÍÌİÎÏǏĬĪĨĮỊĲĴĶƘĹĻŁĽĿʼNŃN̈ŇÑŅŊÓÒÔÖǑŎŌÕŐỌØǾƠŒĥḥħıíìiîïǐĭīĩįịĳĵķƙĸĺļłľŀŉńn̈ňñņŋóòôöǒŏōõőọøǿơœŔŘŖŚŜŠŞȘṢẞŤŢṬŦÞÚÙÛÜǓŬŪŨŰŮŲỤƯẂẀŴẄǷÝỲŶŸȲỸƳŹŻŽẒŕřŗſśŝšşșṣßťţṭŧþúùûüǔŭūũűůųụưẃẁŵẅƿýỳŷÿȳỹƴźżžẓ]/,
@@ -12,126 +103,64 @@ var grammar_default = {
 
 // src/lexer/Lexer.ts
 var Lexer = class {
+  /**
+   *
+   * @private
+   */
   mode = 0 /* ALL */;
+  /**
+   *
+   * @private
+   */
   cursor = 0;
+  /**
+   *
+   * @private
+   */
   end = 0;
-  currLine = 1;
-  currLinePos = 1;
+  /**
+   *
+   * @private
+   */
+  line = 1;
+  /**
+   *
+   * @private
+   */
+  column = 1;
+  /**
+   *
+   * @private
+   */
   tokens = [];
-  currTokenValue = "";
-  currCharacter = "";
+  /**
+   *
+   * @private
+   */
+  value = "";
+  /**
+   *
+   * @private
+   */
+  character = "";
+  /**
+   *
+   * @private
+   */
   nextCharacter = "";
-  tokenDelimiter = "";
-  determineMode() {
-    this.currTokenValue = "";
-    if (grammar_default.REGEX_IDENT.exec(this.currCharacter)) {
-      return 2 /* IDENT */;
-    }
-    if (grammar_default.REGEX_STRING_DELIMITER.exec(this.currCharacter)) {
-      this.tokenDelimiter = this.currCharacter;
-      return 7 /* STRING */;
-    }
-    if (grammar_default.REGEX_NUMBER.exec(this.currCharacter)) {
-      return 3 /* NUMBER */;
-    }
-    if (grammar_default.REGEX_SYMBOL.exec(this.currCharacter)) {
-      return 4 /* SYMBOL */;
-    }
-    if (grammar_default.REGEX_NEWLINE.exec(this.currCharacter)) {
-      return 6 /* NEWLINE */;
-    }
-    if (grammar_default.REGEX_WHITESPACE.exec(this.currCharacter)) {
-      return 5 /* WHITESPACE */;
-    }
-    return 1 /* UNKNOWN */;
-  }
-  lexIdent() {
-    this.currTokenValue += this.currCharacter;
-    this.cursor++;
-    this.currLinePos++;
-    if (!this.nextCharacter || !grammar_default.REGEX_IDENT.exec(this.nextCharacter)) {
-      this.tokens.push({
-        type: "Ident" /* IDENT */,
-        value: this.currTokenValue,
-        line: this.currLine,
-        position: this.currLinePos,
-        end: this.cursor < this.end
-      });
-      this.mode = 0 /* ALL */;
-    }
-  }
-  lexString() {
-    if (this.tokenDelimiter !== this.currCharacter) {
-      this.currTokenValue += this.currCharacter;
-    }
-    this.cursor++;
-    if (this.nextCharacter === this.tokenDelimiter) {
-      this.tokens.push({
-        type: "String" /* STRING */,
-        value: this.currTokenValue,
-        line: this.currLine,
-        position: this.currLinePos,
-        end: this.cursor < this.end
-      });
-      this.mode = 0 /* ALL */;
-      this.cursor++;
-      this.currLinePos++;
-      this.tokenDelimiter = "";
-    }
-  }
-  lexNumber() {
-    this.currTokenValue += this.currCharacter;
-    this.cursor++;
-    this.currLinePos++;
-    if (!this.nextCharacter || !grammar_default.REGEX_NUMBER.exec(this.nextCharacter)) {
-      this.tokens.push({
-        type: "Number" /* NUMBER */,
-        value: this.currTokenValue,
-        line: this.currLine,
-        position: this.currLinePos,
-        end: this.cursor < this.end
-      });
-      this.mode = 0 /* ALL */;
-    }
-  }
-  lexSymbol() {
-    this.tokens.push({
-      type: "Symbol" /* SYMBOL */,
-      value: this.currCharacter,
-      line: this.currLine,
-      position: this.currLinePos,
-      end: this.cursor < this.end
-    });
-    this.cursor++;
-    this.currLinePos++;
-    this.mode = 0 /* ALL */;
-  }
-  lexNewline() {
-    this.cursor++;
-    this.currLine++;
-    this.currLinePos = 0;
-    this.mode = 0 /* ALL */;
-  }
-  lexWhitespace() {
-    this.cursor++;
-    this.mode = 0 /* ALL */;
-  }
-  lexUnknown() {
-    this.tokens.push({
-      type: "Unknown" /* UNKNOWN */,
-      value: this.currCharacter,
-      line: this.currLine,
-      position: this.currLinePos,
-      end: this.cursor < this.end
-    });
-    this.cursor++;
-    this.currLinePos++;
-    this.mode = 0 /* ALL */;
-  }
+  /**
+   *
+   * @private
+   */
+  delimiter = "";
+  /**
+   * Transforms code into a TokenStream
+   * @param text
+   */
   tokenize(text) {
     this.end = text.length;
     while (this.cursor < this.end) {
-      this.currCharacter = text[this.cursor];
+      this.character = text[this.cursor];
       this.nextCharacter = text[this.cursor + 1] || null;
       if (this.mode === 0 /* ALL */) {
         this.mode = this.determineMode();
@@ -162,12 +191,120 @@ var Lexer = class {
     }
     return this.tokens;
   }
+  atEnd() {
+    return this.cursor <= this.end;
+  }
+  /**
+   * Determines the lexing mode based on the current character
+   * @private
+   */
+  determineMode() {
+    this.value = "";
+    if (grammar_default.REGEX_IDENT.exec(this.character)) {
+      return 2 /* IDENT */;
+    }
+    if (grammar_default.REGEX_STRING_DELIMITER.exec(this.character)) {
+      this.delimiter = this.character;
+      return 7 /* STRING */;
+    }
+    if (grammar_default.REGEX_NUMBER.exec(this.character)) {
+      return 3 /* NUMBER */;
+    }
+    if (grammar_default.REGEX_SYMBOL.exec(this.character)) {
+      return 4 /* SYMBOL */;
+    }
+    if (grammar_default.REGEX_NEWLINE.exec(this.character)) {
+      return 6 /* NEWLINE */;
+    }
+    if (grammar_default.REGEX_WHITESPACE.exec(this.character)) {
+      return 5 /* WHITESPACE */;
+    }
+    return 1 /* UNKNOWN */;
+  }
+  lexIdent() {
+    this.value += this.character;
+    this.cursor++;
+    this.column++;
+    if (!this.nextCharacter || !grammar_default.REGEX_IDENT.exec(this.nextCharacter)) {
+      this.tokens.push({
+        type: "Ident" /* IDENT */,
+        value: this.value,
+        line: this.line,
+        position: this.column,
+        end: this.atEnd()
+      });
+      this.mode = 0 /* ALL */;
+    }
+  }
+  lexString() {
+    if (this.delimiter !== this.character) {
+      this.value += this.character;
+    }
+    this.cursor++;
+    if (this.nextCharacter === this.delimiter) {
+      this.tokens.push({
+        type: "String" /* STRING */,
+        value: this.value,
+        line: this.line,
+        position: this.column,
+        end: this.atEnd()
+      });
+      this.mode = 0 /* ALL */;
+      this.cursor++;
+      this.column++;
+      this.delimiter = "";
+    }
+  }
+  lexNumber() {
+    this.value += this.character;
+    this.cursor++;
+    if (!this.nextCharacter || !grammar_default.REGEX_NUMBER.exec(this.nextCharacter)) {
+      this.tokens.push({
+        type: "Number" /* NUMBER */,
+        value: this.value,
+        line: this.line,
+        position: this.column,
+        end: this.atEnd()
+      });
+      this.column++;
+      this.mode = 0 /* ALL */;
+    }
+  }
+  lexSymbol() {
+    this.tokens.push({
+      type: "Symbol" /* SYMBOL */,
+      value: this.character,
+      line: this.line,
+      position: this.column,
+      end: this.atEnd()
+    });
+    this.cursor++;
+    this.column++;
+    this.mode = 0 /* ALL */;
+  }
+  lexNewline() {
+    this.cursor++;
+    this.line++;
+    this.column = 0;
+    this.mode = 0 /* ALL */;
+  }
+  lexWhitespace() {
+    this.cursor++;
+    this.mode = 0 /* ALL */;
+  }
+  lexUnknown() {
+    this.tokens.push({
+      type: "Unknown" /* UNKNOWN */,
+      value: this.character,
+      line: this.line,
+      position: this.column,
+      end: this.atEnd()
+    });
+    this.cursor++;
+    this.column++;
+    this.mode = 0 /* ALL */;
+  }
 };
-
-// src/lex.ts
-function lex(text) {
-  return new Lexer().tokenize(text);
-}
 
 // src/parser/Node.ts
 var Node = class {
@@ -730,6 +867,11 @@ var BtnNode = class _BtnNode extends Node {
 // src/parser/nodes/IncludeNode.ts
 import * as fs from "node:fs";
 
+// src/lex.ts
+function lex(text) {
+  return new Lexer().tokenize(text);
+}
+
 // src/parser/nodes/DefNode.ts
 var DefNode = class _DefNode extends Node {
   defName;
@@ -828,6 +970,57 @@ function parseHead(parser) {
   while (DefNode.parse(parser) || StyleNode.parse(parser) || IncludeNode.parse(parser)) ;
 }
 
+// src/events/Manager.ts
+var Manager = class {
+  /**
+   * @private
+   */
+  static listeners = {};
+  /**
+   * @private
+   */
+  static queue = [];
+  /**
+   * Adds an event listener to the manager
+   * @param id
+   * @param listener
+   */
+  static addListener(id, listener) {
+    if (!this.listeners[id]) {
+      this.listeners[id] = [];
+    }
+    this.listeners[id] = [
+      ...this.listeners[id],
+      listener
+    ];
+  }
+  /**
+   * Emits an event
+   * @param id
+   * @param data
+   */
+  static emit(id, data) {
+    if (!this.listeners || !this.listeners[id]) {
+      return;
+    }
+    this.listeners[id].forEach((listener) => this.queue.push([listener, data]));
+    this.process();
+  }
+  /**
+   * Process the event queue
+   */
+  static process() {
+    if (!this.queue.length) {
+      return;
+    }
+    this.queue.forEach((queueItem) => {
+      const [listener, data] = queueItem;
+      listener(data);
+    });
+    this.queue = [];
+  }
+};
+
 // src/parser/nodes/IncludeNode.ts
 var IncludeNode = class _IncludeNode extends Node {
   static parse(parser) {
@@ -842,7 +1035,13 @@ var IncludeNode = class _IncludeNode extends Node {
     return false;
   }
   compile(compiler) {
-    const code = fs.readFileSync(`./example/${this.getVal()}.elos`, "utf8");
+    const path = compiler.get("path");
+    const filename = `${path}/${this.getVal()}.elos`;
+    console.log(filename);
+    const code = fs.readFileSync(filename, "utf8");
+    Manager.emit("fileTouch" /* FILE_TOUCH */, {
+      filename
+    });
     const tokens = lex(code);
     const parser = new Parser();
     parser.setTokenStream(tokens);
@@ -851,7 +1050,11 @@ var IncludeNode = class _IncludeNode extends Node {
     const ast = parser.getAst();
     ast.setParent(this.getParent());
     const clonedCompiler = compiler.clone();
-    compile_with_vgap_default.compileWithVgap(clonedCompiler, ast.getChildren());
+    if (this.getParent() instanceof AstNode) {
+      clonedCompiler.compile(ast);
+    } else {
+      compile_with_vgap_default.compileWithVgap(clonedCompiler, ast.getChildren());
+    }
     compiler.setMemory(clonedCompiler.getMemory());
     compiler.writeHead(clonedCompiler.getHead());
     compiler.write(clonedCompiler.getBody());
@@ -883,17 +1086,20 @@ var BodyNode = class _BodyNode extends Node {
     return false;
   }
   compile(compiler) {
+    const preview = compiler.variable("preview");
     const width = parseInt(compiler.variable("width"));
     const edge = parseInt(compiler.variable("edge"));
     const totalWidth = width + edge * 2;
     compiler.remember("currWidth", width);
-    compiler.writeLn('<div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">');
-    compiler.writeLn(compiler.variable("preview"));
-    compiler.writeLn(`</div>`);
+    if (preview) {
+      compiler.writeLn('<div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">');
+      compiler.writeLn(preview);
+      compiler.writeLn(`</div>`);
+    }
     compiler.writeLn('<table role="presentation" style="width:100%;border:none;border-spacing:0;">');
     compiler.writeLn("<tr>");
     compiler.writeLn('<td align="center" style="padding:0;">');
-    compiler.writeLn(`<table role="presentation-" style="width:100%;max-width:${totalWidth}px;border:none;border-spacing:0;text-align:left;font-family:Arial,sans-serif;font-size:16px;line-height:22px;color:#363636;">`);
+    compiler.writeLn(`<table role="presentation" style="width:100%;max-width:${totalWidth}px;border:none;border-spacing:0;text-align:left;font-family:Arial,sans-serif;font-size:16px;line-height:22px;color:#363636;">`);
     compiler.writeLn("<tr>");
     compiler.writeLn(`<td width="${edge}">`);
     compiler.writeLn("</td>");
@@ -1092,108 +1298,37 @@ var Parser = class {
   }
 };
 
+// src/Elos.ts
+var Elos = class {
+  /**
+   * @param code
+   * @param path
+   */
+  static make(code, path = "") {
+    const tokens = new Lexer().tokenize(code);
+    const ast = new Parser().parse(tokens);
+    return new Compiler({ path }).compile(ast);
+  }
+  /**
+   * @param eventId
+   * @param listener
+   */
+  static on(eventId, listener) {
+    Manager.addListener(eventId, listener);
+  }
+};
+
 // src/parse.ts
 function parse(tokens) {
   return new Parser().parse(tokens);
 }
-
-// src/compiler/Compiler.ts
-var Compiler = class _Compiler {
-  head = "";
-  body = "";
-  memory = {
-    variables: {
-      preview: "",
-      edge: 35,
-      hgap: 10,
-      vgap: 10,
-      width: 650
-    },
-    colsId: 0,
-    imgId: 0,
-    classes: {},
-    identStyles: {}
-  };
-  constructor(memory = null) {
-    if (memory) {
-      this.setMemory(memory);
-    }
-  }
-  getMemory() {
-    return this.memory;
-  }
-  setMemory(memory) {
-    this.memory = memory;
-  }
-  write(string) {
-    this.body += string;
-  }
-  writeLn(string) {
-    this.write("\n" + string);
-  }
-  writeHead(string) {
-    this.head += string;
-  }
-  writeLnHead(string) {
-    this.writeHead("\n" + string);
-  }
-  define(name, value) {
-    this.memory.variables[name] = value;
-    return value;
-  }
-  variable(name) {
-    return typeof this.memory.variables[name] === "undefined" ? null : this.memory.variables[name];
-  }
-  remember(name, value) {
-    this.memory[name] = value;
-    return value;
-  }
-  get(name) {
-    return typeof this.memory[name] === "undefined" ? null : this.memory[name];
-  }
-  getHead() {
-    return this.head;
-  }
-  getBody() {
-    return this.body;
-  }
-  clone() {
-    return new _Compiler(this.memory);
-  }
-  compile(ast) {
-    ast.compile(this);
-    return `
-            <!doctype html>
-            <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
-                <head>
-                    <!--[if !mso]><!-->
-                    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-                    <!--<![endif]-->
-                    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1">
-                        <style type="text/css">
-                          * { padding: 0; margin: 0; }
-                          #outlook a { padding:0; }
-                          body { margin:0;padding:0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%; }
-                          table, td { border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt; }
-                          img { border:0;height:auto;line-height:100%; outline:none;text-decoration:none;-ms-interpolation-mode:bicubic; }
-                          p { display:block;margin:13px 0; }
-                        </style>
-                    ${this.getHead()}
-                </head>
-                <body>
-                    ${this.getBody()}
-                </body>
-            </html>
-        `;
-  }
-};
 
 // src/compile.ts
 function compile(ast) {
   return new Compiler().compile(ast);
 }
 export {
+  Elos,
   compile,
   lex,
   parse

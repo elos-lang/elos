@@ -1,5 +1,6 @@
 import {AttributeValue} from "../types/attribute";
 import AstNode from "../parser/AstNode";
+import Node from "../parser/Node";
 
 export default class Compiler {
 
@@ -8,6 +9,7 @@ export default class Compiler {
     private body: string = '';
 
     private memory: Record<string, any> = {
+        path: '',
         variables: {
             preview: '',
             edge: 35,
@@ -21,10 +23,8 @@ export default class Compiler {
         identStyles: {}
     };
 
-    constructor(memory: Record<string, any> = null) {
-        if (memory) {
-            this.setMemory(memory);
-        }
+    constructor(memory: Record<string, any> = {}) {
+        Object.assign(this.memory, memory);
     }
 
     getMemory(): Record<string, any> {
@@ -81,7 +81,7 @@ export default class Compiler {
         return new Compiler(this.memory);
     }
 
-    compile(ast: AstNode) {
+    compile(ast: Node) {
 
         ast.compile(this);
 
