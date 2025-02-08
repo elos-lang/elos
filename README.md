@@ -3,6 +3,7 @@
     <img width="150" src="https://raw.githubusercontent.com/elos-lang/elos/main/logo.png">
   </a>
 </p>
+
 ## Build HTML emails, but without the torture
 
 Crafting HTML emails has always been a pain—inline styles, inconsistent 
