@@ -1,10 +1,8 @@
 <p>
   <a href="https://github.com/elos-lang/elos">
-    <img width="200" src="https://raw.githubusercontent.com/elos-lang/elos/main/logo.png">
+    <img width="150" src="https://raw.githubusercontent.com/elos-lang/elos/main/logo.png">
   </a>
 </p>
-
-# ELOS Language
 ## Build HTML emails, but without the torture
 
 Crafting HTML emails has always been a pain—inline styles, inconsistent 
