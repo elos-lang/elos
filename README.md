@@ -23,18 +23,39 @@ letting you focus on design and content while ensuring rock-solid email compatib
 
 Say goodbye to email development torture and hello to ELOS.
 
+## Getting started
+
+### Option 1) Install the language
+
+```bash
+npm install elos
+```
+
+```bash
+elos <input-file> [output-file]
+```
+
+### Option 2) Use with a build tool
+- Use with Vite: [vite-plugin-elos](https://github.com/elos-lang/vite-plugin-elos)
+
+## Contribution
+See [Contributing Guide](CONTRIBUTING.md).
+
+## License
+[MIT](LICENSE)
+
 ## Roadmap
 - Raw / Print node
 - Primitives: Variables (assignment, printing), String, Number, Colors
 - Improved (cleanup) styling system
 - 100% test coverage
-- cli
 - Conditionals
 
 ## Getting started
 
-## Language design example
+### Language design example
 ```
+def preview "Welcome to ELOS!"
 def width 750
 def hgap 25
 def vgap 25
@@ -77,7 +98,7 @@ body {
     space
     img "https://dummyimage.com/600x200/000/fff" -> "https://www.google.be"
     group {
-        txt.h "Hallo Maïté!"
+        txt.h "Welcome to ELOS"
         space
         cols
             col {
@@ -91,16 +112,16 @@ body {
             }
     }
     group.cta {
-        btn "Ontdek ons aanbod" -> "https://www.reinvanoyen.be"
+        btn "Discover more" -> "https://github.com/elos-lang/"
     }
     group {
         cols
             col {
-                txt "Hallo dit is leuk"
+                txt "Welcome to ELOS"
                 img "https://dummyimage.com/600x400/000/fff"
             }
             col {
-                txt "Hallo dit is leuk"
+                txt "Welcome to ELOS"
                 img "https://dummyimage.com/600x400/000/fff"
             }
     }
@@ -108,17 +129,14 @@ body {
     group.footer {
         cols
             col {
-                txt.hh "Hallo dit is leuk"
+                txt.hh "Welcome to ELOS"
                 img "https://dummyimage.com/600x400/000/fff"
             }
             col {
-                txt.hh "Hallo dit is leuk"
+                txt.hh "Welcome to ELOS"
                 img "https://dummyimage.com/600x400/000/fff"
             }
     }
     space
 }
 ```
-
-### Credits
-<a href="https://www.flaticon.com/free-icons/pet" title="pet icons">Pet icons created by Freepik - Flaticon</a>
