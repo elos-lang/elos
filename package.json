@@ -5,8 +5,12 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
+    "bin",
     "dist"
   ],
+  "bin": {
+    "elos": "./bin/elos.js"
+  },
   "scripts": {
     "example": "npm run build && node example/index.js",
     "build": "tsup",
