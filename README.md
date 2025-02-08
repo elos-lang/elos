@@ -9,7 +9,7 @@
 
 Crafting HTML emails has always been a pain—inline styles, inconsistent 
 rendering across email clients, and a sea of outdated quirks to navigate. 
-Elos changes that.
+ELOS changes that.
 
 ELOS is a declarative, developer-friendly language designed specifically for 
 building responsive, accessible, and beautifully branded HTML emails. Forget about 
@@ -22,17 +22,15 @@ letting you focus on design and content while ensuring rock-solid email compatib
 ✅ Reusable Components – Build once, reuse everywhere.<br />
 ✅ Responsive by Default – Emails that look great on any device, without extra hassle.<br />
 
-Say goodbye to email development frustration and hello to ELOS.<br />
-Let’s make HTML emails enjoyable again. 🚀
+Say goodbye to email development torture and hello to ELOS.
 
 ## Roadmap
-- Correct the location of files in includes
+- Raw / Print node
 - Primitives: Variables (assignment, printing), String, Number, Colors
 - Improved (cleanup) styling system
 - 100% test coverage
 - cli
 - Conditionals
-- Raw / Print node
 
 ## Getting started
 
