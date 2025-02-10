@@ -1,11 +1,11 @@
 "use strict";
 
-import Node from "../Node";
-import parseBody from "../helpers/parse-body";
-import compilerHelpers from "../../compiler/helpers/compile-with-vgap.js";
-import config from "../../grammar.js";
-import {TokenType} from "../../types/token-type";
-import Parser from "../Parser";
+import Node from "../parser/Node";
+import parseBody from "../parser/helpers/parse-body";
+import compilerHelpers from "../compiler/helpers/compile-with-vgap.js";
+import config from "../grammar.js";
+import {TokenType} from "../types/token-type";
+import Parser from "../parser/Parser";
 
 export default class ColNode extends Node {
 

@@ -1,15 +1,15 @@
 import * as fs from "node:fs";
-import Node from "../Node";
-import Parser from "../Parser";
-import {TokenType} from "../../types/token-type";
-import lex from "../../lex";
-import Compiler from "../../compiler/Compiler";
-import parseBody from "../helpers/parse-body";
-import parseHead from "../helpers/parse-head";
-import compilerHelpers from "../../compiler/helpers/compile-with-vgap";
-import AstNode from "../AstNode";
-import {Manager} from "../../events/Manager";
-import {EventId} from "../../types/event-id";
+import Node from "../parser/Node";
+import Parser from "../parser/Parser";
+import {TokenType} from "../types/token-type";
+import lex from "../lex";
+import Compiler from "../compiler/Compiler";
+import parseBody from "../parser/helpers/parse-body";
+import parseHead from "../parser/helpers/parse-head";
+import compilerHelpers from "../compiler/helpers/compile-with-vgap";
+import AstNode from "../parser/AstNode";
+import {Manager} from "../events/Manager";
+import {EventId} from "../types/event-id";
 
 export default class IncludeNode extends Node {
 

@@ -2,6 +2,5 @@ include "includes/defs"
 include "includes/style"
 
 body {
-
 	include "includes/template"
 }

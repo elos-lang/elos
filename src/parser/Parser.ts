@@ -1,7 +1,7 @@
 import {TokenStream} from "../types/token-stream";
 import Node from "./Node";
 import AstNode from "./AstNode";
-import RootNode from "./nodes/RootNode";
+import RootNode from "../nodes/RootNode";
 import {TokenType} from "../types/token-type";
 import UnexpectedToken from "../errors/UnexpectedToken";
 

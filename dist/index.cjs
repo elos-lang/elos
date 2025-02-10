@@ -47,6 +47,7 @@ var Compiler = class _Compiler {
       edge: 35,
       hgap: 10,
       vgap: 10,
+      bgcolor: "#ffffff",
       width: 650
     },
     colsId: 0,
@@ -119,7 +120,7 @@ var Compiler = class _Compiler {
                         </style>
                     ${this.getHead()}
                 </head>
-                <body>
+                <body bgcolor="${this.variable("bgcolor")}">
                     ${this.getBody()}
                 </body>
             </html>
@@ -400,7 +401,7 @@ var AstNode = class extends Node {
   }
 };
 
-// src/parser/nodes/ArrowNode.ts
+// src/nodes/ArrowNode.ts
 var ArrowNode = class extends Node {
   static parse(parser) {
     if (parser.acceptWithVal("Symbol" /* SYMBOL */, "-")) {
@@ -412,7 +413,7 @@ var ArrowNode = class extends Node {
   }
 };
 
-// src/parser/nodes/ImgNode.ts
+// src/nodes/ImgNode.ts
 var ImgNode = class _ImgNode extends Node {
   url;
   constructor(value, url = null) {
@@ -479,6 +480,11 @@ var propMap = {
   weight: {
     type: "string",
     cssProperty: "font-weight"
+  },
+  line: {
+    type: "integer",
+    unit: "px",
+    cssProperty: "line-height"
   },
   height: {
     type: "integer",
@@ -551,7 +557,7 @@ var compile_style_attrs_default = {
   }
 };
 
-// src/parser/nodes/LineNode.ts
+// src/nodes/LineNode.ts
 var LineNode = class _LineNode extends Node {
   className;
   constructor(value, className = null) {
@@ -589,7 +595,7 @@ var LineNode = class _LineNode extends Node {
   }
 };
 
-// src/parser/nodes/TxtNode.ts
+// src/nodes/TxtNode.ts
 var TxtNode = class _TxtNode extends Node {
   className;
   url;
@@ -642,30 +648,61 @@ var TxtNode = class _TxtNode extends Node {
   }
 };
 
-// src/compiler/helpers/compile-with-vgap.js
+// src/nodes/RawNode.ts
+var RawNode = class _RawNode extends Node {
+  static parse(parser) {
+    if (parser.acceptWithVal("Ident" /* IDENT */, "raw")) {
+      parser.advance();
+      parser.expect("String" /* STRING */);
+      let textValue = parser.getCurrVal();
+      parser.advance();
+      parser.insert(new _RawNode(textValue));
+      return true;
+    }
+    return false;
+  }
+  compile(compiler) {
+    compiler.writeLn(this.getVal());
+  }
+};
+
+// src/compiler/helpers/compile-with-vgap.ts
 var compile_with_vgap_default = {
-  compileWithVgap(compiler, children, center = false) {
-    const childCount = children.length;
+  compileWithVgap(compiler, children, align = "left" /* LEFT */) {
+    const totalChildrenCount = children.length;
+    const rawChildrenCount = children.filter((child) => child instanceof RawNode).length;
+    const otherChildrenCount = totalChildrenCount - rawChildrenCount;
+    const hasOnlyRawChildren = otherChildrenCount === 0;
     const vgap = compiler.variable("vgap");
-    const cssString = center ? "" : "width: 100%;";
-    if (childCount) {
-      compiler.writeLn(`<table role="presentation" style="${cssString}border:none;border-spacing:0;text-align:left;font-family:Arial,sans-serif;font-size:16px;line-height:22px;color:#363636;">`);
-      children.forEach((child, i) => {
-        compiler.writeLn("<tr>");
-        compiler.writeLn("<td>");
-        child.compile(compiler);
-        compiler.writeLn("</td>");
-        compiler.writeLn("</tr>");
-        if (i < childCount - 1) {
-          compiler.writeLn(`<tr><td height="${vgap}"></td></tr>`);
+    const cssString = align === "center" /* CENTER */ ? "" : "width: 100%;";
+    if (totalChildrenCount) {
+      if (!hasOnlyRawChildren) {
+        compiler.writeLn(`<table role="presentation" style="${cssString}border:none;border-spacing:0;text-align:${align};font-family:Arial,sans-serif;font-size:16px;line-height:22px;color:#363636;">`);
+      }
+      let otherChildIndex = 0;
+      children.forEach((child, index) => {
+        if (child instanceof RawNode) {
+          child.compile(compiler);
+        } else {
+          compiler.writeLn("<tr>");
+          compiler.writeLn(`<td align="${align}">`);
+          child.compile(compiler);
+          compiler.writeLn("</td>");
+          compiler.writeLn("</tr>");
+          if (otherChildIndex < otherChildrenCount - 1) {
+            compiler.writeLn(`<tr><td height="${vgap}"></td></tr>`);
+          }
+          otherChildIndex++;
         }
       });
-      compiler.writeLn(`</table>`);
+      if (!hasOnlyRawChildren) {
+        compiler.writeLn(`</table>`);
+      }
     }
   }
 };
 
-// src/parser/nodes/GroupNode.ts
+// src/nodes/GroupNode.ts
 var GroupNode = class _GroupNode extends Node {
   className;
   constructor(value, className) {
@@ -701,7 +738,7 @@ var GroupNode = class _GroupNode extends Node {
     const align = css["text-align"];
     const currWidth = parseInt(compiler.get("currWidth"));
     compiler.remember("currWidth", currWidth - padding * 2);
-    compiler.writeLn(`<table width="100%;" cellspacing="0" cellpadding="0" style="width:100%;max-width:${currWidth}px;border:none;border-spacing:0;text-align:left;">`);
+    compiler.writeLn(`<table width="100%;" cellspacing="0" cellpadding="0" style="width:100%;max-width:${currWidth}px;border:none;border-spacing:0;text-align:${align};">`);
     compiler.writeLn("<tr>");
     compiler.writeLn(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
     compiler.writeLn(`<td bgcolor="${bgColor}" height="${padding}"></td>`);
@@ -710,7 +747,7 @@ var GroupNode = class _GroupNode extends Node {
     compiler.writeLn("<tr>");
     compiler.writeLn(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
     compiler.writeLn(`<td bgcolor="${bgColor}" align="${align}">`);
-    compile_with_vgap_default.compileWithVgap(compiler, this.getChildren(), align === "center");
+    compile_with_vgap_default.compileWithVgap(compiler, this.getChildren(), align);
     compiler.writeLn("</td>");
     compiler.writeLn(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
     compiler.writeLn("</tr>");
@@ -724,7 +761,7 @@ var GroupNode = class _GroupNode extends Node {
   }
 };
 
-// src/parser/nodes/ColNode.ts
+// src/nodes/ColNode.ts
 var ColNode = class _ColNode extends Node {
   static parse(parser) {
     if (parser.acceptWithVal("Ident" /* IDENT */, "col")) {
@@ -748,7 +785,7 @@ var ColNode = class _ColNode extends Node {
   }
 };
 
-// src/parser/nodes/ColsNode.ts
+// src/nodes/ColsNode.ts
 var ColsNode = class _ColsNode extends Node {
   static parse(parser) {
     if (parser.acceptWithVal("Ident" /* IDENT */, "cols")) {
@@ -812,7 +849,7 @@ var ColsNode = class _ColsNode extends Node {
   }
 };
 
-// src/parser/nodes/SpaceNode.ts
+// src/nodes/SpaceNode.ts
 var SpaceNode = class _SpaceNode extends Node {
   className;
   constructor(value, className = null) {
@@ -829,9 +866,10 @@ var SpaceNode = class _SpaceNode extends Node {
     return false;
   }
   compile(compiler) {
+    const vgap = compiler.variable("vgap");
     const width = compiler.variable("width");
     const css = compile_style_attrs_default.compileStyleAttrs(compiler, "space", this.className, {
-      "height": "25px"
+      "height": `${vgap}px`
     });
     const cssString = compile_style_attrs_default.attrsToCssString(css);
     compiler.writeLn(`<table width="100%;" cellspacing="0" cellpadding="0" style="width: 100%; max-width:${width}px;border:none;border-spacing:0;text-align:left;">`);
@@ -842,7 +880,7 @@ var SpaceNode = class _SpaceNode extends Node {
   }
 };
 
-// src/parser/nodes/BtnNode.ts
+// src/nodes/BtnNode.ts
 var BtnNode = class _BtnNode extends Node {
   className;
   url;
@@ -902,7 +940,7 @@ var BtnNode = class _BtnNode extends Node {
   }
 };
 
-// src/parser/nodes/IncludeNode.ts
+// src/nodes/IncludeNode.ts
 var fs = __toESM(require("fs"), 1);
 
 // src/lex.ts
@@ -910,7 +948,7 @@ function lex(text) {
   return new Lexer().tokenize(text);
 }
 
-// src/parser/nodes/DefNode.ts
+// src/nodes/DefNode.ts
 var DefNode = class _DefNode extends Node {
   defName;
   constructor(defName, value) {
@@ -937,7 +975,7 @@ var DefNode = class _DefNode extends Node {
   }
 };
 
-// src/parser/nodes/StylePropertyNode.ts
+// src/nodes/StylePropertyNode.ts
 var StylePropertyNode = class _StylePropertyNode extends Node {
   property;
   constructor(property, value) {
@@ -968,7 +1006,7 @@ var StylePropertyNode = class _StylePropertyNode extends Node {
   }
 };
 
-// src/parser/nodes/StyleNode.ts
+// src/nodes/StyleNode.ts
 var StyleNode = class _StyleNode extends Node {
   isClass;
   constructor(name, isClass) {
@@ -1059,7 +1097,7 @@ var Manager = class {
   }
 };
 
-// src/parser/nodes/IncludeNode.ts
+// src/nodes/IncludeNode.ts
 var IncludeNode = class _IncludeNode extends Node {
   static parse(parser) {
     if (parser.acceptWithVal("Ident" /* IDENT */, "include")) {
@@ -1100,10 +1138,10 @@ var IncludeNode = class _IncludeNode extends Node {
 
 // src/parser/helpers/parse-body.ts
 function parseBody(parser) {
-  while (IncludeNode.parse(parser) || SpaceNode.parse(parser) || ColsNode.parse(parser) || GroupNode.parse(parser) || ImgNode.parse(parser) || LineNode.parse(parser) || TxtNode.parse(parser) || BtnNode.parse(parser)) ;
+  while (IncludeNode.parse(parser) || SpaceNode.parse(parser) || ColsNode.parse(parser) || GroupNode.parse(parser) || ImgNode.parse(parser) || LineNode.parse(parser) || TxtNode.parse(parser) || BtnNode.parse(parser) || RawNode.parse(parser)) ;
 }
 
-// src/parser/nodes/BodyNode.ts
+// src/nodes/BodyNode.ts
 var BodyNode = class _BodyNode extends Node {
   static parse(parser) {
     if (parser.acceptWithVal("Ident" /* IDENT */, "body")) {
@@ -1153,7 +1191,7 @@ var BodyNode = class _BodyNode extends Node {
   }
 };
 
-// src/parser/nodes/RootNode.ts
+// src/nodes/RootNode.ts
 var RootNode = class extends Node {
   static parse(parser) {
     while (DefNode.parse(parser) || StyleNode.parse(parser) || IncludeNode.parse(parser)) ;

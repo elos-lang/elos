@@ -1,19 +1,34 @@
 group {
 	txt.h "Welcome to Elos"
+	txt.hh "Build HTML emails, but without the torture"
+	space
 	cols
 		col {
 			img "https://dummyimage.com/600x400/000/fff"
-			txt "Nice"
-			line
+			txt.hhh "Open Source Community"
+			txt.small "
+				Crafting HTML emails has always been a pain—inline styles, inconsistent rendering across email clients,
+				and a sea of outdated quirks to navigate. ELOS changes that.
+			"
+			btn "Visit Github" -> "https://github.com/elos-lang"
 		}
 		col {
 			img "https://dummyimage.com/600x400/000/fff"
-			txt "Nice"
-			line
+			txt.hhh "elos-lang.com"
+			txt.small "
+				ELOS is a declarative, developer-friendly language designed specifically for building responsive,
+				accessible, and beautifully branded HTML emails. Forget about manually wrestling with tables and
+				obscure CSS hacks.
+			"
+			btn "Visit the website" -> "https://elos-lang.com"
 		}
 		col {
 			img "https://dummyimage.com/600x400/000/fff"
-			txt "Nice"
-			line
+			txt.hhh "Use with Vite"
+			txt.small "
+				ELOS abstracts the complexities, letting you focus on design and content while ensuring rock-solid
+				email compatibility.
+			"
+			btn "Use Vite plugin" -> "https://github.com/elos-lang/vite-plugin-elos"
 		}
 }

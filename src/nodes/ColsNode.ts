@@ -1,9 +1,9 @@
 "use strict";
 
-import Node from "../Node";
+import Node from "../parser/Node";
 import ColNode from "./ColNode.js";
-import Parser from "../Parser";
-import {TokenType} from "../../types/token-type";
+import Parser from "../parser/Parser";
+import {TokenType} from "../types/token-type";
 
 export default class ColsNode extends Node {
 

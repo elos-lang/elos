@@ -1,8 +1,8 @@
-import Node from "../Node";
+import Node from "../parser/Node";
 import BodyNode from "./BodyNode";
 import DefNode from "./DefNode";
 import StyleNode from "./StyleNode";
-import Parser from "../Parser";
+import Parser from "../parser/Parser";
 import IncludeNode from "./IncludeNode";
 
 export default class RootNode extends Node {

@@ -1,8 +1,8 @@
-import Node from "../Node";
-import {TokenType} from "../../types/token-type";
-import Parser from "../Parser";
+import Node from "../parser/Node";
+import {TokenType} from "../types/token-type";
+import Parser from "../parser/Parser";
 import StyleNode from "./StyleNode";
-import Compiler from "../../compiler/Compiler";
+import Compiler from "../compiler/Compiler";
 
 export default class StylePropertyNode extends Node {
 

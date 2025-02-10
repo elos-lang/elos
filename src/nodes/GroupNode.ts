@@ -1,11 +1,12 @@
-import Node from "../Node";
-import parseBody from "../helpers/parse-body";
-import styleCompiler from "../helpers/compile-style-attrs.js";
-import parseClass from "../helpers/parse-class.js";
-import config from "../../grammar.js";
-import compilerHelpers from "../../compiler/helpers/compile-with-vgap.js";
-import {TokenType} from "../../types/token-type";
-import Parser from "../Parser";
+import Node from "../parser/Node";
+import parseBody from "../parser/helpers/parse-body";
+import styleCompiler from "../parser/helpers/compile-style-attrs.js";
+import parseClass from "../parser/helpers/parse-class.js";
+import config from "../grammar.js";
+import compilerHelpers from "../compiler/helpers/compile-with-vgap.js";
+import {TokenType} from "../types/token-type";
+import Parser from "../parser/Parser";
+import {AlignmentOption} from "../types/alignment-option";
 
 export default class GroupNode extends Node {
 
@@ -53,12 +54,12 @@ export default class GroupNode extends Node {
 
         const bgColor = css['background-color'];
         const padding = parseInt(css['padding']);
-        const align = css['text-align'];
+        const align = css['text-align'] as AlignmentOption;
 
         const currWidth = parseInt(compiler.get('currWidth'));
         compiler.remember('currWidth', currWidth - (padding*2));
 
-        compiler.writeLn(`<table width="100%;" cellspacing="0" cellpadding="0" style="width:100%;max-width:${currWidth}px;border:none;border-spacing:0;text-align:left;">`);
+        compiler.writeLn(`<table width="100%;" cellspacing="0" cellpadding="0" style="width:100%;max-width:${currWidth}px;border:none;border-spacing:0;text-align:${align};">`);
 
         compiler.writeLn('<tr>');
         compiler.writeLn(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
@@ -70,7 +71,7 @@ export default class GroupNode extends Node {
         compiler.writeLn(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
         compiler.writeLn(`<td bgcolor="${bgColor}" align="${align}">`);
 
-        compilerHelpers.compileWithVgap(compiler, this.getChildren(), (align === 'center'));
+        compilerHelpers.compileWithVgap(compiler, this.getChildren(), align);
 
         compiler.writeLn('</td>');
         compiler.writeLn(`<td bgcolor="${bgColor}" width="${padding}"></td>`);

@@ -15,6 +15,7 @@ export default class Compiler {
             edge: 35,
             hgap: 10,
             vgap: 10,
+            bgcolor: '#ffffff',
             width: 650
         },
         colsId: 0,
@@ -104,7 +105,7 @@ export default class Compiler {
                         </style>
                     ${this.getHead()}
                 </head>
-                <body>
+                <body bgcolor="${this.variable('bgcolor')}">
                     ${this.getBody()}
                 </body>
             </html>

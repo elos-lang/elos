@@ -1,9 +1,9 @@
-import Node from "../Node";
-import parseClass from "../helpers/parse-class.js";
-import styleCompiler from "../helpers/compile-style-attrs.js";
-import {Nullable} from "../../types/nullable";
-import Parser from "../Parser";
-import {TokenType} from "../../types/token-type";
+import Node from "../parser/Node";
+import parseClass from "../parser/helpers/parse-class.js";
+import styleCompiler from "../parser/helpers/compile-style-attrs.js";
+import {Nullable} from "../types/nullable";
+import Parser from "../parser/Parser";
+import {TokenType} from "../types/token-type";
 
 export default class SpaceNode extends Node {
 
@@ -28,10 +28,11 @@ export default class SpaceNode extends Node {
 
     compile(compiler) {
 
+        const vgap = compiler.variable('vgap');
         const width = compiler.variable('width');
 
         const css = styleCompiler.compileStyleAttrs(compiler, 'space', this.className,{
-            'height': '25px'
+            'height': `${vgap}px`
         });
 
         const cssString = styleCompiler.attrsToCssString(css);

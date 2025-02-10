@@ -1,10 +1,10 @@
-import Node from "../Node";
+import Node from "../parser/Node";
 import StylePropertyNode from "./StylePropertyNode.js";
-import parseClass from "../helpers/parse-class.js";
-import config from "../../grammar.js";
-import {TokenType} from "../../types/token-type";
-import Parser from "../Parser";
-import Compiler from "../../compiler/Compiler";
+import parseClass from "../parser/helpers/parse-class.js";
+import config from "../grammar.js";
+import {TokenType} from "../types/token-type";
+import Parser from "../parser/Parser";
+import Compiler from "../compiler/Compiler";
 
 export default class StyleNode extends Node {
 

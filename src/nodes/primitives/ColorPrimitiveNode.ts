@@ -1,6 +1,6 @@
-import Node from "../../Node";
-import Parser from "../../Parser";
-import {TokenType} from "../../../types/token-type";
+import Node from "../../parser/Node";
+import Parser from "../../parser/Parser";
+import {TokenType} from "../../types/token-type";
 
 export default class ColorPrimitiveNode extends Node {
 

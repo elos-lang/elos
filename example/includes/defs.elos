@@ -1,4 +1,5 @@
-def width 500
-def hgap 25
-def vgap 25
-def preview "ok"
+def width 650
+def hgap 20
+def vgap 15
+def bgcolor "#000000"
+def preview "Welcome to ELOS"

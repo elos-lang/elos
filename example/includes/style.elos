@@ -1,11 +1,46 @@
+style txt {
+	size 16
+	line 23
+	color "#b9c3d0"
+}
+
+style txt.small {
+	size 12
+	line 20
+	color "#b9c3d0"
+}
+
 style txt.h {
 	size 25
+	color "#4AFF4E"
+}
+
+style txt.hh {
+	size 20
+	color "#b9c3d0"
+}
+
+style txt.hhh {
+	size 16
+	color "#4AFF4E"
 }
 
 style btn {
-	bgcolor "blue"
+	size 14
+	padding 15
+	bgcolor "#000000"
 }
 
 style group {
-	bgcolor "red"
+	bgcolor "#0D1116"
+}
+
+style group.intro {
+	bgcolor "#0D1116"
+	align "center"
+}
+
+style group.paddingless {
+	padding 0
+	bgcolor "#0D1116"
 }

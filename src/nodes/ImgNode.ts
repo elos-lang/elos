@@ -1,9 +1,9 @@
-import Node from "../Node";
-import Parser from "../Parser";
-import {TokenType} from "../../types/token-type";
+import Node from "../parser/Node";
+import Parser from "../parser/Parser";
+import {TokenType} from "../types/token-type";
 import ArrowNode from "./ArrowNode";
-import {Nullable} from "../../types/nullable";
-import Compiler from "../../compiler/Compiler";
+import {Nullable} from "../types/nullable";
+import Compiler from "../compiler/Compiler";
 
 export default class ImgNode extends Node {
 

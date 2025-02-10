@@ -1,7 +1,7 @@
-import Node from "../Node";
+import Node from "../parser/Node";
 import ColorPrimitiveNode from "./primitives/ColorPrimitiveNode.js";
 import StringPrimitiveNode from "./primitives/StringPrimitiveNode.js";
-import Parser from "../Parser";
+import Parser from "../parser/Parser";
 
 export default class ExpressionNode extends Node {
 

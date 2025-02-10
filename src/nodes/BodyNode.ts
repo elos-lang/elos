@@ -1,10 +1,10 @@
-import Node from "../Node";
-import parseBody from "../helpers/parse-body.js";
-import compilerHelpers from "../../compiler/helpers/compile-with-vgap.js";
-import config from "../../grammar.js";
-import Parser from "../Parser";
-import {TokenType} from "../../types/token-type";
-import Compiler from "../../compiler/Compiler";
+import Node from "../parser/Node";
+import parseBody from "../parser/helpers/parse-body.js";
+import compilerHelpers from "../compiler/helpers/compile-with-vgap.js";
+import config from "../grammar.js";
+import Parser from "../parser/Parser";
+import {TokenType} from "../types/token-type";
+import Compiler from "../compiler/Compiler";
 
 export default class BodyNode extends Node {
 

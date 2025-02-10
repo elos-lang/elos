@@ -10,6 +10,11 @@ const propMap = {
         type: 'string',
         cssProperty: 'font-weight'
     },
+    line: {
+        type: 'integer',
+        unit: 'px',
+        cssProperty: 'line-height'
+    },
     height: {
         type: 'integer',
         unit: 'px',

@@ -1,0 +1,13 @@
+group.intro {
+	txt.h "Welcome to Elos"
+	txt.hh "Build HTML emails, but without the torture"
+	space
+	txt "
+		Crafting HTML emails has always been a pain—inline styles, inconsistent rendering across email clients, and a sea of outdated quirks to navigate. ELOS changes that.
+	"
+	txt "
+		ELOS is a declarative, developer-friendly language designed specifically for building responsive, accessible, and beautifully branded HTML emails. Forget about manually wrestling with tables and obscure CSS hacks—ELOS abstracts the complexities, letting you focus on design and content while ensuring rock-solid email compatibility.
+	"
+	space
+	btn "View on Github" -> "https://github.com/elos-lang"
+}
