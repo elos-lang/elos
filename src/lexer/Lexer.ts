@@ -102,6 +102,9 @@ export class Lexer {
                 case LexMode.WHITESPACE:
                     this.lexWhitespace();
                     break;
+                case LexMode.VAR:
+                    this.lexVar();
+                    break;
                 case LexMode.UNKNOWN:
                     this.lexUnknown();
                     break;
@@ -111,8 +114,11 @@ export class Lexer {
         return this.tokens;
     }
 
+    /**
+     * @private
+     */
     private atEnd(): boolean {
-        return this.cursor <= this.end;
+        return this.cursor >= this.end;
     }
 
     /**
@@ -135,6 +141,10 @@ export class Lexer {
 
         if (grammar.REGEX_NUMBER.exec(this.character)) {
             return LexMode.NUMBER;
+        }
+
+        if (grammar.REGEX_VAR_START.exec(this.character)) {
+            return LexMode.VAR;
         }
 
         if (grammar.REGEX_SYMBOL.exec(this.character)) {
@@ -171,11 +181,11 @@ export class Lexer {
     }
 
     private lexString() {
-
         if (this.delimiter !== this.character) {
             this.value += this.character;
         }
         this.cursor++;
+        this.column++;
 
         if (this.nextCharacter === this.delimiter) {
             this.tokens.push({
@@ -231,7 +241,30 @@ export class Lexer {
 
     private lexWhitespace() {
         this.cursor++;
+        this.column++;
         this.mode = LexMode.ALL;
+    }
+
+    private lexVar() {
+        if (grammar.REGEX_VAR.exec(this.character)) {
+            this.value += this.character;
+        }
+
+        this.cursor++;
+
+        if (!this.nextCharacter || !grammar.REGEX_VAR.exec(this.nextCharacter)) {
+            this.tokens.push({
+                type: TokenType.VAR,
+                value: this.value,
+                line: this.line,
+                position: this.column,
+                end: this.atEnd(),
+            });
+            this.mode = LexMode.ALL;
+            this.cursor++;
+            this.column++;
+            this.delimiter = '';
+        }
     }
 
     private lexUnknown() {

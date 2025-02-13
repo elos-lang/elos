@@ -3,6 +3,7 @@
 import Node from "../../parser/Node";
 import {TokenType} from "../../types/token-type";
 import Parser from "../../parser/Parser";
+import Compiler from "../../compiler/Compiler";
 
 export default class StringPrimitiveNode extends Node {
 
@@ -17,7 +18,7 @@ export default class StringPrimitiveNode extends Node {
         return false;
     }
 
-    compile(compiler) {
+    compile(compiler: Compiler) {
         compiler.write(this.value);
     }
 }

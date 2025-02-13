@@ -6,4 +6,5 @@ export enum TokenType {
 	WHITESPACE = 'Whitespace',
 	NEWLINE = 'Newline',
 	STRING = 'String',
+	VAR = 'Var',
 }

@@ -29,7 +29,6 @@ export default class DefNode extends Node {
                     return true;
                 }
             }
-
         }
 
         return false;

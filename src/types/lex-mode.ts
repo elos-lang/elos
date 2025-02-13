@@ -7,4 +7,5 @@ export enum LexMode {
 	WHITESPACE,
 	NEWLINE,
 	STRING,
+	VAR,
 }

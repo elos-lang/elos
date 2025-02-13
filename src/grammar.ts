@@ -7,6 +7,9 @@ export default {
     REGEX_NEWLINE: /[\n\r]/,
     REGEX_STRING_DELIMITER: /["']/,
 
+    REGEX_VAR: /[a-zA-Z_-]/,
+    REGEX_VAR_START: /\$/,
+
     BLOCK_OPEN_SYMBOL: '{',
     BLOCK_CLOSE_SYMBOL: '}'
 };

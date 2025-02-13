@@ -136,6 +136,8 @@ var grammar_default = {
   REGEX_WHITESPACE: /\s/,
   REGEX_NEWLINE: /[\n\r]/,
   REGEX_STRING_DELIMITER: /["']/,
+  REGEX_VAR: /[a-zA-Z_-]/,
+  REGEX_VAR_START: /\$/,
   BLOCK_OPEN_SYMBOL: "{",
   BLOCK_CLOSE_SYMBOL: "}"
 };
@@ -223,6 +225,9 @@ var Lexer = class {
         case 5 /* WHITESPACE */:
           this.lexWhitespace();
           break;
+        case 8 /* VAR */:
+          this.lexVar();
+          break;
         case 1 /* UNKNOWN */:
           this.lexUnknown();
           break;
@@ -230,8 +235,11 @@ var Lexer = class {
     }
     return this.tokens;
   }
+  /**
+   * @private
+   */
   atEnd() {
-    return this.cursor <= this.end;
+    return this.cursor >= this.end;
   }
   /**
    * Determines the lexing mode based on the current character
@@ -248,6 +256,9 @@ var Lexer = class {
     }
     if (grammar_default.REGEX_NUMBER.exec(this.character)) {
       return 3 /* NUMBER */;
+    }
+    if (grammar_default.REGEX_VAR_START.exec(this.character)) {
+      return 8 /* VAR */;
     }
     if (grammar_default.REGEX_SYMBOL.exec(this.character)) {
       return 4 /* SYMBOL */;
@@ -280,6 +291,7 @@ var Lexer = class {
       this.value += this.character;
     }
     this.cursor++;
+    this.column++;
     if (this.nextCharacter === this.delimiter) {
       this.tokens.push({
         type: "String" /* STRING */,
@@ -329,7 +341,27 @@ var Lexer = class {
   }
   lexWhitespace() {
     this.cursor++;
+    this.column++;
     this.mode = 0 /* ALL */;
+  }
+  lexVar() {
+    if (grammar_default.REGEX_VAR.exec(this.character)) {
+      this.value += this.character;
+    }
+    this.cursor++;
+    if (!this.nextCharacter || !grammar_default.REGEX_VAR.exec(this.nextCharacter)) {
+      this.tokens.push({
+        type: "Var" /* VAR */,
+        value: this.value,
+        line: this.line,
+        position: this.column,
+        end: this.atEnd()
+      });
+      this.mode = 0 /* ALL */;
+      this.cursor++;
+      this.column++;
+      this.delimiter = "";
+    }
   }
   lexUnknown() {
     this.tokens.push({

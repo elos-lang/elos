@@ -20,7 +20,8 @@ declare enum TokenType {
     SYMBOL = "Symbol",
     WHITESPACE = "Whitespace",
     NEWLINE = "Newline",
-    STRING = "String"
+    STRING = "String",
+    VAR = "Var"
 }
 
 type Token = {

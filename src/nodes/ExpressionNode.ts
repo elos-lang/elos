@@ -20,7 +20,7 @@ export default class ExpressionNode extends Node {
             return true;
         }
 
-        return false
+        return false;
     }
 
     compile(compiler: Compiler) {
