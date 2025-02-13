@@ -4,17 +4,9 @@ import styleCompiler from "../parser/helpers/compile-style-attrs.js";
 import {Nullable} from "../types/nullable";
 import Parser from "../parser/Parser";
 import {TokenType} from "../types/token-type";
+import Compiler from "../compiler/Compiler";
 
 export default class BtnNode extends Node {
-
-    private className: Nullable<string>;
-    private url: Nullable<string>;
-
-    constructor(value: string, className: string, url = null) {
-        super(value);
-        this.className = className;
-        this.url = url;
-    }
 
     static parse(parser: Parser) {
 
@@ -27,6 +19,12 @@ export default class BtnNode extends Node {
             let textValue = parser.getCurrVal();
             parser.advance();
 
+            const btnNode = new BtnNode(textValue);
+
+            if (className) {
+                btnNode.setAttribute('className', className);
+            }
+
             if (
                 parser.acceptWithVal(TokenType.SYMBOL, '-') &&
                 parser.acceptAtWithVal(TokenType.SYMBOL, 1, '>')
@@ -36,23 +34,29 @@ export default class BtnNode extends Node {
                 parser.expect(TokenType.STRING);
                 let urlValue = parser.getCurrVal();
 
-                parser.insert(new BtnNode(textValue, className, urlValue));
+                if (urlValue) {
+                    btnNode.setAttribute('url', urlValue);
+                }
+
+                parser.insert(btnNode);
                 parser.advance();
                 return true;
             }
 
-            parser.insert(new BtnNode(textValue, className));
+            parser.insert(btnNode);
             return true;
         }
 
         return false;
     }
 
-    compile(compiler) {
+    compile(compiler: Compiler) {
 
+        const url = this.getAttribute('url') as string || '';
+        const className = this.getAttribute('className') as string || null;
         const width = compiler.get('currWidth');
 
-        let css = styleCompiler.compileStyleAttrs(compiler, 'btn', this.className, {
+        let css = styleCompiler.compileStyleAttrs(compiler, 'btn', className, {
             'background-color': '#000000',
             'color': '#ffffff',
             'border-radius': '8px',
@@ -74,7 +78,7 @@ export default class BtnNode extends Node {
         compiler.writeLn('<tbody>');
         compiler.writeLn('<tr>');
         compiler.writeLn(`<td align="center" bgcolor="${bgColor}" role="presentation" style="border:none;border-radius:${borderRadius};cursor:auto;mso-padding-alt:${padding};background:${bgColor};" valign="middle">`);
-        compiler.writeLn(`<a href="${this.url ? this.url : '#'}" style="display:inline-block;margin:0;${cssString}" target="_blank">`);
+        compiler.writeLn(`<a href="${url ? url : '#'}" style="display:inline-block;margin:0;${cssString}" target="_blank">`);
         compiler.writeLn(this.getVal());
         compiler.writeLn('</a>');
         compiler.writeLn('</td>');

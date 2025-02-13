@@ -7,15 +7,9 @@ import compilerHelpers from "../compiler/helpers/compile-with-vgap.js";
 import {TokenType} from "../types/token-type";
 import Parser from "../parser/Parser";
 import {AlignmentOption} from "../types/alignment-option";
+import Compiler from "../compiler/Compiler";
 
 export default class GroupNode extends Node {
-
-    private className: string;
-
-    constructor(value: string, className: string) {
-        super(value);
-        this.className = className;
-    }
 
     static parse(parser: Parser) {
 
@@ -24,15 +18,21 @@ export default class GroupNode extends Node {
 
             let className = parseClass(parser);
 
-            if (parser.acceptWithVal(TokenType.SYMBOL, config.BLOCK_OPEN_SYMBOL)) {
+            if (parser.expectWithVal(TokenType.SYMBOL, config.BLOCK_OPEN_SYMBOL)) {
                 parser.advance();
 
-                parser.insert(new GroupNode('', className));
+                const groupNode = new GroupNode();
+
+                if (className) {
+                    groupNode.setAttribute('className', className);
+                }
+
+                parser.insert(groupNode);
                 parser.in();
 
                 parseBody(parser);
 
-                if (parser.acceptWithVal(TokenType.SYMBOL, config.BLOCK_CLOSE_SYMBOL)) {
+                if (parser.expectWithVal(TokenType.SYMBOL, config.BLOCK_CLOSE_SYMBOL)) {
                     parser.out();
                     parser.advance();
                 }
@@ -44,9 +44,12 @@ export default class GroupNode extends Node {
         return false;
     }
 
-    compile(compiler) {
+    compile(compiler: Compiler) {
 
-        const css = styleCompiler.compileStyleAttrs(compiler, 'group', this.className, {
+        const currentWidth = compiler.get('currWidth') as string;
+        const className= this.getAttribute('className') as string || null;
+
+        const css = styleCompiler.compileStyleAttrs(compiler, 'group', className, {
             'background-color': '#f0f0f0',
             'padding': '25px',
             'text-align': 'left'
@@ -56,7 +59,7 @@ export default class GroupNode extends Node {
         const padding = parseInt(css['padding']);
         const align = css['text-align'] as AlignmentOption;
 
-        const currWidth = parseInt(compiler.get('currWidth'));
+        const currWidth = parseInt(currentWidth);
         compiler.remember('currWidth', currWidth - (padding*2));
 
         compiler.writeLn(`<table width="100%;" cellspacing="0" cellpadding="0" style="width:100%;max-width:${currWidth}px;border:none;border-spacing:0;text-align:${align};">`);

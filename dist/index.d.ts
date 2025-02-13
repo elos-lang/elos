@@ -91,7 +91,7 @@ declare class Node {
     getChildren(): Node[];
     hasChildren(): boolean;
     setAttribute(name: string, value: AttributeValue): void;
-    getAttribute(name: string): AttributeValue;
+    getAttribute(name: string): Nullable<AttributeValue>;
     removeLastChild(): void;
     parse(parser: Parser): boolean;
     compile(compiler: any): void;

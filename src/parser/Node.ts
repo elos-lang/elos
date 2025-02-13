@@ -52,8 +52,8 @@ export default class Node {
         this.attributes[name] = value;
     }
 
-    getAttribute(name: string): AttributeValue {
-        return this.attributes[name];
+    getAttribute(name: string): Nullable<AttributeValue> {
+        return this.attributes[name] || null;
     }
 
     removeLastChild() {

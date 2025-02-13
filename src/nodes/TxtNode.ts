@@ -5,17 +5,9 @@ import {Nullable} from "../types/nullable";
 import Parser from "../parser/Parser";
 import {TokenType} from "../types/token-type";
 import ArrowNode from "./ArrowNode";
+import Compiler from "../compiler/Compiler";
 
 export default class TxtNode extends Node {
-
-    private className: Nullable<string>;
-    private url: Nullable<string>;
-
-    constructor(value: string, className: string = null, url: string = null) {
-        super(value);
-        this.className = className;
-        this.url = url;
-    }
 
     static parse(parser: Parser): boolean {
 
@@ -28,28 +20,40 @@ export default class TxtNode extends Node {
             let textValue = parser.getCurrVal();
             parser.advance();
 
+            const txtNode = new TxtNode(textValue);
+
+            if (className) {
+                txtNode.setAttribute('className', className);
+            }
+
             if (ArrowNode.parse(parser)) {
 
                 parser.expect(TokenType.STRING);
                 let urlValue = parser.getCurrVal();
 
-                parser.insert(new TxtNode(textValue, className, urlValue));
+                if (urlValue) {
+                    txtNode.setAttribute('url', urlValue);
+                }
+
+                parser.insert(txtNode);
                 parser.advance();
                 return true;
             }
 
-            parser.insert(new TxtNode(textValue, className));
+            parser.insert(txtNode);
             return true;
         }
 
         return false;
     }
 
-    compile(compiler) {
+    compile(compiler: Compiler) {
 
+        const url = this.getAttribute('url') as string || null;
+        const className = this.getAttribute('className') as string || null;
         const width = compiler.variable('width');
 
-        const css = styleCompiler.compileStyleAttrs(compiler, 'txt', this.className, {
+        const css = styleCompiler.compileStyleAttrs(compiler, 'txt', className, {
             'font-size': '12px',
             'color': '#000000',
             'line-height': '16px',
@@ -62,12 +66,14 @@ export default class TxtNode extends Node {
         compiler.writeLn('<tr>');
         compiler.writeLn(`<td style="${cssString}">`);
 
-        if (this.url) {
-            compiler.writeLn(`<a href="${this.url}" target="_blank" style="${cssString}">`);
-            compiler.writeLn(`${this.getVal()}`);
+        if (url) {
+            compiler.writeLn(`<a href="${url}" target="_blank" style="${cssString}">`);
+        }
+
+        compiler.writeLn(`${this.getVal()}`);
+
+        if (url) {
             compiler.writeLn(`</a>`);
-        } else {
-            compiler.writeLn(`${this.getVal()}`);
         }
 
         compiler.writeLn(`</td>`);

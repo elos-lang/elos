@@ -344,7 +344,7 @@ var Node = class {
     this.attributes[name] = value;
   }
   getAttribute(name) {
-    return this.attributes[name];
+    return this.attributes[name] || null;
   }
   removeLastChild() {
     this.children.pop();
@@ -521,26 +521,26 @@ var compile_style_attrs_default = {
 
 // src/nodes/LineNode.ts
 var LineNode = class _LineNode extends Node {
-  className;
-  constructor(value, className = null) {
-    super(value);
-    this.className = className;
-  }
   static parse(parser) {
     if (parser.acceptWithVal("Ident" /* IDENT */, "line")) {
       parser.advance();
       let className = parseClass(parser);
-      parser.insert(new _LineNode("", className));
+      const lineNode = new _LineNode();
+      if (className) {
+        lineNode.setAttribute("className", className);
+      }
+      parser.insert(lineNode);
       return true;
     }
     return false;
   }
   compile(compiler) {
+    const className = this.getAttribute("className") || null;
     const width = parseInt(compiler.variable("width"));
     const css = compile_style_attrs_default.compileStyleAttrs(
       compiler,
       "line",
-      this.className,
+      className,
       {
         height: "2px",
         "background-color": "#000000"
@@ -559,13 +559,6 @@ var LineNode = class _LineNode extends Node {
 
 // src/nodes/TxtNode.ts
 var TxtNode = class _TxtNode extends Node {
-  className;
-  url;
-  constructor(value, className = null, url = null) {
-    super(value);
-    this.className = className;
-    this.url = url;
-  }
   static parse(parser) {
     if (parser.acceptWithVal("Ident" /* IDENT */, "txt")) {
       parser.advance();
@@ -573,21 +566,30 @@ var TxtNode = class _TxtNode extends Node {
       parser.expect("String" /* STRING */);
       let textValue = parser.getCurrVal();
       parser.advance();
+      const txtNode = new _TxtNode(textValue);
+      if (className) {
+        txtNode.setAttribute("className", className);
+      }
       if (ArrowNode.parse(parser)) {
         parser.expect("String" /* STRING */);
         let urlValue = parser.getCurrVal();
-        parser.insert(new _TxtNode(textValue, className, urlValue));
+        if (urlValue) {
+          txtNode.setAttribute("url", urlValue);
+        }
+        parser.insert(txtNode);
         parser.advance();
         return true;
       }
-      parser.insert(new _TxtNode(textValue, className));
+      parser.insert(txtNode);
       return true;
     }
     return false;
   }
   compile(compiler) {
+    const url = this.getAttribute("url") || null;
+    const className = this.getAttribute("className") || null;
     const width = compiler.variable("width");
-    const css = compile_style_attrs_default.compileStyleAttrs(compiler, "txt", this.className, {
+    const css = compile_style_attrs_default.compileStyleAttrs(compiler, "txt", className, {
       "font-size": "12px",
       "color": "#000000",
       "line-height": "16px",
@@ -597,12 +599,12 @@ var TxtNode = class _TxtNode extends Node {
     compiler.writeLn(`<table cellspacing="0" cellpadding="0" style="max-width:${width}px;border:none;border-spacing:0;text-align:left;">`);
     compiler.writeLn("<tr>");
     compiler.writeLn(`<td style="${cssString}">`);
-    if (this.url) {
-      compiler.writeLn(`<a href="${this.url}" target="_blank" style="${cssString}">`);
-      compiler.writeLn(`${this.getVal()}`);
+    if (url) {
+      compiler.writeLn(`<a href="${url}" target="_blank" style="${cssString}">`);
+    }
+    compiler.writeLn(`${this.getVal()}`);
+    if (url) {
       compiler.writeLn(`</a>`);
-    } else {
-      compiler.writeLn(`${this.getVal()}`);
     }
     compiler.writeLn(`</td>`);
     compiler.writeLn("</tr>");
@@ -666,21 +668,20 @@ var compile_with_vgap_default = {
 
 // src/nodes/GroupNode.ts
 var GroupNode = class _GroupNode extends Node {
-  className;
-  constructor(value, className) {
-    super(value);
-    this.className = className;
-  }
   static parse(parser) {
     if (parser.acceptWithVal("Ident" /* IDENT */, "group")) {
       parser.advance();
       let className = parseClass(parser);
-      if (parser.acceptWithVal("Symbol" /* SYMBOL */, grammar_default.BLOCK_OPEN_SYMBOL)) {
+      if (parser.expectWithVal("Symbol" /* SYMBOL */, grammar_default.BLOCK_OPEN_SYMBOL)) {
         parser.advance();
-        parser.insert(new _GroupNode("", className));
+        const groupNode = new _GroupNode();
+        if (className) {
+          groupNode.setAttribute("className", className);
+        }
+        parser.insert(groupNode);
         parser.in();
         parseBody(parser);
-        if (parser.acceptWithVal("Symbol" /* SYMBOL */, grammar_default.BLOCK_CLOSE_SYMBOL)) {
+        if (parser.expectWithVal("Symbol" /* SYMBOL */, grammar_default.BLOCK_CLOSE_SYMBOL)) {
           parser.out();
           parser.advance();
         }
@@ -690,7 +691,9 @@ var GroupNode = class _GroupNode extends Node {
     return false;
   }
   compile(compiler) {
-    const css = compile_style_attrs_default.compileStyleAttrs(compiler, "group", this.className, {
+    const currentWidth = compiler.get("currWidth");
+    const className = this.getAttribute("className") || null;
+    const css = compile_style_attrs_default.compileStyleAttrs(compiler, "group", className, {
       "background-color": "#f0f0f0",
       "padding": "25px",
       "text-align": "left"
@@ -698,7 +701,7 @@ var GroupNode = class _GroupNode extends Node {
     const bgColor = css["background-color"];
     const padding = parseInt(css["padding"]);
     const align = css["text-align"];
-    const currWidth = parseInt(compiler.get("currWidth"));
+    const currWidth = parseInt(currentWidth);
     compiler.remember("currWidth", currWidth - padding * 2);
     compiler.writeLn(`<table width="100%;" cellspacing="0" cellpadding="0" style="width:100%;max-width:${currWidth}px;border:none;border-spacing:0;text-align:${align};">`);
     compiler.writeLn("<tr>");
@@ -752,11 +755,22 @@ var ColsNode = class _ColsNode extends Node {
   static parse(parser) {
     if (parser.acceptWithVal("Ident" /* IDENT */, "cols")) {
       parser.advance();
-      parser.insert(new _ColsNode());
-      parser.in();
-      while (ColNode.parse(parser)) ;
-      parser.out();
-      return true;
+      let className = parseClass(parser);
+      if (parser.expectWithVal("Symbol" /* SYMBOL */, grammar_default.BLOCK_OPEN_SYMBOL)) {
+        parser.advance();
+        const colsNode = new _ColsNode();
+        if (className) {
+          colsNode.setAttribute("className", className);
+        }
+        parser.insert(colsNode);
+        parser.in();
+        while (ColNode.parse(parser)) ;
+        if (parser.expectWithVal("Symbol" /* SYMBOL */, grammar_default.BLOCK_CLOSE_SYMBOL)) {
+          parser.out();
+          parser.advance();
+        }
+        return true;
+      }
     }
     return false;
   }
@@ -813,24 +827,24 @@ var ColsNode = class _ColsNode extends Node {
 
 // src/nodes/SpaceNode.ts
 var SpaceNode = class _SpaceNode extends Node {
-  className;
-  constructor(value, className = null) {
-    super(value);
-    this.className = className;
-  }
   static parse(parser) {
     if (parser.acceptWithVal("Ident" /* IDENT */, "space")) {
       parser.advance();
       let className = parseClass(parser);
-      parser.insert(new _SpaceNode("", className));
+      const spaceNode = new _SpaceNode();
+      if (className) {
+        spaceNode.setAttribute("className", className);
+      }
+      parser.insert(spaceNode);
       return true;
     }
     return false;
   }
   compile(compiler) {
+    const className = this.getAttribute("className") || null;
     const vgap = compiler.variable("vgap");
     const width = compiler.variable("width");
-    const css = compile_style_attrs_default.compileStyleAttrs(compiler, "space", this.className, {
+    const css = compile_style_attrs_default.compileStyleAttrs(compiler, "space", className, {
       "height": `${vgap}px`
     });
     const cssString = compile_style_attrs_default.attrsToCssString(css);
@@ -844,13 +858,6 @@ var SpaceNode = class _SpaceNode extends Node {
 
 // src/nodes/BtnNode.ts
 var BtnNode = class _BtnNode extends Node {
-  className;
-  url;
-  constructor(value, className, url = null) {
-    super(value);
-    this.className = className;
-    this.url = url;
-  }
   static parse(parser) {
     if (parser.acceptWithVal("Ident" /* IDENT */, "btn")) {
       parser.advance();
@@ -858,22 +865,31 @@ var BtnNode = class _BtnNode extends Node {
       parser.expect("String" /* STRING */);
       let textValue = parser.getCurrVal();
       parser.advance();
+      const btnNode = new _BtnNode(textValue);
+      if (className) {
+        btnNode.setAttribute("className", className);
+      }
       if (parser.acceptWithVal("Symbol" /* SYMBOL */, "-") && parser.acceptAtWithVal("Symbol" /* SYMBOL */, 1, ">")) {
         parser.advance(2);
         parser.expect("String" /* STRING */);
         let urlValue = parser.getCurrVal();
-        parser.insert(new _BtnNode(textValue, className, urlValue));
+        if (urlValue) {
+          btnNode.setAttribute("url", urlValue);
+        }
+        parser.insert(btnNode);
         parser.advance();
         return true;
       }
-      parser.insert(new _BtnNode(textValue, className));
+      parser.insert(btnNode);
       return true;
     }
     return false;
   }
   compile(compiler) {
+    const url = this.getAttribute("url") || "";
+    const className = this.getAttribute("className") || null;
     const width = compiler.get("currWidth");
-    let css = compile_style_attrs_default.compileStyleAttrs(compiler, "btn", this.className, {
+    let css = compile_style_attrs_default.compileStyleAttrs(compiler, "btn", className, {
       "background-color": "#000000",
       "color": "#ffffff",
       "border-radius": "8px",
@@ -892,7 +908,7 @@ var BtnNode = class _BtnNode extends Node {
     compiler.writeLn("<tbody>");
     compiler.writeLn("<tr>");
     compiler.writeLn(`<td align="center" bgcolor="${bgColor}" role="presentation" style="border:none;border-radius:${borderRadius};cursor:auto;mso-padding-alt:${padding};background:${bgColor};" valign="middle">`);
-    compiler.writeLn(`<a href="${this.url ? this.url : "#"}" style="display:inline-block;margin:0;${cssString}" target="_blank">`);
+    compiler.writeLn(`<a href="${url ? url : "#"}" style="display:inline-block;margin:0;${cssString}" target="_blank">`);
     compiler.writeLn(this.getVal());
     compiler.writeLn("</a>");
     compiler.writeLn("</td>");

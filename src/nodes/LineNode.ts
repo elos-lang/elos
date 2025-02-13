@@ -1,37 +1,39 @@
 import Node from "../parser/Node";
 import parseClass from "../parser/helpers/parse-class.js";
 import styleCompiler from "../parser/helpers/compile-style-attrs.js";
-import {Nullable} from "../types/nullable";
 import Parser from "../parser/Parser";
 import {TokenType} from "../types/token-type";
+import Compiler from "../compiler/Compiler";
 
 export default class LineNode extends Node {
-
-  private className: Nullable<string>;
-
-  constructor(value: string, className: string = null) {
-    super(value);
-    this.className = className;
-  }
 
   static parse(parser: Parser): boolean {
     if (parser.acceptWithVal(TokenType.IDENT, "line")) {
       parser.advance();
       let className = parseClass(parser);
-      parser.insert(new LineNode("", className));
+
+      const lineNode = new LineNode();
+
+      if (className) {
+        lineNode.setAttribute('className', className);
+      }
+
+      parser.insert(lineNode);
       return true;
     }
 
     return false;
   }
 
-  compile(compiler) {
-    const width = parseInt(compiler.variable("width"));
+  compile(compiler: Compiler) {
+
+    const className = this.getAttribute('className') as string || null;
+    const width = parseInt(compiler.variable("width") as string);
 
     const css = styleCompiler.compileStyleAttrs(
       compiler,
       "line",
-      this.className,
+      className,
       {
         height: "2px",
         "background-color": "#000000",

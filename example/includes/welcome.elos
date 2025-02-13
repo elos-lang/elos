@@ -2,7 +2,7 @@ group {
 	txt.h "Welcome to Elos"
 	txt.hh "Build HTML emails, but without the torture"
 	space
-	cols
+	cols {
 		col {
 			img "https://dummyimage.com/600x400/000/fff"
 			txt.hhh "Open Source Community"
@@ -31,4 +31,5 @@ group {
 			"
 			btn "Use Vite plugin" -> "https://github.com/elos-lang/vite-plugin-elos"
 		}
+	}
 }

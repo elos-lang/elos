@@ -2,6 +2,7 @@ import Node from "../parser/Node";
 import ColorPrimitiveNode from "./primitives/ColorPrimitiveNode.js";
 import StringPrimitiveNode from "./primitives/StringPrimitiveNode.js";
 import Parser from "../parser/Parser";
+import Compiler from "../compiler/Compiler";
 
 export default class ExpressionNode extends Node {
 
@@ -22,7 +23,7 @@ export default class ExpressionNode extends Node {
         return false
     }
 
-    compile(compiler) {
+    compile(compiler: Compiler) {
         this.getChildren().forEach((child, i) => {
             child.compile(compiler);
         });

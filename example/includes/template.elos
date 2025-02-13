@@ -2,7 +2,7 @@ img "https://dummyimage.com/600x200/0D1116/4BFE4F/" -> "https://www.google.be"
 include "includes/about"
 include "includes/welcome"
 group {
-	cols
+	cols.mycols {
 		col {
 			txt.hh "Welcome to Elos"
 			img "https://dummyimage.com/600x400/000/fff" -> "https://www.google.be"
@@ -19,6 +19,7 @@ group {
 				suscipit porta eget eget nisl.
 			"
 		}
+	}
 }
 img "https://dummyimage.com/600x200/000/fff" -> "https://www.google.be"
 space

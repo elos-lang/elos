@@ -1,6 +1,7 @@
 import Node from "../parser/Node";
 import Parser from "../parser/Parser";
 import {TokenType} from "../types/token-type";
+import Compiler from "../compiler/Compiler";
 
 export default class DefNode extends Node {
 
@@ -34,7 +35,7 @@ export default class DefNode extends Node {
         return false;
     }
 
-    compile(compiler) {
+    compile(compiler: Compiler) {
         compiler.define(this.defName, this.getVal());
     }
 }

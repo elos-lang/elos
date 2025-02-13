@@ -1,9 +1,10 @@
-"use strict";
-
 import Node from "../parser/Node";
 import ColNode from "./ColNode.js";
 import Parser from "../parser/Parser";
 import {TokenType} from "../types/token-type";
+import Compiler from "../compiler/Compiler";
+import parseClass from "../parser/helpers/parse-class";
+import config from "../grammar";
 
 export default class ColsNode extends Node {
 
@@ -12,28 +13,44 @@ export default class ColsNode extends Node {
         if (parser.acceptWithVal(TokenType.IDENT, 'cols')) {
             parser.advance();
 
-            parser.insert(new ColsNode());
-            parser.in();
+            let className = parseClass(parser);
 
-            while (ColNode.parse(parser));
+            if (parser.expectWithVal(TokenType.SYMBOL, config.BLOCK_OPEN_SYMBOL)) {
+                parser.advance();
 
-            parser.out();
-            return true;
+                const colsNode = new ColsNode();
+
+                if (className) {
+                    colsNode.setAttribute('className', className);
+                }
+
+                parser.insert(colsNode);
+                parser.in();
+
+                while (ColNode.parse(parser));
+
+                if (parser.expectWithVal(TokenType.SYMBOL, config.BLOCK_CLOSE_SYMBOL)) {
+                    parser.out();
+                    parser.advance();
+                }
+
+                return true;
+            }
         }
 
         return false;
     }
 
-    compile(compiler) {
+    compile(compiler: Compiler) {
 
-        const colsId = compiler.remember('colsId', parseInt(compiler.get('colsId')) + 1);
+        const colsId = compiler.remember('colsId', parseInt(compiler.get('colsId') as string) + 1);
 
         const scrollBarWidth = 15;
         const colCount = this.getChildren().length;
-        const currWidth = parseInt(compiler.get('currWidth'));
-        const width = parseInt(compiler.variable('width'));
-        const mediaQueryWidth = width + parseInt(compiler.variable('edge')) * 2 + scrollBarWidth;
-        const gap = parseInt(compiler.variable('hgap'));
+        const currWidth = parseInt(compiler.get('currWidth') as string);
+        const width = parseInt(compiler.variable('width') as string);
+        const mediaQueryWidth = width + parseInt(compiler.variable('edge') as string) * 2 + scrollBarWidth;
+        const gap = parseInt(compiler.variable('hgap') as string);
         const colWidth = Math.floor((currWidth / colCount) - gap + Math.floor(gap / colCount));
 
         compiler.writeLn(`<table width="100%;" cellspacing="0" cellpadding="0" style="width: 100%; max-width:${currWidth}px;border:none;border-spacing:0;text-align:left;">`);
