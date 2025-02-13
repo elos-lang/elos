@@ -49,7 +49,7 @@ See [Contributing Guide](CONTRIBUTING.md).
 - Improved (cleanup) styling system
   - Basic inheritance (extend from node style): selector "group.intro" extends from "group"
 - Syntax improvements (consistency):
-  - Every node that has a block body should use { } (e.g. cols)
+  - ~~Every node that has a block body should use { } (e.g. cols)~~
 - 100% test coverage
 - Conditionals
 
