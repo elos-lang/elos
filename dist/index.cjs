@@ -682,21 +682,107 @@ var TxtNode = class _TxtNode extends Node {
   }
 };
 
-// src/nodes/RawNode.ts
-var RawNode = class _RawNode extends Node {
+// src/nodes/primitives/ColorPrimitiveNode.ts
+var ColorPrimitiveNode = class _ColorPrimitiveNode extends Node {
   static parse(parser) {
-    if (parser.acceptWithVal("Ident" /* IDENT */, "raw")) {
-      parser.advance();
-      parser.expect("String" /* STRING */);
-      let textValue = parser.getCurrVal();
-      parser.advance();
-      parser.insert(new _RawNode(textValue));
+    if (parser.skipWithVal("Symbol" /* SYMBOL */, "#")) {
+      parser.insert(new _ColorPrimitiveNode("kleurtje"));
+      parser.advance(6);
       return true;
     }
     return false;
   }
   compile(compiler) {
-    compiler.writeLn(this.getVal());
+    compiler.write(this.getVal());
+  }
+};
+
+// src/nodes/primitives/StringPrimitiveNode.ts
+var StringPrimitiveNode = class _StringPrimitiveNode extends Node {
+  static parse(parser) {
+    if (parser.accept("String" /* STRING */)) {
+      parser.insert(new _StringPrimitiveNode(parser.getCurrVal()));
+      parser.advance();
+      return true;
+    }
+    return false;
+  }
+  compile(compiler) {
+    compiler.write(this.value);
+  }
+};
+
+// src/nodes/primitives/VariablePrimitiveNode.ts
+var VariablePrimitiveNode = class _VariablePrimitiveNode extends Node {
+  static parse(parser) {
+    if (parser.accept("Var" /* VAR */)) {
+      parser.insert(new _VariablePrimitiveNode(parser.getCurrVal()));
+      parser.advance();
+      return true;
+    }
+    return false;
+  }
+  compile(compiler) {
+    compiler.write(compiler.variable(this.value));
+  }
+};
+
+// src/nodes/OperatorNode.ts
+var OperatorNode = class _OperatorNode extends Node {
+  static parse(parser) {
+    if (parser.skipWithVal("Symbol" /* SYMBOL */, "+")) {
+      parser.insert(new _OperatorNode("+"));
+      return true;
+    }
+    return false;
+  }
+  compile(compiler) {
+  }
+};
+
+// src/nodes/ExpressionNode.ts
+var ExpressionNode = class _ExpressionNode extends Node {
+  static parse(parser) {
+    if (VariablePrimitiveNode.parse(parser) || ColorPrimitiveNode.parse(parser) || StringPrimitiveNode.parse(parser)) {
+      if (parser.getScope().getName() !== this.name) {
+        parser.wrap(new _ExpressionNode());
+      }
+      if (OperatorNode.parse(parser)) {
+        if (!this.parse(parser)) {
+          throw new Error("Unexpected token " + parser.getCurrToken().type);
+        }
+      } else {
+        parser.traverseDown();
+      }
+      return true;
+    }
+    return false;
+  }
+  compile(compiler) {
+    this.getChildren().forEach((child, i) => {
+      child.compile(compiler);
+    });
+  }
+};
+
+// src/nodes/RawNode.ts
+var RawNode = class _RawNode extends Node {
+  static parse(parser) {
+    if (parser.acceptWithVal("Ident" /* IDENT */, "raw")) {
+      parser.advance();
+      parser.insert(new _RawNode());
+      parser.traverseUp();
+      if (!ExpressionNode.parse(parser)) {
+        throw new Error("Expected an expression");
+      }
+      parser.setAttribute("expression");
+      parser.traverseDown();
+      return true;
+    }
+    return false;
+  }
+  compile(compiler) {
+    this.getAttribute("expression").compile(compiler);
   }
 };
 
@@ -1150,17 +1236,23 @@ var IncludeNode = class _IncludeNode extends Node {
   static parse(parser) {
     if (parser.acceptWithVal("Ident" /* IDENT */, "include")) {
       parser.advance();
-      parser.expect("String" /* STRING */);
-      let textValue = parser.getCurrVal();
-      parser.insert(new _IncludeNode(textValue));
-      parser.advance();
+      parser.insert(new _IncludeNode());
+      parser.traverseUp();
+      if (!ExpressionNode.parse(parser)) {
+        throw new Error("Expected an expression");
+      }
+      parser.setAttribute("expression");
+      parser.traverseDown();
       return true;
     }
     return false;
   }
   compile(compiler) {
+    const expressionCompiler = compiler.clone();
+    this.getAttribute("expression").compile(expressionCompiler);
+    const file = expressionCompiler.getBody();
     const path = compiler.get("path");
-    const filename = `${path}/${this.getVal()}.elos`;
+    const filename = `${path}/${file}.elos`;
     const code = fs.readFileSync(filename, "utf8");
     Manager.emit("fileTouch" /* FILE_TOUCH */, {
       filename

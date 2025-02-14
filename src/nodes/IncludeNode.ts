@@ -10,6 +10,7 @@ import compilerHelpers from "../compiler/helpers/compile-with-vgap";
 import AstNode from "../parser/AstNode";
 import {Manager} from "../events/Manager";
 import {EventId} from "../types/event-id";
+import ExpressionNode from "./ExpressionNode";
 
 export default class IncludeNode extends Node {
 
@@ -17,13 +18,15 @@ export default class IncludeNode extends Node {
 
         if (parser.acceptWithVal(TokenType.IDENT, 'include')) {
             parser.advance();
+            parser.insert(new IncludeNode());
+            parser.traverseUp();
 
-            parser.expect(TokenType.STRING);
-            let textValue = parser.getCurrVal();
-            parser.insert(new IncludeNode(textValue));
+            if (! ExpressionNode.parse(parser)) {
+                throw new Error('Expected an expression');
+            }
+            parser.setAttribute('expression');
 
-            parser.advance();
-
+            parser.traverseDown();
             return true;
         }
 
@@ -32,8 +35,14 @@ export default class IncludeNode extends Node {
 
     compile(compiler: Compiler) {
 
+        // Compile expression
+        const expressionCompiler = compiler.clone();
+        (this.getAttribute('expression') as ExpressionNode).compile(expressionCompiler);
+
+        const file = expressionCompiler.getBody();
+
         const path = compiler.get('path');
-        const filename = `${path}/${this.getVal()}.elos`;
+        const filename = `${path}/${file}.elos`;
         const code = fs.readFileSync(filename, 'utf8');
 
         // Emit FILE_TOUCH event
@@ -66,7 +75,6 @@ export default class IncludeNode extends Node {
         }
 
         compiler.setMemory(clonedCompiler.getMemory());
-
         compiler.writeHead(clonedCompiler.getHead());
         compiler.write(clonedCompiler.getBody());
     }

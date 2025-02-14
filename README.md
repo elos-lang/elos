@@ -45,7 +45,11 @@ See [Contributing Guide](CONTRIBUTING.md).
 [MIT](LICENSE)
 
 ## Roadmap
-- Primitives: Variables (assignment, printing), String, Number, Colors
+- Throw an Error on accessing undefined variable
+- 
+- Primitives:
+  - Use Expressions where applicable
+  - ~~Variables~~, ~~String~~, ~~Number~~, Colors
 - Improved (cleanup) styling system
   - Basic inheritance (extend from node style): selector "group.intro" extends from "group"
 - Syntax improvements (consistency):

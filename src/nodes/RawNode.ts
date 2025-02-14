@@ -2,6 +2,7 @@ import Node from "../parser/Node";
 import Parser from "../parser/Parser";
 import {TokenType} from "../types/token-type";
 import Compiler from "../compiler/Compiler";
+import ExpressionNode from "./ExpressionNode";
 
 export default class RawNode extends Node {
 
@@ -9,12 +10,15 @@ export default class RawNode extends Node {
 
         if (parser.acceptWithVal(TokenType.IDENT, 'raw')) {
             parser.advance();
+            parser.insert(new RawNode());
+            parser.traverseUp();
 
-            parser.expect(TokenType.STRING);
-            let textValue = parser.getCurrVal();
-            parser.advance();
+            if (! ExpressionNode.parse(parser)) {
+                throw new Error('Expected an expression');
+            }
+            parser.setAttribute('expression');
 
-            parser.insert(new RawNode(textValue));
+            parser.traverseDown();
             return true;
         }
 
@@ -22,6 +26,6 @@ export default class RawNode extends Node {
     }
 
     compile(compiler: Compiler) {
-        compiler.writeLn(this.getVal());
+        (this.getAttribute('expression') as ExpressionNode).compile(compiler);
     }
 }

@@ -9,7 +9,7 @@ export default class VariablePrimitiveNode extends Node {
 
 	static parse(parser: Parser): boolean {
 
-		if (parser.accept(TokenType.NUMBER)) {
+		if (parser.accept(TokenType.VAR)) {
 			parser.insert(new VariablePrimitiveNode(parser.getCurrVal()));
 			parser.advance();
 			return true;
@@ -19,6 +19,6 @@ export default class VariablePrimitiveNode extends Node {
 	}
 
 	compile(compiler: Compiler) {
-		compiler.write(this.value);
+		compiler.write(compiler.variable(this.value) as string);
 	}
 }

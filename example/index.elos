@@ -1,6 +1,9 @@
 include "includes/defs"
-include "includes/style"
+include "includes/" + "style"
+
+def tpl "default"
 
 body {
-	include "includes/template"
+	include "includes/" + $tpl
+	raw $width + " –> " + $vgap + $vgap + #f0f0f0
 }

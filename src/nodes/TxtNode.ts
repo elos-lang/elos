@@ -1,7 +1,6 @@
 import Node from "../parser/Node";
 import parseClass from "../parser/helpers/parse-class.js";
 import styleCompiler from "../parser/helpers/compile-style-attrs.js";
-import {Nullable} from "../types/nullable";
 import Parser from "../parser/Parser";
 import {TokenType} from "../types/token-type";
 import ArrowNode from "./ArrowNode";
