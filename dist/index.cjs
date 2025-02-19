@@ -138,6 +138,9 @@ var grammar_default = {
   REGEX_STRING_DELIMITER: /["']/,
   REGEX_VAR: /[a-zA-Z_-]/,
   REGEX_VAR_START: /\$/,
+  REGEX_COLOR: /[0-9a-fA-F]/,
+  REGEX_COLOR_START: /\#/,
+  COMMENT_SYMBOL: "/",
   BLOCK_OPEN_SYMBOL: "{",
   BLOCK_CLOSE_SYMBOL: "}"
 };
@@ -228,6 +231,12 @@ var Lexer = class {
         case 8 /* VAR */:
           this.lexVar();
           break;
+        case 9 /* COLOR */:
+          this.lexColor();
+          break;
+        case 10 /* COMMENT */:
+          this.lexComment();
+          break;
         case 1 /* UNKNOWN */:
           this.lexUnknown();
           break;
@@ -247,6 +256,9 @@ var Lexer = class {
    */
   determineMode() {
     this.value = "";
+    if (this.character === grammar_default.COMMENT_SYMBOL && this.nextCharacter === grammar_default.COMMENT_SYMBOL) {
+      return 10 /* COMMENT */;
+    }
     if (grammar_default.REGEX_IDENT.exec(this.character)) {
       return 2 /* IDENT */;
     }
@@ -256,6 +268,9 @@ var Lexer = class {
     }
     if (grammar_default.REGEX_NUMBER.exec(this.character)) {
       return 3 /* NUMBER */;
+    }
+    if (grammar_default.REGEX_COLOR_START.exec(this.character)) {
+      return 9 /* COLOR */;
     }
     if (grammar_default.REGEX_VAR_START.exec(this.character)) {
       return 8 /* VAR */;
@@ -344,6 +359,24 @@ var Lexer = class {
     this.column++;
     this.mode = 0 /* ALL */;
   }
+  lexColor() {
+    if (grammar_default.REGEX_COLOR.exec(this.character)) {
+      this.value += this.character;
+    }
+    this.cursor++;
+    if (!this.nextCharacter || this.value.length === 6 || !grammar_default.REGEX_COLOR.exec(this.nextCharacter)) {
+      this.tokens.push({
+        type: "Color" /* COLOR */,
+        value: this.value,
+        line: this.line,
+        position: this.column,
+        end: this.atEnd()
+      });
+      this.mode = 0 /* ALL */;
+      this.column++;
+      this.delimiter = "";
+    }
+  }
   lexVar() {
     if (grammar_default.REGEX_VAR.exec(this.character)) {
       this.value += this.character;
@@ -358,7 +391,6 @@ var Lexer = class {
         end: this.atEnd()
       });
       this.mode = 0 /* ALL */;
-      this.cursor++;
       this.column++;
       this.delimiter = "";
     }
@@ -374,6 +406,13 @@ var Lexer = class {
     this.cursor++;
     this.column++;
     this.mode = 0 /* ALL */;
+  }
+  lexComment() {
+    this.cursor++;
+    if (grammar_default.REGEX_NEWLINE.exec(this.nextCharacter)) {
+      this.mode = 0 /* ALL */;
+      this.column++;
+    }
   }
 };
 
@@ -685,15 +724,15 @@ var TxtNode = class _TxtNode extends Node {
 // src/nodes/primitives/ColorPrimitiveNode.ts
 var ColorPrimitiveNode = class _ColorPrimitiveNode extends Node {
   static parse(parser) {
-    if (parser.skipWithVal("Symbol" /* SYMBOL */, "#")) {
-      parser.insert(new _ColorPrimitiveNode("kleurtje"));
-      parser.advance(6);
+    if (parser.accept("Color" /* COLOR */)) {
+      parser.insert(new _ColorPrimitiveNode(parser.getCurrVal()));
+      parser.advance();
       return true;
     }
     return false;
   }
   compile(compiler) {
-    compiler.write(this.getVal());
+    compiler.write(`#${this.getVal()}`);
   }
 };
 

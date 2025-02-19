@@ -21,7 +21,8 @@ declare enum TokenType {
     WHITESPACE = "Whitespace",
     NEWLINE = "Newline",
     STRING = "String",
-    VAR = "Var"
+    VAR = "Var",
+    COLOR = "Color"
 }
 
 type Token = {

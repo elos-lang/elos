@@ -105,6 +105,12 @@ export class Lexer {
                 case LexMode.VAR:
                     this.lexVar();
                     break;
+                case LexMode.COLOR:
+                    this.lexColor();
+                    break;
+                case LexMode.COMMENT:
+                    this.lexComment();
+                    break;
                 case LexMode.UNKNOWN:
                     this.lexUnknown();
                     break;
@@ -130,6 +136,13 @@ export class Lexer {
         // Reset the current token value
         this.value = '';
 
+        if (
+            this.character === grammar.COMMENT_SYMBOL &&
+            this.nextCharacter === grammar.COMMENT_SYMBOL
+        ) {
+            return LexMode.COMMENT;
+        }
+
         if (grammar.REGEX_IDENT.exec(this.character)) {
             return LexMode.IDENT;
         }
@@ -141,6 +154,10 @@ export class Lexer {
 
         if (grammar.REGEX_NUMBER.exec(this.character)) {
             return LexMode.NUMBER;
+        }
+
+        if (grammar.REGEX_COLOR_START.exec(this.character)) {
+            return LexMode.COLOR;
         }
 
         if (grammar.REGEX_VAR_START.exec(this.character)) {
@@ -245,6 +262,27 @@ export class Lexer {
         this.mode = LexMode.ALL;
     }
 
+    private lexColor() {
+        if (grammar.REGEX_COLOR.exec(this.character)) {
+            this.value += this.character;
+        }
+
+        this.cursor++;
+
+        if (!this.nextCharacter || this.value.length === 6 || !grammar.REGEX_COLOR.exec(this.nextCharacter)) {
+            this.tokens.push({
+                type: TokenType.COLOR,
+                value: this.value,
+                line: this.line,
+                position: this.column,
+                end: this.atEnd(),
+            });
+            this.mode = LexMode.ALL;
+            this.column++;
+            this.delimiter = '';
+        }
+    }
+
     private lexVar() {
         if (grammar.REGEX_VAR.exec(this.character)) {
             this.value += this.character;
@@ -261,7 +299,6 @@ export class Lexer {
                 end: this.atEnd(),
             });
             this.mode = LexMode.ALL;
-            this.cursor++;
             this.column++;
             this.delimiter = '';
         }
@@ -278,5 +315,14 @@ export class Lexer {
         this.cursor++;
         this.column++;
         this.mode = LexMode.ALL;
+    }
+
+    private lexComment() {
+        this.cursor++;
+
+        if (grammar.REGEX_NEWLINE.exec(this.nextCharacter)) {
+            this.mode = LexMode.ALL;
+            this.column++;
+        }
     }
 }

@@ -50,6 +50,7 @@ See [Contributing Guide](CONTRIBUTING.md).
 - Primitives:
   - Use Expressions where applicable
   - ~~Variables~~, ~~String~~, ~~Number~~, Colors
+- ~~Single-line comments~~
 - Improved (cleanup) styling system
   - Basic inheritance (extend from node style): selector "group.intro" extends from "group"
 - Syntax improvements (consistency):
@@ -106,7 +107,7 @@ body {
     group {
         txt.h "Welcome to ELOS"
         space
-        cols
+        cols {
             col {
                 img "https://dummyimage.com/600x400/000/fff"
             }
@@ -116,12 +117,13 @@ body {
             col {
                 img "https://dummyimage.com/600x400/000/fff"
             }
+        }
     }
     group.cta {
         btn "Discover more" -> "https://github.com/elos-lang/"
     }
     group {
-        cols
+        cols {
             col {
                 txt "Welcome to ELOS"
                 img "https://dummyimage.com/600x400/000/fff"
@@ -130,10 +132,11 @@ body {
                 txt "Welcome to ELOS"
                 img "https://dummyimage.com/600x400/000/fff"
             }
+        }
     }
     line
     group.footer {
-        cols
+        cols {
             col {
                 txt.hh "Welcome to ELOS"
                 img "https://dummyimage.com/600x400/000/fff"
@@ -142,6 +145,7 @@ body {
                 txt.hh "Welcome to ELOS"
                 img "https://dummyimage.com/600x400/000/fff"
             }
+        }
     }
     space
 }

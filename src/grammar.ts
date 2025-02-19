@@ -10,6 +10,11 @@ export default {
     REGEX_VAR: /[a-zA-Z_-]/,
     REGEX_VAR_START: /\$/,
 
+    REGEX_COLOR: /[0-9a-fA-F]/,
+    REGEX_COLOR_START: /\#/,
+
+    COMMENT_SYMBOL: '/',
+
     BLOCK_OPEN_SYMBOL: '{',
     BLOCK_CLOSE_SYMBOL: '}'
 };

@@ -4,6 +4,13 @@ include "includes/" + "style"
 def tpl "default"
 
 body {
-	include "includes/" + $tpl
-	raw $width + " –> " + $vgap + $vgap + #f0f0f0
+	// this is a comment
+	// this is a comment
+	// this is a comment
+	// this is a comment
+	// this is a comment
+	// this is a comment
+	// this is a comment
+	// this is a comment
+	raw $width + " –> " + $vgap + $vgap + #f0f0f0 + "test"
 }

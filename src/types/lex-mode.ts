@@ -8,4 +8,6 @@ export enum LexMode {
 	NEWLINE,
 	STRING,
 	VAR,
+	COLOR,
+	COMMENT
 }
