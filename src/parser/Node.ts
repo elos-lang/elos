@@ -1,6 +1,7 @@
 import {Nullable} from "../types/nullable";
 import {AttributeValue} from "../types/attribute";
 import Parser from "./Parser";
+import Compiler from "../compiler/Compiler";
 
 export default class Node {
 
@@ -64,6 +65,6 @@ export default class Node {
         return false;
     }
 
-    compile(compiler) {
+    compile(compiler: Compiler) {
     }
 }

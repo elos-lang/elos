@@ -29,10 +29,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/index.ts
 var index_exports = {};
 __export(index_exports, {
-  Elos: () => Elos,
-  compile: () => compile,
-  lex: () => lex,
-  parse: () => parse
+  Elos: () => Elos
 });
 module.exports = __toCommonJS(index_exports);
 
@@ -1116,11 +1113,6 @@ var BtnNode = class _BtnNode extends Node {
 // src/nodes/IncludeNode.ts
 var fs = __toESM(require("fs"), 1);
 
-// src/lex.ts
-function lex(text) {
-  return new Lexer().tokenize(text);
-}
-
 // src/nodes/DefNode.ts
 var DefNode = class _DefNode extends Node {
   defName;
@@ -1131,7 +1123,7 @@ var DefNode = class _DefNode extends Node {
   static parse(parser) {
     if (parser.acceptWithVal("Ident" /* IDENT */, "def")) {
       parser.advance();
-      if (parser.accept("Ident" /* IDENT */)) {
+      if (parser.expect("Var" /* VAR */)) {
         let defName = parser.getCurrVal();
         parser.advance();
         if (parser.accept("String" /* STRING */) || parser.accept("Number" /* NUMBER */)) {
@@ -1296,7 +1288,7 @@ var IncludeNode = class _IncludeNode extends Node {
     Manager.emit("fileTouch" /* FILE_TOUCH */, {
       filename
     });
-    const tokens = lex(code);
+    const tokens = new Lexer().tokenize(code);
     const parser = new Parser();
     parser.setTokenStream(tokens);
     parseHead(parser);
@@ -1571,21 +1563,8 @@ var Elos = class {
     Manager.addListener(eventId, listener);
   }
 };
-
-// src/parse.ts
-function parse(tokens) {
-  return new Parser().parse(tokens);
-}
-
-// src/compile.ts
-function compile(ast) {
-  return new Compiler().compile(ast);
-}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  Elos,
-  compile,
-  lex,
-  parse
+  Elos
 });
 //# sourceMappingURL=index.cjs.map

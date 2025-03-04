@@ -1,4 +1,4 @@
-import {Lexer} from "../src/lexer/Lexer";
+import Lexer from "../src/lexer/Lexer";
 import {TokenType} from "../src/types/token-type";
 
 const makeLexer = () => {

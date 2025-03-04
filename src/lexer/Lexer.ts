@@ -3,7 +3,7 @@ import {LexMode} from "../types/lex-mode";
 import {TokenStream} from "../types/token-stream";
 import {TokenType} from "../types/token-type";
 
-export class Lexer {
+export default class Lexer {
 
     /**
      *

@@ -44,28 +44,36 @@ See [Contributing Guide](CONTRIBUTING.md).
 ## License
 [MIT](LICENSE)
 
-## Roadmap
-- Throw an Error on accessing undefined variable
-- 
+## Roadmap v1
+- Error improvements:
+  - Throw an Error on accessing undefined variable
 - Primitives:
   - Use Expressions where applicable
-  - ~~Variables~~, ~~String~~, ~~Number~~, Colors
+  - ~~Variables~~
+  - ~~String~~
+  - ~~Number~~
+  - ~~Colors~~
 - ~~Single-line comments~~
 - Improved (cleanup) styling system
   - Basic inheritance (extend from node style): selector "group.intro" extends from "group"
 - Syntax improvements (consistency):
   - ~~Every node that has a block body should use { } (e.g. cols)~~
 - 100% test coverage
-- Conditionals
+
+## Roadmap v2
+- Full templating support:
+  - Conditionals
+  - Loops (for, forEach)
+  - Advanced primitives: lists, maps
 
 ## Getting started
 
 ### Language design example
 ```
-def preview "Welcome to ELOS!"
-def width 750
-def hgap 25
-def vgap 25
+def $preview "Welcome to ELOS!"
+def $width 750
+def $hgap 25
+def $vgap 25
 
 style group {
     padding 25

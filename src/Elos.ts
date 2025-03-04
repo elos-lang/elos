@@ -1,5 +1,5 @@
 import Compiler from "./compiler/Compiler";
-import {Lexer} from "./lexer/Lexer";
+import Lexer from "./lexer/Lexer";
 import Parser from "./parser/Parser";
 import {EventListener} from "./types/event-listener";
 import {Manager} from "./events/Manager";

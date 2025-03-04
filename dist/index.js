@@ -1078,11 +1078,6 @@ var BtnNode = class _BtnNode extends Node {
 // src/nodes/IncludeNode.ts
 import * as fs from "node:fs";
 
-// src/lex.ts
-function lex(text) {
-  return new Lexer().tokenize(text);
-}
-
 // src/nodes/DefNode.ts
 var DefNode = class _DefNode extends Node {
   defName;
@@ -1093,7 +1088,7 @@ var DefNode = class _DefNode extends Node {
   static parse(parser) {
     if (parser.acceptWithVal("Ident" /* IDENT */, "def")) {
       parser.advance();
-      if (parser.accept("Ident" /* IDENT */)) {
+      if (parser.expect("Var" /* VAR */)) {
         let defName = parser.getCurrVal();
         parser.advance();
         if (parser.accept("String" /* STRING */) || parser.accept("Number" /* NUMBER */)) {
@@ -1258,7 +1253,7 @@ var IncludeNode = class _IncludeNode extends Node {
     Manager.emit("fileTouch" /* FILE_TOUCH */, {
       filename
     });
-    const tokens = lex(code);
+    const tokens = new Lexer().tokenize(code);
     const parser = new Parser();
     parser.setTokenStream(tokens);
     parseHead(parser);
@@ -1533,20 +1528,7 @@ var Elos = class {
     Manager.addListener(eventId, listener);
   }
 };
-
-// src/parse.ts
-function parse(tokens) {
-  return new Parser().parse(tokens);
-}
-
-// src/compile.ts
-function compile(ast) {
-  return new Compiler().compile(ast);
-}
 export {
-  Elos,
-  compile,
-  lex,
-  parse
+  Elos
 };
 //# sourceMappingURL=index.js.map

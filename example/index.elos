@@ -1,7 +1,7 @@
 include "includes/defs"
 include "includes/" + "style"
 
-def tpl "default"
+def $tpl "default"
 
 body {
 	// this is a comment

@@ -18,7 +18,8 @@ export default class DefNode extends Node {
         if (parser.acceptWithVal(TokenType.IDENT, 'def')) {
             parser.advance();
 
-            if (parser.accept(TokenType.IDENT)) {
+            if (parser.expect(TokenType.VAR)) {
+
                 let defName = parser.getCurrVal();
                 parser.advance();
 
