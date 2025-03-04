@@ -380,46 +380,109 @@ var Lexer = class {
 
 // src/parser/Node.ts
 var Node = class {
+  /**
+   *
+   * @protected
+   */
   value;
+  /**
+   *
+   * @protected
+   */
   parent = null;
+  /**
+   *
+   * @protected
+   */
   children = [];
+  /**
+   *
+   * @protected
+   */
   attributes = {};
+  /**
+   *
+   * @param value
+   */
   constructor(value = "") {
     this.value = value;
   }
+  /**
+   *
+   */
   getName() {
     return this.constructor.name;
   }
+  /**
+   *
+   * @param node
+   */
   setParent(node) {
     this.parent = node;
   }
+  /**
+   *
+   */
   getParent() {
     return this.parent;
   }
-  getVal() {
+  /**
+   *
+   */
+  getValue() {
     return this.value;
   }
-  setVal(value) {
+  /**
+   *
+   * @param value
+   */
+  setValue(value) {
     this.value = value;
   }
+  /**
+   *
+   * @param node
+   */
   addChild(node) {
     this.children.push(node);
   }
+  /**
+   *
+   */
   getChildren() {
     return this.children;
   }
+  /**
+   *
+   */
   hasChildren() {
     return this.children.length > 0;
   }
+  /**
+   *
+   * @param name
+   * @param value
+   */
   setAttribute(name, value) {
     this.attributes[name] = value;
   }
+  /**
+   *
+   * @param name
+   */
   getAttribute(name) {
     return this.attributes[name] || null;
   }
+  /**
+   *
+   */
   removeLastChild() {
     this.children.pop();
   }
+  /**
+   *
+   * @param parser
+   */
   parse(parser) {
     return false;
   }
@@ -437,8 +500,8 @@ var AstNode = class extends Node {
 // src/nodes/ArrowNode.ts
 var ArrowNode = class extends Node {
   static parse(parser) {
-    if (parser.acceptWithVal("Symbol" /* SYMBOL */, "-")) {
-      parser.expectAtWithVal("Symbol" /* SYMBOL */, 1, ">");
+    if (parser.acceptWithValue("Symbol" /* SYMBOL */, "-")) {
+      parser.expectAtWithValue("Symbol" /* SYMBOL */, 1, ">");
       parser.advance(2);
       return true;
     }
@@ -454,14 +517,14 @@ var ImgNode = class _ImgNode extends Node {
     this.url = url;
   }
   static parse(parser) {
-    if (parser.acceptWithVal("Ident" /* IDENT */, "img")) {
+    if (parser.acceptWithValue("Ident" /* IDENT */, "img")) {
       parser.advance();
       parser.expect("String" /* STRING */);
-      let value = parser.getCurrVal();
+      let value = parser.getCurrentValue();
       parser.advance();
       if (ArrowNode.parse(parser)) {
         parser.expect("String" /* STRING */);
-        let urlValue = parser.getCurrVal();
+        let urlValue = parser.getCurrentValue();
         parser.insert(new _ImgNode(value, urlValue));
         parser.advance();
         return true;
@@ -485,7 +548,7 @@ var ImgNode = class _ImgNode extends Node {
     if (this.url) {
       compiler.writeLn(`<a href="${this.url}" target="_blank" style="text-decoration: none;">`);
     }
-    compiler.writeLn(`<img class="elos-img-${imgId}" border="0" src="${this.getVal()}" style="display:block; border: 0; width: 100%;"/>`);
+    compiler.writeLn(`<img class="elos-img-${imgId}" border="0" src="${this.getValue()}" style="display:block; border: 0; width: 100%;"/>`);
     if (this.url) {
       compiler.writeLn(`</a>`);
     }
@@ -494,9 +557,9 @@ var ImgNode = class _ImgNode extends Node {
 
 // src/parser/helpers/parse-class.ts
 function parseClass(parser) {
-  if (parser.skipWithVal("Symbol" /* SYMBOL */, ".")) {
+  if (parser.skipWithValue("Symbol" /* SYMBOL */, ".")) {
     parser.expect("Ident" /* IDENT */);
-    let className = parser.getCurrVal();
+    let className = parser.getCurrentValue();
     parser.advance();
     return className;
   }
@@ -593,14 +656,15 @@ var compile_style_attrs_default = {
 // src/nodes/LineNode.ts
 var LineNode = class _LineNode extends Node {
   static parse(parser) {
-    if (parser.acceptWithVal("Ident" /* IDENT */, "line")) {
+    if (parser.acceptWithValue("Ident" /* IDENT */, "line")) {
       parser.advance();
+      parser.insert(new _LineNode());
+      parser.traverseUp();
       let className = parseClass(parser);
-      const lineNode = new _LineNode();
       if (className) {
-        lineNode.setAttribute("className", className);
+        parser.setAttribute("className", className);
       }
-      parser.insert(lineNode);
+      parser.traverseDown();
       return true;
     }
     return false;
@@ -631,11 +695,11 @@ var LineNode = class _LineNode extends Node {
 // src/nodes/TxtNode.ts
 var TxtNode = class _TxtNode extends Node {
   static parse(parser) {
-    if (parser.acceptWithVal("Ident" /* IDENT */, "txt")) {
+    if (parser.acceptWithValue("Ident" /* IDENT */, "txt")) {
       parser.advance();
       let className = parseClass(parser);
       parser.expect("String" /* STRING */);
-      let textValue = parser.getCurrVal();
+      let textValue = parser.getCurrentValue();
       parser.advance();
       const txtNode = new _TxtNode(textValue);
       if (className) {
@@ -643,7 +707,7 @@ var TxtNode = class _TxtNode extends Node {
       }
       if (ArrowNode.parse(parser)) {
         parser.expect("String" /* STRING */);
-        let urlValue = parser.getCurrVal();
+        let urlValue = parser.getCurrentValue();
         if (urlValue) {
           txtNode.setAttribute("url", urlValue);
         }
@@ -673,7 +737,7 @@ var TxtNode = class _TxtNode extends Node {
     if (url) {
       compiler.writeLn(`<a href="${url}" target="_blank" style="${cssString}">`);
     }
-    compiler.writeLn(`${this.getVal()}`);
+    compiler.writeLn(`${this.getValue()}`);
     if (url) {
       compiler.writeLn(`</a>`);
     }
@@ -687,14 +751,14 @@ var TxtNode = class _TxtNode extends Node {
 var ColorPrimitiveNode = class _ColorPrimitiveNode extends Node {
   static parse(parser) {
     if (parser.accept("Color" /* COLOR */)) {
-      parser.insert(new _ColorPrimitiveNode(parser.getCurrVal()));
+      parser.insert(new _ColorPrimitiveNode(parser.getCurrentValue()));
       parser.advance();
       return true;
     }
     return false;
   }
   compile(compiler) {
-    compiler.write(`#${this.getVal()}`);
+    compiler.write(`#${this.getValue()}`);
   }
 };
 
@@ -702,7 +766,7 @@ var ColorPrimitiveNode = class _ColorPrimitiveNode extends Node {
 var StringPrimitiveNode = class _StringPrimitiveNode extends Node {
   static parse(parser) {
     if (parser.accept("String" /* STRING */)) {
-      parser.insert(new _StringPrimitiveNode(parser.getCurrVal()));
+      parser.insert(new _StringPrimitiveNode(parser.getCurrentValue()));
       parser.advance();
       return true;
     }
@@ -717,7 +781,7 @@ var StringPrimitiveNode = class _StringPrimitiveNode extends Node {
 var VariablePrimitiveNode = class _VariablePrimitiveNode extends Node {
   static parse(parser) {
     if (parser.accept("Var" /* VAR */)) {
-      parser.insert(new _VariablePrimitiveNode(parser.getCurrVal()));
+      parser.insert(new _VariablePrimitiveNode(parser.getCurrentValue()));
       parser.advance();
       return true;
     }
@@ -731,7 +795,7 @@ var VariablePrimitiveNode = class _VariablePrimitiveNode extends Node {
 // src/nodes/OperatorNode.ts
 var OperatorNode = class _OperatorNode extends Node {
   static parse(parser) {
-    if (parser.skipWithVal("Symbol" /* SYMBOL */, "+")) {
+    if (parser.skipWithValue("Symbol" /* SYMBOL */, "+")) {
       parser.insert(new _OperatorNode("+"));
       return true;
     }
@@ -750,7 +814,7 @@ var ExpressionNode = class _ExpressionNode extends Node {
       }
       if (OperatorNode.parse(parser)) {
         if (!this.parse(parser)) {
-          throw new Error("Unexpected token " + parser.getCurrToken().type);
+          throw new Error("Unexpected token " + parser.getCurrentToken().type);
         }
       } else {
         parser.traverseDown();
@@ -769,7 +833,7 @@ var ExpressionNode = class _ExpressionNode extends Node {
 // src/nodes/RawNode.ts
 var RawNode = class _RawNode extends Node {
   static parse(parser) {
-    if (parser.acceptWithVal("Ident" /* IDENT */, "raw")) {
+    if (parser.acceptWithValue("Ident" /* IDENT */, "raw")) {
       parser.advance();
       parser.insert(new _RawNode());
       parser.traverseUp();
@@ -826,10 +890,10 @@ var compile_with_vgap_default = {
 // src/nodes/GroupNode.ts
 var GroupNode = class _GroupNode extends Node {
   static parse(parser) {
-    if (parser.acceptWithVal("Ident" /* IDENT */, "group")) {
+    if (parser.acceptWithValue("Ident" /* IDENT */, "group")) {
       parser.advance();
       let className = parseClass(parser);
-      if (parser.expectWithVal("Symbol" /* SYMBOL */, grammar_default.BLOCK_OPEN_SYMBOL)) {
+      if (parser.expectWithValue("Symbol" /* SYMBOL */, grammar_default.BLOCK_OPEN_SYMBOL)) {
         parser.advance();
         const groupNode = new _GroupNode();
         if (className) {
@@ -838,7 +902,7 @@ var GroupNode = class _GroupNode extends Node {
         parser.insert(groupNode);
         parser.in();
         parseBody(parser);
-        if (parser.expectWithVal("Symbol" /* SYMBOL */, grammar_default.BLOCK_CLOSE_SYMBOL)) {
+        if (parser.expectWithValue("Symbol" /* SYMBOL */, grammar_default.BLOCK_CLOSE_SYMBOL)) {
           parser.out();
           parser.advance();
         }
@@ -886,14 +950,14 @@ var GroupNode = class _GroupNode extends Node {
 // src/nodes/ColNode.ts
 var ColNode = class _ColNode extends Node {
   static parse(parser) {
-    if (parser.acceptWithVal("Ident" /* IDENT */, "col")) {
+    if (parser.acceptWithValue("Ident" /* IDENT */, "col")) {
       parser.advance();
-      if (parser.acceptWithVal("Symbol" /* SYMBOL */, grammar_default.BLOCK_OPEN_SYMBOL)) {
+      if (parser.acceptWithValue("Symbol" /* SYMBOL */, grammar_default.BLOCK_OPEN_SYMBOL)) {
         parser.advance();
         parser.insert(new _ColNode());
         parser.in();
         parseBody(parser);
-        if (parser.acceptWithVal("Symbol" /* SYMBOL */, grammar_default.BLOCK_CLOSE_SYMBOL)) {
+        if (parser.acceptWithValue("Symbol" /* SYMBOL */, grammar_default.BLOCK_CLOSE_SYMBOL)) {
           parser.out();
           parser.advance();
         }
@@ -910,10 +974,10 @@ var ColNode = class _ColNode extends Node {
 // src/nodes/ColsNode.ts
 var ColsNode = class _ColsNode extends Node {
   static parse(parser) {
-    if (parser.acceptWithVal("Ident" /* IDENT */, "cols")) {
+    if (parser.acceptWithValue("Ident" /* IDENT */, "cols")) {
       parser.advance();
       let className = parseClass(parser);
-      if (parser.expectWithVal("Symbol" /* SYMBOL */, grammar_default.BLOCK_OPEN_SYMBOL)) {
+      if (parser.expectWithValue("Symbol" /* SYMBOL */, grammar_default.BLOCK_OPEN_SYMBOL)) {
         parser.advance();
         const colsNode = new _ColsNode();
         if (className) {
@@ -922,7 +986,7 @@ var ColsNode = class _ColsNode extends Node {
         parser.insert(colsNode);
         parser.in();
         while (ColNode.parse(parser)) ;
-        if (parser.expectWithVal("Symbol" /* SYMBOL */, grammar_default.BLOCK_CLOSE_SYMBOL)) {
+        if (parser.expectWithValue("Symbol" /* SYMBOL */, grammar_default.BLOCK_CLOSE_SYMBOL)) {
           parser.out();
           parser.advance();
         }
@@ -985,7 +1049,7 @@ var ColsNode = class _ColsNode extends Node {
 // src/nodes/SpaceNode.ts
 var SpaceNode = class _SpaceNode extends Node {
   static parse(parser) {
-    if (parser.acceptWithVal("Ident" /* IDENT */, "space")) {
+    if (parser.acceptWithValue("Ident" /* IDENT */, "space")) {
       parser.advance();
       let className = parseClass(parser);
       const spaceNode = new _SpaceNode();
@@ -1019,7 +1083,6 @@ var compile_expression_into_value_default = {
     if (!expression) {
       return null;
     }
-    console.log(expression);
     const compilerClone = compiler.clone();
     expression.compile(compilerClone);
     return compilerClone.getBody();
@@ -1029,7 +1092,7 @@ var compile_expression_into_value_default = {
 // src/nodes/BtnNode.ts
 var BtnNode = class _BtnNode extends Node {
   static parse(parser) {
-    if (parser.acceptWithVal("Ident" /* IDENT */, "btn")) {
+    if (parser.acceptWithValue("Ident" /* IDENT */, "btn")) {
       parser.advance();
       parser.insert(new _BtnNode());
       parser.traverseUp();
@@ -1097,13 +1160,13 @@ var DefNode = class _DefNode extends Node {
     this.defName = defName;
   }
   static parse(parser) {
-    if (parser.acceptWithVal("Ident" /* IDENT */, "def")) {
+    if (parser.acceptWithValue("Ident" /* IDENT */, "def")) {
       parser.advance();
       if (parser.expect("Var" /* VAR */)) {
-        let defName = parser.getCurrVal();
+        let defName = parser.getCurrentValue();
         parser.advance();
         if (parser.accept("String" /* STRING */) || parser.accept("Number" /* NUMBER */)) {
-          parser.insert(new _DefNode(defName, parser.getCurrVal()));
+          parser.insert(new _DefNode(defName, parser.getCurrentValue()));
           parser.advance();
           return true;
         }
@@ -1112,7 +1175,7 @@ var DefNode = class _DefNode extends Node {
     return false;
   }
   compile(compiler) {
-    compiler.define(this.defName, this.getVal());
+    compiler.define(this.defName, this.getValue());
   }
 };
 
@@ -1125,10 +1188,10 @@ var StylePropertyNode = class _StylePropertyNode extends Node {
   }
   static parse(parser) {
     if (parser.accept("Ident" /* IDENT */)) {
-      let property = parser.getCurrVal();
+      let property = parser.getCurrentValue();
       parser.advance();
       if (parser.accept("Number" /* NUMBER */) || parser.accept("String" /* STRING */)) {
-        let value = parser.getCurrVal();
+        let value = parser.getCurrentValue();
         parser.advance();
         parser.insert(new _StylePropertyNode(property, value));
         return true;
@@ -1138,12 +1201,12 @@ var StylePropertyNode = class _StylePropertyNode extends Node {
   }
   compile(compiler) {
     const parent = this.getParent();
-    const name = parent.getVal();
+    const name = parent.getValue();
     const style = parent.isClass ? compiler.get("classes") : compiler.get("identStyles");
     if (!style[name]) {
       style[name] = [];
     }
-    style[name] = [...style[name], [this.property, this.getVal()]];
+    style[name] = [...style[name], [this.property, this.getValue()]];
   }
 };
 
@@ -1155,21 +1218,21 @@ var StyleNode = class _StyleNode extends Node {
     this.isClass = isClass;
   }
   static parse(parser) {
-    if (parser.skipWithVal("Ident" /* IDENT */, "style")) {
+    if (parser.skipWithValue("Ident" /* IDENT */, "style")) {
       let identifier = "";
       if (parser.expect("Ident" /* IDENT */)) {
-        identifier = parser.getCurrVal();
+        identifier = parser.getCurrentValue();
         parser.advance();
       }
       let className = parseClass(parser);
       let isClass = className !== null;
-      if (parser.expectWithVal("Symbol" /* SYMBOL */, grammar_default.BLOCK_OPEN_SYMBOL)) {
+      if (parser.expectWithValue("Symbol" /* SYMBOL */, grammar_default.BLOCK_OPEN_SYMBOL)) {
         parser.advance();
         parser.insert(new _StyleNode(className ? className : identifier, isClass));
         parser.in();
       }
       while (StylePropertyNode.parse(parser)) ;
-      if (parser.expectWithVal("Symbol" /* SYMBOL */, grammar_default.BLOCK_CLOSE_SYMBOL)) {
+      if (parser.expectWithValue("Symbol" /* SYMBOL */, grammar_default.BLOCK_CLOSE_SYMBOL)) {
         parser.out();
         parser.advance();
       }
@@ -1241,23 +1304,21 @@ var Manager = class {
 // src/nodes/IncludeNode.ts
 var IncludeNode = class _IncludeNode extends Node {
   static parse(parser) {
-    if (parser.acceptWithVal("Ident" /* IDENT */, "include")) {
+    if (parser.acceptWithValue("Ident" /* IDENT */, "include")) {
       parser.advance();
       parser.insert(new _IncludeNode());
       parser.traverseUp();
       if (!ExpressionNode.parse(parser)) {
         throw new Error("Expected an expression");
       }
-      parser.setAttribute("expression");
+      parser.setAttribute("fileName");
       parser.traverseDown();
       return true;
     }
     return false;
   }
   compile(compiler) {
-    const expressionCompiler = compiler.clone();
-    this.getAttribute("expression").compile(expressionCompiler);
-    const file = expressionCompiler.getBody();
+    const file = compile_expression_into_value_default.compileExpressionIntoValue(compiler, this.getAttribute("fileName"));
     const path = compiler.get("path");
     const filename = `${path}/${file}.elos`;
     const code = fs.readFileSync(filename, "utf8");
@@ -1291,14 +1352,14 @@ function parseBody(parser) {
 // src/nodes/BodyNode.ts
 var BodyNode = class _BodyNode extends Node {
   static parse(parser) {
-    if (parser.acceptWithVal("Ident" /* IDENT */, "body")) {
+    if (parser.acceptWithValue("Ident" /* IDENT */, "body")) {
       parser.advance();
-      if (parser.acceptWithVal("Symbol" /* SYMBOL */, grammar_default.BLOCK_OPEN_SYMBOL)) {
+      if (parser.acceptWithValue("Symbol" /* SYMBOL */, grammar_default.BLOCK_OPEN_SYMBOL)) {
         parser.advance();
         parser.insert(new _BodyNode());
         parser.in();
         parseBody(parser);
-        if (parser.expectWithVal("Symbol" /* SYMBOL */, grammar_default.BLOCK_CLOSE_SYMBOL)) {
+        if (parser.expectWithValue("Symbol" /* SYMBOL */, grammar_default.BLOCK_CLOSE_SYMBOL)) {
           parser.out();
           parser.advance();
         }
@@ -1366,18 +1427,45 @@ var UnexpectedToken = class extends Error {
 
 // src/parser/Parser.ts
 var Parser = class {
+  /**
+   *
+   * @private
+   */
   cursor = 0;
+  /**
+   *
+   * @private
+   */
   tokens;
+  /**
+   *
+   * @private
+   */
   ast = new AstNode();
+  /**
+   *
+   * @private
+   */
   scope = this.ast;
+  /**
+   *
+   * @param tokens
+   */
   setTokenStream(tokens) {
     this.tokens = tokens;
   }
+  /**
+   *
+   * @param tokens
+   */
   parse(tokens) {
     this.setTokenStream(tokens);
     this.parseAll();
     return this.ast;
   }
+  /**
+   *
+   */
   parseAll() {
     if (!this.tokens.length) {
       return;
@@ -1389,12 +1477,24 @@ var Parser = class {
       this.parseAll();
     }
   }
-  getCurrToken() {
+  /**
+   *
+   */
+  getCurrentToken() {
     return this.tokens[this.cursor];
   }
+  /**
+   *
+   * @param offset
+   */
   getOffsetToken(offset) {
     return this.tokens[this.cursor + offset];
   }
+  /**
+   *
+   * @param name
+   * @param value
+   */
   setAttribute(name, value = null) {
     if (value === null) {
       value = this.getLastNode();
@@ -1402,22 +1502,41 @@ var Parser = class {
     }
     this.getScope().setAttribute(name, value);
   }
-  getCurrVal() {
-    return this.getCurrToken().value;
+  /**
+   *
+   */
+  getCurrentValue() {
+    return this.getCurrentToken().value;
   }
+  /**
+   *
+   * @param offset
+   */
   advance(offset = 1) {
     this.cursor = this.cursor + offset;
   }
+  /**
+   *
+   * @param type
+   */
   accept(type) {
-    let token = this.getCurrToken();
+    let token = this.getCurrentToken();
     return token && token.type === type;
   }
+  /**
+   *
+   * @param type
+   */
   expect(type) {
     if (this.accept(type)) {
       return true;
     }
-    throw new UnexpectedToken(type, this.getCurrToken());
+    throw new UnexpectedToken(type, this.getCurrentToken());
   }
+  /**
+   *
+   * @param type
+   */
   skip(type) {
     if (this.accept(type)) {
       this.advance();
@@ -1425,37 +1544,73 @@ var Parser = class {
     }
     return false;
   }
-  skipWithVal(type, value) {
-    if (this.acceptWithVal(type, value)) {
+  /**
+   *
+   * @param type
+   * @param value
+   */
+  skipWithValue(type, value) {
+    if (this.acceptWithValue(type, value)) {
       this.advance();
       return true;
     }
     return false;
   }
+  /**
+   *
+   * @param type
+   * @param offset
+   */
   acceptAt(type, offset) {
     const token = this.getOffsetToken(offset);
     return token && token.type === type;
   }
-  acceptWithVal(type, value) {
-    const token = this.getCurrToken();
+  /**
+   *
+   * @param type
+   * @param value
+   */
+  acceptWithValue(type, value) {
+    const token = this.getCurrentToken();
     return token && token.type === type && token.value === value;
   }
-  expectWithVal(type, value) {
-    if (this.acceptWithVal(type, value)) {
+  /**
+   *
+   * @param type
+   * @param value
+   */
+  expectWithValue(type, value) {
+    if (this.acceptWithValue(type, value)) {
       return true;
     }
-    throw new UnexpectedToken(type, this.getCurrToken());
+    throw new UnexpectedToken(type, this.getCurrentToken());
   }
-  expectAtWithVal(type, offset, value) {
-    if (this.acceptAtWithVal(type, offset, value)) {
+  /**
+   *
+   * @param type
+   * @param offset
+   * @param value
+   */
+  expectAtWithValue(type, offset, value) {
+    if (this.acceptAtWithValue(type, offset, value)) {
       return true;
     }
-    throw new UnexpectedToken(type, this.getCurrToken());
+    throw new UnexpectedToken(type, this.getCurrentToken());
   }
-  acceptAtWithVal(type, offset, value) {
+  /**
+   *
+   * @param type
+   * @param offset
+   * @param value
+   */
+  acceptAtWithValue(type, offset, value) {
     const token = this.getOffsetToken(offset);
     return token && token.type === type && token.value === value;
   }
+  /**
+   *
+   * @param types
+   */
   acceptNextChain(...types) {
     let result = true;
     for (let i = 0; i < types.length; i++) {
@@ -1467,14 +1622,22 @@ var Parser = class {
     }
     return result;
   }
-  getValAt(offset) {
+  /**
+   *
+   * @param offset
+   */
+  getValueAt(offset) {
     let token = this.getOffsetToken(offset);
     if (token) {
       return token.value;
     }
     return null;
   }
-  getValChain(amount) {
+  /**
+   *
+   * @param amount
+   */
+  getValueChain(amount) {
     let val = "";
     for (let i = 0; i < amount; i++) {
       let token = this.getOffsetToken(i);
@@ -1485,31 +1648,61 @@ var Parser = class {
     }
     return val;
   }
+  /**
+   *
+   */
   in() {
     this.scope = this.getLastNode();
   }
+  /**
+   *
+   */
   out() {
     this.scope = this.scope.getParent();
   }
+  /**
+   *
+   */
   getScope() {
     return this.scope;
   }
+  /**
+   *
+   */
   getLastNode() {
     return this.scope.getChildren()[this.scope.getChildren().length - 1];
   }
+  /**
+   *
+   * @param node
+   */
   insert(node) {
     node.setParent(this.scope);
     this.scope.addChild(node);
   }
+  /**
+   *
+   * @param node
+   */
   setScope(node) {
     this.scope = node;
   }
+  /**
+   *
+   */
   traverseUp() {
     this.setScope(this.getLastNode());
   }
+  /**
+   *
+   */
   traverseDown() {
     this.setScope(this.getScope().getParent());
   }
+  /**
+   *
+   * @param node
+   */
   wrap(node) {
     const last = this.getLastNode();
     this.getScope().removeLastChild();
@@ -1517,6 +1710,9 @@ var Parser = class {
     this.traverseUp();
     this.insert(last);
   }
+  /**
+   *
+   */
   getAst() {
     return this.ast;
   }

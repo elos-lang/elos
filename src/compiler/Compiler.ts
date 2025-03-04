@@ -1,5 +1,4 @@
 import {AttributeValue} from "../types/attribute";
-import AstNode from "../parser/AstNode";
 import Node from "../parser/Node";
 
 export default class Compiler {

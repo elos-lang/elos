@@ -15,16 +15,16 @@ export default class DefNode extends Node {
 
     static parse(parser: Parser): boolean {
 
-        if (parser.acceptWithVal(TokenType.IDENT, 'def')) {
+        if (parser.acceptWithValue(TokenType.IDENT, 'def')) {
             parser.advance();
 
             if (parser.expect(TokenType.VAR)) {
 
-                let defName = parser.getCurrVal();
+                let defName = parser.getCurrentValue();
                 parser.advance();
 
                 if (parser.accept(TokenType.STRING) || parser.accept(TokenType.NUMBER)) {
-                    parser.insert(new DefNode(defName, parser.getCurrVal()));
+                    parser.insert(new DefNode(defName, parser.getCurrentValue()));
                     parser.advance();
 
                     return true;
@@ -36,6 +36,6 @@ export default class DefNode extends Node {
     }
 
     compile(compiler: Compiler) {
-        compiler.define(this.defName, this.getVal());
+        compiler.define(this.defName, this.getValue());
     }
 }

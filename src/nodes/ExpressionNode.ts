@@ -21,7 +21,7 @@ export default class ExpressionNode extends Node {
 
             if (OperatorNode.parse(parser)) {
                 if (! this.parse(parser)) {
-                    throw new Error('Unexpected token '+parser.getCurrToken().type);
+                    throw new Error('Unexpected token '+parser.getCurrentToken().type);
                 }
             } else {
                 // Get out of the expression

@@ -9,7 +9,7 @@ export default class SpaceNode extends Node {
 
     static parse(parser: Parser): boolean {
 
-        if (parser.acceptWithVal(TokenType.IDENT, 'space')) {
+        if (parser.acceptWithValue(TokenType.IDENT, 'space')) {
             parser.advance();
             let className = parseClass(parser);
 

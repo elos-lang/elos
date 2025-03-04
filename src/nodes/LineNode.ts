@@ -4,21 +4,22 @@ import styleCompiler from "../parser/helpers/compile-style-attrs.js";
 import Parser from "../parser/Parser";
 import {TokenType} from "../types/token-type";
 import Compiler from "../compiler/Compiler";
+import ExpressionNode from "./ExpressionNode";
 
 export default class LineNode extends Node {
 
   static parse(parser: Parser): boolean {
-    if (parser.acceptWithVal(TokenType.IDENT, "line")) {
+    if (parser.acceptWithValue(TokenType.IDENT, "line")) {
       parser.advance();
+      parser.insert(new LineNode());
+      parser.traverseUp();
+
       let className = parseClass(parser);
-
-      const lineNode = new LineNode();
-
       if (className) {
-        lineNode.setAttribute('className', className);
+        parser.setAttribute('className', className);
       }
 
-      parser.insert(lineNode);
+      parser.traverseDown();
       return true;
     }
 

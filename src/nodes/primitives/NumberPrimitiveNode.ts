@@ -10,7 +10,7 @@ export default class NumberPrimitiveNode extends Node {
 	static parse(parser: Parser): boolean {
 
 		if (parser.accept(TokenType.NUMBER)) {
-			parser.insert(new NumberPrimitiveNode(parser.getCurrVal()));
+			parser.insert(new NumberPrimitiveNode(parser.getCurrentValue()));
 			parser.advance();
 			return true;
 		}

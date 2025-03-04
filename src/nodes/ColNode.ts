@@ -11,10 +11,10 @@ export default class ColNode extends Node {
 
     static parse(parser: Parser) {
 
-        if (parser.acceptWithVal(TokenType.IDENT, 'col')) {
+        if (parser.acceptWithValue(TokenType.IDENT, 'col')) {
             parser.advance();
 
-            if (parser.acceptWithVal(TokenType.SYMBOL, config.BLOCK_OPEN_SYMBOL)) {
+            if (parser.acceptWithValue(TokenType.SYMBOL, config.BLOCK_OPEN_SYMBOL)) {
                 parser.advance();
 
                 parser.insert(new ColNode());
@@ -22,7 +22,7 @@ export default class ColNode extends Node {
 
                 parseBody(parser);
 
-                if (parser.acceptWithVal(TokenType.SYMBOL, config.BLOCK_CLOSE_SYMBOL)) {
+                if (parser.acceptWithValue(TokenType.SYMBOL, config.BLOCK_CLOSE_SYMBOL)) {
                     parser.out();
                     parser.advance();
                 }

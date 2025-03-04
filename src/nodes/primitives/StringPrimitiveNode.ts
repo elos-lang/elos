@@ -10,7 +10,7 @@ export default class StringPrimitiveNode extends Node {
     static parse(parser: Parser): boolean {
 
         if (parser.accept(TokenType.STRING)) {
-            parser.insert(new StringPrimitiveNode(parser.getCurrVal()));
+            parser.insert(new StringPrimitiveNode(parser.getCurrentValue()));
             parser.advance();
             return true;
         }

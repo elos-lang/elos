@@ -16,17 +16,17 @@ export default class ImgNode extends Node {
 
     static parse(parser: Parser) {
 
-        if (parser.acceptWithVal(TokenType.IDENT, 'img')) {
+        if (parser.acceptWithValue(TokenType.IDENT, 'img')) {
             parser.advance();
 
             parser.expect(TokenType.STRING);
-            let value = parser.getCurrVal();
+            let value = parser.getCurrentValue();
             parser.advance();
 
             if (ArrowNode.parse(parser)) {
 
                 parser.expect(TokenType.STRING);
-                let urlValue = parser.getCurrVal();
+                let urlValue = parser.getCurrentValue();
 
                 parser.insert(new ImgNode(value, urlValue));
                 parser.advance();
@@ -60,7 +60,7 @@ export default class ImgNode extends Node {
             compiler.writeLn(`<a href="${this.url}" target="_blank" style="text-decoration: none;">`);
         }
 
-        compiler.writeLn(`<img class="elos-img-${imgId}" border="0" src="${this.getVal()}" style="display:block; border: 0; width: 100%;"/>`);
+        compiler.writeLn(`<img class="elos-img-${imgId}" border="0" src="${this.getValue()}" style="display:block; border: 0; width: 100%;"/>`);
 
         if (this.url) {
             compiler.writeLn(`</a>`);

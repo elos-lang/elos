@@ -11,12 +11,13 @@ import {Manager} from "../events/Manager";
 import {EventId} from "../types/event-id";
 import ExpressionNode from "./ExpressionNode";
 import Lexer from "../lexer/Lexer";
+import expressionCompiler from "../compiler/helpers/compile-expression-into-value";
 
 export default class IncludeNode extends Node {
 
     static parse(parser: Parser): boolean {
 
-        if (parser.acceptWithVal(TokenType.IDENT, 'include')) {
+        if (parser.acceptWithValue(TokenType.IDENT, 'include')) {
             parser.advance();
             parser.insert(new IncludeNode());
             parser.traverseUp();
@@ -24,7 +25,7 @@ export default class IncludeNode extends Node {
             if (! ExpressionNode.parse(parser)) {
                 throw new Error('Expected an expression');
             }
-            parser.setAttribute('expression');
+            parser.setAttribute('fileName');
 
             parser.traverseDown();
             return true;
@@ -35,11 +36,8 @@ export default class IncludeNode extends Node {
 
     compile(compiler: Compiler) {
 
-        // Compile expression
-        const expressionCompiler = compiler.clone();
-        (this.getAttribute('expression') as ExpressionNode).compile(expressionCompiler);
-
-        const file = expressionCompiler.getBody();
+        // Compile fileName expression
+        const file = expressionCompiler.compileExpressionIntoValue(compiler, this.getAttribute('fileName') as ExpressionNode);
 
         const path = compiler.get('path');
         const filename = `${path}/${file}.elos`;
@@ -52,7 +50,6 @@ export default class IncludeNode extends Node {
 
         // Lex
         const tokens = (new Lexer()).tokenize(code);
-        //const tokens = lex(code);
 
         // Parse
         const parser = new Parser();

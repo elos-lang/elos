@@ -6,7 +6,7 @@ import Compiler from "../compiler/Compiler";
 export default class OperatorNode extends Node {
 
   static parse(parser: Parser): boolean {
-    if (parser.skipWithVal(TokenType.SYMBOL, '+')) {
+    if (parser.skipWithValue(TokenType.SYMBOL, '+')) {
       parser.insert(new OperatorNode('+'));
       return true;
     }

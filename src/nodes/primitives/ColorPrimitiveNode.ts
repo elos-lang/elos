@@ -8,7 +8,7 @@ export default class ColorPrimitiveNode extends Node {
     static parse(parser: Parser): boolean {
 
         if (parser.accept(TokenType.COLOR)) {
-            parser.insert(new ColorPrimitiveNode(parser.getCurrVal()));
+            parser.insert(new ColorPrimitiveNode(parser.getCurrentValue()));
             parser.advance();
             return true;
         }
@@ -17,6 +17,6 @@ export default class ColorPrimitiveNode extends Node {
     }
 
     compile(compiler: Compiler) {
-        compiler.write(`#${this.getVal()}`);
+        compiler.write(`#${this.getValue()}`);
     }
 }

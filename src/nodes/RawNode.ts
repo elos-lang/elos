@@ -8,7 +8,7 @@ export default class RawNode extends Node {
 
     static parse(parser: Parser): boolean {
 
-        if (parser.acceptWithVal(TokenType.IDENT, 'raw')) {
+        if (parser.acceptWithValue(TokenType.IDENT, 'raw')) {
             parser.advance();
             parser.insert(new RawNode());
             parser.traverseUp();

@@ -12,7 +12,7 @@ export default class BtnNode extends Node {
 
     static parse(parser: Parser) {
 
-        if (parser.acceptWithVal(TokenType.IDENT, 'btn')) {
+        if (parser.acceptWithValue(TokenType.IDENT, 'btn')) {
 
             parser.advance();
             parser.insert(new BtnNode());

@@ -4,6 +4,7 @@ import DefNode from "./DefNode";
 import StyleNode from "./StyleNode";
 import Parser from "../parser/Parser";
 import IncludeNode from "./IncludeNode";
+import Compiler from "../compiler/Compiler";
 
 export default class RootNode extends Node {
 
@@ -23,7 +24,7 @@ export default class RootNode extends Node {
         return false;
     }
 
-    compile(compiler) {
+    compile(compiler: Compiler) {
         //
     }
 }

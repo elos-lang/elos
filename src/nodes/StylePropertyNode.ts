@@ -17,11 +17,11 @@ export default class StylePropertyNode extends Node {
 
         if (parser.accept(TokenType.IDENT)) {
 
-            let property = parser.getCurrVal();
+            let property = parser.getCurrentValue();
             parser.advance();
 
             if (parser.accept(TokenType.NUMBER) || parser.accept(TokenType.STRING)) {
-                let value = parser.getCurrVal();
+                let value = parser.getCurrentValue();
                 parser.advance();
                 parser.insert(new StylePropertyNode(property, value));
 
@@ -35,13 +35,13 @@ export default class StylePropertyNode extends Node {
     compile(compiler: Compiler) {
 
         const parent = this.getParent() as StyleNode;
-        const name = parent.getVal();
+        const name = parent.getValue();
         const style = (parent.isClass ? compiler.get('classes') : compiler.get('identStyles'));
 
         if (! style[name]) {
             style[name] = [];
         }
 
-        style[name] = [...style[name], [this.property, this.getVal()]];
+        style[name] = [...style[name], [this.property, this.getValue()]];
     }
 }

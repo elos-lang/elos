@@ -10,13 +10,13 @@ export default class TxtNode extends Node {
 
     static parse(parser: Parser): boolean {
 
-        if (parser.acceptWithVal(TokenType.IDENT, 'txt')) {
+        if (parser.acceptWithValue(TokenType.IDENT, 'txt')) {
             parser.advance();
 
             let className = parseClass(parser);
 
             parser.expect(TokenType.STRING);
-            let textValue = parser.getCurrVal();
+            let textValue = parser.getCurrentValue();
             parser.advance();
 
             const txtNode = new TxtNode(textValue);
@@ -28,7 +28,7 @@ export default class TxtNode extends Node {
             if (ArrowNode.parse(parser)) {
 
                 parser.expect(TokenType.STRING);
-                let urlValue = parser.getCurrVal();
+                let urlValue = parser.getCurrentValue();
 
                 if (urlValue) {
                     txtNode.setAttribute('url', urlValue);
@@ -69,7 +69,7 @@ export default class TxtNode extends Node {
             compiler.writeLn(`<a href="${url}" target="_blank" style="${cssString}">`);
         }
 
-        compiler.writeLn(`${this.getVal()}`);
+        compiler.writeLn(`${this.getValue()}`);
 
         if (url) {
             compiler.writeLn(`</a>`);

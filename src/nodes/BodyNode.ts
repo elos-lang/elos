@@ -10,10 +10,10 @@ export default class BodyNode extends Node {
 
     static parse(parser: Parser): boolean {
 
-        if (parser.acceptWithVal(TokenType.IDENT, 'body')) {
+        if (parser.acceptWithValue(TokenType.IDENT, 'body')) {
             parser.advance();
 
-            if (parser.acceptWithVal(TokenType.SYMBOL, config.BLOCK_OPEN_SYMBOL)) {
+            if (parser.acceptWithValue(TokenType.SYMBOL, config.BLOCK_OPEN_SYMBOL)) {
                 parser.advance();
 
                 parser.insert(new BodyNode());
@@ -21,7 +21,7 @@ export default class BodyNode extends Node {
 
                 parseBody(parser);
 
-                if (parser.expectWithVal(TokenType.SYMBOL, config.BLOCK_CLOSE_SYMBOL)) {
+                if (parser.expectWithValue(TokenType.SYMBOL, config.BLOCK_CLOSE_SYMBOL)) {
                     parser.out();
                     parser.advance();
                 }

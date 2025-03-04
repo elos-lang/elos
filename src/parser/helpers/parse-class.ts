@@ -4,9 +4,9 @@ import {Nullable} from "../../types/nullable";
 
 export default function parseClass(parser: Parser): Nullable<string> {
 
-    if (parser.skipWithVal(TokenType.SYMBOL, '.')) {
+    if (parser.skipWithValue(TokenType.SYMBOL, '.')) {
         parser.expect(TokenType.IDENT);
-        let className = parser.getCurrVal();
+        let className = parser.getCurrentValue();
         parser.advance();
         return className;
     }

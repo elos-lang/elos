@@ -17,19 +17,19 @@ export default class StyleNode extends Node {
 
     static parse(parser: Parser): boolean {
 
-        if (parser.skipWithVal(TokenType.IDENT, 'style')) {
+        if (parser.skipWithValue(TokenType.IDENT, 'style')) {
 
             let identifier = '';
 
             if (parser.expect(TokenType.IDENT)) {
-                identifier = parser.getCurrVal();
+                identifier = parser.getCurrentValue();
                 parser.advance();
             }
 
             let className = parseClass(parser);
             let isClass = (className !== null);
 
-            if (parser.expectWithVal(TokenType.SYMBOL, config.BLOCK_OPEN_SYMBOL)) {
+            if (parser.expectWithValue(TokenType.SYMBOL, config.BLOCK_OPEN_SYMBOL)) {
                 parser.advance();
 
                 parser.insert(new StyleNode(className ? className : identifier, isClass));
@@ -38,7 +38,7 @@ export default class StyleNode extends Node {
 
             while (StylePropertyNode.parse(parser));
 
-            if (parser.expectWithVal(TokenType.SYMBOL, config.BLOCK_CLOSE_SYMBOL)) {
+            if (parser.expectWithValue(TokenType.SYMBOL, config.BLOCK_CLOSE_SYMBOL)) {
                 parser.out();
                 parser.advance();
             }

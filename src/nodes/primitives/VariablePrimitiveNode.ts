@@ -10,7 +10,7 @@ export default class VariablePrimitiveNode extends Node {
 	static parse(parser: Parser): boolean {
 
 		if (parser.accept(TokenType.VAR)) {
-			parser.insert(new VariablePrimitiveNode(parser.getCurrVal()));
+			parser.insert(new VariablePrimitiveNode(parser.getCurrentValue()));
 			parser.advance();
 			return true;
 		}

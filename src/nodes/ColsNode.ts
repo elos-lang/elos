@@ -10,12 +10,12 @@ export default class ColsNode extends Node {
 
     static parse(parser: Parser): boolean {
 
-        if (parser.acceptWithVal(TokenType.IDENT, 'cols')) {
+        if (parser.acceptWithValue(TokenType.IDENT, 'cols')) {
             parser.advance();
 
             let className = parseClass(parser);
 
-            if (parser.expectWithVal(TokenType.SYMBOL, config.BLOCK_OPEN_SYMBOL)) {
+            if (parser.expectWithValue(TokenType.SYMBOL, config.BLOCK_OPEN_SYMBOL)) {
                 parser.advance();
 
                 const colsNode = new ColsNode();
@@ -29,7 +29,7 @@ export default class ColsNode extends Node {
 
                 while (ColNode.parse(parser));
 
-                if (parser.expectWithVal(TokenType.SYMBOL, config.BLOCK_CLOSE_SYMBOL)) {
+                if (parser.expectWithValue(TokenType.SYMBOL, config.BLOCK_CLOSE_SYMBOL)) {
                     parser.out();
                     parser.advance();
                 }

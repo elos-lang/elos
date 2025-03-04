@@ -13,12 +13,12 @@ export default class GroupNode extends Node {
 
     static parse(parser: Parser) {
 
-        if (parser.acceptWithVal(TokenType.IDENT, 'group')) {
+        if (parser.acceptWithValue(TokenType.IDENT, 'group')) {
             parser.advance();
 
             let className = parseClass(parser);
 
-            if (parser.expectWithVal(TokenType.SYMBOL, config.BLOCK_OPEN_SYMBOL)) {
+            if (parser.expectWithValue(TokenType.SYMBOL, config.BLOCK_OPEN_SYMBOL)) {
                 parser.advance();
 
                 const groupNode = new GroupNode();
@@ -32,7 +32,7 @@ export default class GroupNode extends Node {
 
                 parseBody(parser);
 
-                if (parser.expectWithVal(TokenType.SYMBOL, config.BLOCK_CLOSE_SYMBOL)) {
+                if (parser.expectWithValue(TokenType.SYMBOL, config.BLOCK_CLOSE_SYMBOL)) {
                     parser.out();
                     parser.advance();
                 }

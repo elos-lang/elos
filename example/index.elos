@@ -4,5 +4,5 @@ include "includes/" + "style"
 def $tpl "default"
 
 body {
-	btn.class $tpl -> "https://www.google.be"
+	btn.class "test" -> "https://www.google.be"
 }
