@@ -1013,38 +1013,49 @@ var SpaceNode = class _SpaceNode extends Node {
   }
 };
 
+// src/compiler/helpers/compile-expression-into-value.ts
+var compile_expression_into_value_default = {
+  compileExpressionIntoValue(compiler, expression) {
+    if (!expression) {
+      return null;
+    }
+    console.log(expression);
+    const compilerClone = compiler.clone();
+    expression.compile(compilerClone);
+    return compilerClone.getBody();
+  }
+};
+
 // src/nodes/BtnNode.ts
 var BtnNode = class _BtnNode extends Node {
   static parse(parser) {
     if (parser.acceptWithVal("Ident" /* IDENT */, "btn")) {
       parser.advance();
+      parser.insert(new _BtnNode());
+      parser.traverseUp();
       let className = parseClass(parser);
-      parser.expect("String" /* STRING */);
-      let textValue = parser.getCurrVal();
-      parser.advance();
-      const btnNode = new _BtnNode(textValue);
       if (className) {
-        btnNode.setAttribute("className", className);
+        parser.setAttribute("className", className);
       }
-      if (parser.acceptWithVal("Symbol" /* SYMBOL */, "-") && parser.acceptAtWithVal("Symbol" /* SYMBOL */, 1, ">")) {
-        parser.advance(2);
-        parser.expect("String" /* STRING */);
-        let urlValue = parser.getCurrVal();
-        if (urlValue) {
-          btnNode.setAttribute("url", urlValue);
+      if (!ExpressionNode.parse(parser)) {
+        throw new Error("Expected an expression");
+      }
+      parser.setAttribute("expression");
+      if (ArrowNode.parse(parser)) {
+        if (!ExpressionNode.parse(parser)) {
+          throw new Error("Expected an expression");
         }
-        parser.insert(btnNode);
-        parser.advance();
-        return true;
+        parser.setAttribute("url");
       }
-      parser.insert(btnNode);
+      parser.traverseDown();
       return true;
     }
     return false;
   }
   compile(compiler) {
-    const url = this.getAttribute("url") || "";
-    const className = this.getAttribute("className") || null;
+    const expression = compile_expression_into_value_default.compileExpressionIntoValue(compiler, this.getAttribute("expression"));
+    const className = this.getAttribute("className");
+    const url = compile_expression_into_value_default.compileExpressionIntoValue(compiler, this.getAttribute("url"));
     const width = compiler.get("currWidth");
     let css = compile_style_attrs_default.compileStyleAttrs(compiler, "btn", className, {
       "background-color": "#000000",
@@ -1066,7 +1077,7 @@ var BtnNode = class _BtnNode extends Node {
     compiler.writeLn("<tr>");
     compiler.writeLn(`<td align="center" bgcolor="${bgColor}" role="presentation" style="border:none;border-radius:${borderRadius};cursor:auto;mso-padding-alt:${padding};background:${bgColor};" valign="middle">`);
     compiler.writeLn(`<a href="${url ? url : "#"}" style="display:inline-block;margin:0;${cssString}" target="_blank">`);
-    compiler.writeLn(this.getVal());
+    compiler.writeLn(expression);
     compiler.writeLn("</a>");
     compiler.writeLn("</td>");
     compiler.writeLn("</tr>");
@@ -1384,10 +1395,12 @@ var Parser = class {
   getOffsetToken(offset) {
     return this.tokens[this.cursor + offset];
   }
-  setAttribute(name) {
-    const last = this.getLastNode();
-    this.getScope().removeLastChild();
-    this.getScope().setAttribute(name, last);
+  setAttribute(name, value = null) {
+    if (value === null) {
+      value = this.getLastNode();
+      this.getScope().removeLastChild();
+    }
+    this.getScope().setAttribute(name, value);
   }
   getCurrVal() {
     return this.getCurrToken().value;

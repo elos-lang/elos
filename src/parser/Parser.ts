@@ -4,6 +4,7 @@ import AstNode from "./AstNode";
 import RootNode from "../nodes/RootNode";
 import {TokenType} from "../types/token-type";
 import UnexpectedToken from "../errors/UnexpectedToken";
+import {Nullable} from "../types/nullable";
 
 export default class Parser {
 
@@ -44,14 +45,16 @@ export default class Parser {
         return this.tokens[this.cursor];
     }
 
-    getOffsetToken(offset) {
+    getOffsetToken(offset: number) {
         return this.tokens[this.cursor + offset];
     }
 
-    setAttribute(name: string) {
-        const last = this.getLastNode();
-        this.getScope().removeLastChild();
-        this.getScope().setAttribute(name, last);
+    setAttribute(name: string, value: Nullable<string | Node> = null) {
+        if (value === null) {
+            value = this.getLastNode();
+            this.getScope().removeLastChild();
+        }
+        this.getScope().setAttribute(name, value);
     }
 
     getCurrVal() {

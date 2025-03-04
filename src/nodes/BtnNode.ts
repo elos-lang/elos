@@ -1,49 +1,43 @@
 import Node from "../parser/Node";
 import parseClass from "../parser/helpers/parse-class.js";
 import styleCompiler from "../parser/helpers/compile-style-attrs.js";
-import {Nullable} from "../types/nullable";
 import Parser from "../parser/Parser";
 import {TokenType} from "../types/token-type";
 import Compiler from "../compiler/Compiler";
+import ArrowNode from "./ArrowNode";
+import ExpressionNode from "./ExpressionNode";
+import expressionCompiler from "../compiler/helpers/compile-expression-into-value";
 
 export default class BtnNode extends Node {
 
     static parse(parser: Parser) {
 
         if (parser.acceptWithVal(TokenType.IDENT, 'btn')) {
+
             parser.advance();
+            parser.insert(new BtnNode());
+            parser.traverseUp();
 
             let className = parseClass(parser);
-
-            parser.expect(TokenType.STRING);
-            let textValue = parser.getCurrVal();
-            parser.advance();
-
-            const btnNode = new BtnNode(textValue);
-
             if (className) {
-                btnNode.setAttribute('className', className);
+                parser.setAttribute('className', className);
             }
 
-            if (
-                parser.acceptWithVal(TokenType.SYMBOL, '-') &&
-                parser.acceptAtWithVal(TokenType.SYMBOL, 1, '>')
-            ) {
-                parser.advance(2);
+            if (! ExpressionNode.parse(parser)) {
+                throw new Error('Expected an expression');
+            }
+            parser.setAttribute('expression');
 
-                parser.expect(TokenType.STRING);
-                let urlValue = parser.getCurrVal();
+            if (ArrowNode.parse(parser)) {
 
-                if (urlValue) {
-                    btnNode.setAttribute('url', urlValue);
+                if (! ExpressionNode.parse(parser)) {
+                    throw new Error('Expected an expression');
                 }
-
-                parser.insert(btnNode);
-                parser.advance();
-                return true;
+                parser.setAttribute('url');
             }
 
-            parser.insert(btnNode);
+            parser.traverseDown();
+
             return true;
         }
 
@@ -52,8 +46,10 @@ export default class BtnNode extends Node {
 
     compile(compiler: Compiler) {
 
-        const url = this.getAttribute('url') as string || '';
-        const className = this.getAttribute('className') as string || null;
+        const expression = expressionCompiler.compileExpressionIntoValue(compiler, this.getAttribute('expression') as ExpressionNode);
+        const className = this.getAttribute('className') as string;
+        const url = expressionCompiler.compileExpressionIntoValue(compiler, this.getAttribute('url') as ExpressionNode);
+
         const width = compiler.get('currWidth');
 
         let css = styleCompiler.compileStyleAttrs(compiler, 'btn', className, {
@@ -79,7 +75,7 @@ export default class BtnNode extends Node {
         compiler.writeLn('<tr>');
         compiler.writeLn(`<td align="center" bgcolor="${bgColor}" role="presentation" style="border:none;border-radius:${borderRadius};cursor:auto;mso-padding-alt:${padding};background:${bgColor};" valign="middle">`);
         compiler.writeLn(`<a href="${url ? url : '#'}" style="display:inline-block;margin:0;${cssString}" target="_blank">`);
-        compiler.writeLn(this.getVal());
+        compiler.writeLn(expression);
         compiler.writeLn('</a>');
         compiler.writeLn('</td>');
         compiler.writeLn('</tr>');

@@ -4,13 +4,5 @@ include "includes/" + "style"
 def $tpl "default"
 
 body {
-	// this is a comment
-	// this is a comment
-	// this is a comment
-	// this is a comment
-	// this is a comment
-	// this is a comment
-	// this is a comment
-	// this is a comment
-	raw $width + " –> " + $vgap + $vgap + #f0f0f0 + "test"
+	btn.class $tpl -> "https://www.google.be"
 }

@@ -1,5 +1,5 @@
 def $width 650
 def $hgap 20
 def $vgap 15
-def $bgcolor "#000000"
+def $bgcolor "#cccccc"
 def $preview "Welcome to ELOS"
