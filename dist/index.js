@@ -191,7 +191,7 @@ var Lexer = class {
           this.lexWhitespace();
           break;
         case 8 /* VAR */:
-          this.lexVar();
+          this.lexVariable();
           break;
         case 9 /* COLOR */:
           this.lexColor();
@@ -209,8 +209,9 @@ var Lexer = class {
   /**
    * @private
    */
-  atEnd() {
-    return this.cursor >= this.end;
+  atEnd(accountForDelimiter = false) {
+    const offset = accountForDelimiter ? 1 : 0;
+    return this.cursor + offset >= this.end;
   }
   /**
    * Determines the lexing mode based on the current character
@@ -251,7 +252,6 @@ var Lexer = class {
   lexIdent() {
     this.value += this.character;
     this.cursor++;
-    this.column++;
     if (!this.nextCharacter || !grammar_default.REGEX_IDENT.exec(this.nextCharacter)) {
       this.tokens.push({
         type: "Ident" /* IDENT */,
@@ -260,6 +260,7 @@ var Lexer = class {
         position: this.column,
         end: this.atEnd()
       });
+      this.column += this.value.length;
       this.mode = 0 /* ALL */;
     }
   }
@@ -268,18 +269,17 @@ var Lexer = class {
       this.value += this.character;
     }
     this.cursor++;
-    this.column++;
     if (this.nextCharacter === this.delimiter) {
       this.tokens.push({
         type: "String" /* STRING */,
         value: this.value,
         line: this.line,
         position: this.column,
-        end: this.atEnd()
+        end: this.atEnd(true)
       });
-      this.mode = 0 /* ALL */;
       this.cursor++;
-      this.column++;
+      this.column += this.value.length + 2;
+      this.mode = 0 /* ALL */;
       this.delimiter = "";
     }
   }
@@ -299,6 +299,7 @@ var Lexer = class {
     }
   }
   lexSymbol() {
+    this.cursor++;
     this.tokens.push({
       type: "Symbol" /* SYMBOL */,
       value: this.character,
@@ -306,14 +307,13 @@ var Lexer = class {
       position: this.column,
       end: this.atEnd()
     });
-    this.cursor++;
     this.column++;
     this.mode = 0 /* ALL */;
   }
   lexNewline() {
     this.cursor++;
     this.line++;
-    this.column = 0;
+    this.column = 1;
     this.mode = 0 /* ALL */;
   }
   lexWhitespace() {
@@ -335,11 +335,11 @@ var Lexer = class {
         end: this.atEnd()
       });
       this.mode = 0 /* ALL */;
-      this.column++;
+      this.column += this.value.length + 1;
       this.delimiter = "";
     }
   }
-  lexVar() {
+  lexVariable() {
     if (grammar_default.REGEX_VAR.exec(this.character)) {
       this.value += this.character;
     }
@@ -353,7 +353,7 @@ var Lexer = class {
         end: this.atEnd()
       });
       this.mode = 0 /* ALL */;
-      this.column++;
+      this.column += this.value.length + 1;
       this.delimiter = "";
     }
   }

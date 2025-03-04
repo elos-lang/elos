@@ -103,7 +103,7 @@ export default class Lexer {
                     this.lexWhitespace();
                     break;
                 case LexMode.VAR:
-                    this.lexVar();
+                    this.lexVariable();
                     break;
                 case LexMode.COLOR:
                     this.lexColor();
@@ -123,8 +123,9 @@ export default class Lexer {
     /**
      * @private
      */
-    private atEnd(): boolean {
-        return this.cursor >= this.end;
+    private atEnd(accountForDelimiter: boolean = false): boolean {
+        const offset = accountForDelimiter ? 1 : 0;
+        return this.cursor + offset >= this.end;
     }
 
     /**
@@ -183,7 +184,6 @@ export default class Lexer {
 
         this.value += this.character;
         this.cursor++;
-        this.column++;
 
         if (! this.nextCharacter || ! grammar.REGEX_IDENT.exec(this.nextCharacter)) {
             this.tokens.push({
@@ -193,16 +193,18 @@ export default class Lexer {
                 position: this.column,
                 end: this.atEnd(),
             });
+            this.column += this.value.length;
             this.mode = LexMode.ALL;
         }
     }
 
     private lexString() {
+
         if (this.delimiter !== this.character) {
             this.value += this.character;
         }
+
         this.cursor++;
-        this.column++;
 
         if (this.nextCharacter === this.delimiter) {
             this.tokens.push({
@@ -210,11 +212,11 @@ export default class Lexer {
                 value: this.value,
                 line: this.line,
                 position: this.column,
-                end: this.atEnd(),
+                end: this.atEnd(true),
             });
-            this.mode = LexMode.ALL;
             this.cursor++;
-            this.column++;
+            this.column += this.value.length + 2; // We add 2 characters to account for the start & stop delimiter characters
+            this.mode = LexMode.ALL;
             this.delimiter = '';
         }
     }
@@ -237,6 +239,9 @@ export default class Lexer {
     }
 
     private lexSymbol() {
+
+        this.cursor++;
+
         this.tokens.push({
             type: TokenType.SYMBOL,
             value: this.character,
@@ -244,7 +249,6 @@ export default class Lexer {
             position: this.column,
             end: this.atEnd(),
         });
-        this.cursor++;
         this.column++;
         this.mode = LexMode.ALL;
     }
@@ -252,7 +256,7 @@ export default class Lexer {
     private lexNewline() {
         this.cursor++;
         this.line++;
-        this.column = 0;
+        this.column = 1;
         this.mode = LexMode.ALL;
     }
 
@@ -278,12 +282,12 @@ export default class Lexer {
                 end: this.atEnd(),
             });
             this.mode = LexMode.ALL;
-            this.column++;
+            this.column += this.value.length + 1; // We add 1 character to account for the # at the start
             this.delimiter = '';
         }
     }
 
-    private lexVar() {
+    private lexVariable() {
         if (grammar.REGEX_VAR.exec(this.character)) {
             this.value += this.character;
         }
@@ -299,7 +303,7 @@ export default class Lexer {
                 end: this.atEnd(),
             });
             this.mode = LexMode.ALL;
-            this.column++;
+            this.column += this.value.length + 1; // We add 1 character to account for the $ at the start
             this.delimiter = '';
         }
     }
