@@ -1,9 +1,7 @@
-"use strict";
-
 import Node from "../parser/Node";
 import parseBody from "../parser/helpers/parse-body";
-import compilerHelpers from "../compiler/helpers/compile-with-vgap.js";
-import config from "../grammar.js";
+import compilerHelpers from "../compiler/helpers/compile-with-vgap";
+import config from "../grammar";
 import {TokenType} from "../types/token-type";
 import Parser from "../parser/Parser";
 

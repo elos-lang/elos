@@ -1,4 +1,4 @@
-import {TokenType} from "../../types/token-type.js";
+import {TokenType} from "../../types/token-type";
 import Parser from "../Parser";
 import {Nullable} from "../../types/nullable";
 

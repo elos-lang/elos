@@ -5,12 +5,12 @@ import Compiler from "../compiler/Compiler";
 
 export default class DefNode extends Node {
 
-    private readonly defName: string;
+    private readonly variableName: string;
 
     constructor(defName: string, value: string) {
         super(value);
 
-        this.defName = defName;
+        this.variableName = defName;
     }
 
     static parse(parser: Parser): boolean {
@@ -35,7 +35,11 @@ export default class DefNode extends Node {
         return false;
     }
 
+    public getVariableName(): string {
+        return this.variableName;
+    }
+
     compile(compiler: Compiler) {
-        compiler.define(this.defName, this.getValue());
+        compiler.define(this.variableName, this.getValue());
     }
 }

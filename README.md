@@ -49,6 +49,10 @@ See [Contributing Guide](CONTRIBUTING.md).
   - Throw an Error on accessing undefined variable
 - Primitives:
   - Use Expressions where applicable
+    - **TODO:**
+      - DefNode
+      - TxtNode
+      - ImgNode
   - ~~Variables~~
   - ~~String~~
   - ~~Number~~

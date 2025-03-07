@@ -1,10 +1,9 @@
 import Node from "../parser/Node";
-import parseClass from "../parser/helpers/parse-class.js";
-import styleCompiler from "../parser/helpers/compile-style-attrs.js";
+import parseClass from "../parser/helpers/parse-class";
+import styleCompiler from "../parser/helpers/compile-style-attrs";
 import Parser from "../parser/Parser";
 import {TokenType} from "../types/token-type";
 import Compiler from "../compiler/Compiler";
-import ExpressionNode from "./ExpressionNode";
 
 export default class LineNode extends Node {
 

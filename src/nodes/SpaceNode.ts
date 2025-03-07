@@ -1,6 +1,6 @@
 import Node from "../parser/Node";
-import parseClass from "../parser/helpers/parse-class.js";
-import styleCompiler from "../parser/helpers/compile-style-attrs.js";
+import parseClass from "../parser/helpers/parse-class";
+import styleCompiler from "../parser/helpers/compile-style-attrs";
 import Parser from "../parser/Parser";
 import {TokenType} from "../types/token-type";
 import Compiler from "../compiler/Compiler";
@@ -10,16 +10,17 @@ export default class SpaceNode extends Node {
     static parse(parser: Parser): boolean {
 
         if (parser.acceptWithValue(TokenType.IDENT, 'space')) {
+
             parser.advance();
+            parser.insert(new SpaceNode());
+            parser.traverseUp();
+
             let className = parseClass(parser);
-
-            const spaceNode = new SpaceNode();
-
             if (className) {
-                spaceNode.setAttribute('className', className);
+                parser.setAttribute('className', className);
             }
 
-            parser.insert(spaceNode);
+            parser.traverseDown();
             return true;
         }
 

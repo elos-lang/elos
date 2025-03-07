@@ -1,5 +1,5 @@
 import Node from "../parser/Node";
-import ColNode from "./ColNode.js";
+import ColNode from "./ColNode";
 import Parser from "../parser/Parser";
 import {TokenType} from "../types/token-type";
 import Compiler from "../compiler/Compiler";
