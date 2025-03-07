@@ -5,41 +5,39 @@ import Parser from "../parser/Parser";
 import {TokenType} from "../types/token-type";
 import ArrowNode from "./ArrowNode";
 import Compiler from "../compiler/Compiler";
+import ExpressionNode from "./ExpressionNode";
+import expressionCompiler from "../compiler/helpers/compile-expression-into-value";
 
 export default class TxtNode extends Node {
 
-    static parse(parser: Parser): boolean {
+    static parse(parser: Parser) {
 
         if (parser.acceptWithValue(TokenType.IDENT, 'txt')) {
+
             parser.advance();
+            parser.insert(new TxtNode());
+            parser.traverseUp();
 
             let className = parseClass(parser);
-
-            parser.expect(TokenType.STRING);
-            let textValue = parser.getCurrentValue();
-            parser.advance();
-
-            const txtNode = new TxtNode(textValue);
-
             if (className) {
-                txtNode.setAttribute('className', className);
+                parser.setAttribute('className', className);
             }
+
+            if (! ExpressionNode.parse(parser)) {
+                throw new Error('Expected an expression');
+            }
+            parser.setAttribute('text');
 
             if (ArrowNode.parse(parser)) {
 
-                parser.expect(TokenType.STRING);
-                let urlValue = parser.getCurrentValue();
-
-                if (urlValue) {
-                    txtNode.setAttribute('url', urlValue);
+                if (! ExpressionNode.parse(parser)) {
+                    throw new Error('Expected an expression');
                 }
-
-                parser.insert(txtNode);
-                parser.advance();
-                return true;
+                parser.setAttribute('url');
             }
 
-            parser.insert(txtNode);
+            parser.traverseDown();
+
             return true;
         }
 
@@ -48,8 +46,10 @@ export default class TxtNode extends Node {
 
     compile(compiler: Compiler) {
 
-        const url = this.getAttribute('url') as string || null;
-        const className = this.getAttribute('className') as string || null;
+        const text = expressionCompiler.compileExpressionIntoValue(compiler, this.getAttribute('text') as ExpressionNode);
+        const className = this.getAttribute('className') as string;
+        const url = expressionCompiler.compileExpressionIntoValue(compiler, this.getAttribute('url') as ExpressionNode);
+
         const width = compiler.variable('width');
 
         const css = styleCompiler.compileStyleAttrs(compiler, 'txt', className, {
@@ -69,7 +69,7 @@ export default class TxtNode extends Node {
             compiler.writeLn(`<a href="${url}" target="_blank" style="${cssString}">`);
         }
 
-        compiler.writeLn(`${this.getValue()}`);
+        compiler.writeLn(text);
 
         if (url) {
             compiler.writeLn(`</a>`);
