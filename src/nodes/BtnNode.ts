@@ -26,7 +26,7 @@ export default class BtnNode extends Node {
             if (! ExpressionNode.parse(parser)) {
                 throw new Error('Expected an expression');
             }
-            parser.setAttribute('expression');
+            parser.setAttribute('text');
 
             if (ArrowNode.parse(parser)) {
 
@@ -46,7 +46,7 @@ export default class BtnNode extends Node {
 
     compile(compiler: Compiler) {
 
-        const expression = expressionCompiler.compileExpressionIntoValue(compiler, this.getAttribute('expression') as ExpressionNode);
+        const expression = expressionCompiler.compileExpressionIntoValue(compiler, this.getAttribute('text') as ExpressionNode);
         const className = this.getAttribute('className') as string;
         const url = expressionCompiler.compileExpressionIntoValue(compiler, this.getAttribute('url') as ExpressionNode);
 

@@ -414,7 +414,7 @@ var Lexer = class {
 };
 
 // src/parser/Node.ts
-var Node = class {
+var Node = class _Node {
   /**
    *
    * @protected
@@ -511,6 +511,12 @@ var Node = class {
   /**
    *
    */
+  getAttributes() {
+    return this.attributes;
+  }
+  /**
+   *
+   */
   removeLastChild() {
     this.children.pop();
   }
@@ -521,7 +527,34 @@ var Node = class {
   parse(parser) {
     return false;
   }
+  /**
+   *
+   * @param compiler
+   */
   compile(compiler) {
+  }
+  print() {
+    const printNode = (node, indentAmount = 0) => {
+      const nodeName = node.getName();
+      const nodeValue = node.getValue();
+      let attributes = node.getAttributes();
+      let attributesString = [];
+      for (let attribute in attributes) {
+        let attrValue = attributes[attribute];
+        if (attrValue instanceof _Node) {
+          const attrNodeValue = attrValue.getValue();
+          attrValue = `${attrValue.getName()}${attrNodeValue ? `(${attrNodeValue})` : ""}`;
+        }
+        attributesString.push(`${attribute}=${attrValue}`);
+      }
+      let tabs = indentAmount > 0 ? "   ".repeat(indentAmount - 1) + "\u2514\u2500\u2500" : "";
+      let output = [`${tabs}${nodeName}${nodeValue ? `(${nodeValue})` : ""} ${attributesString.join(" ")}`];
+      node.getChildren().forEach((childNode) => {
+        output.push(printNode(childNode, indentAmount + 1));
+      });
+      return output.join("\n");
+    };
+    return printNode(this);
   }
 };
 
@@ -1086,12 +1119,13 @@ var SpaceNode = class _SpaceNode extends Node {
   static parse(parser) {
     if (parser.acceptWithValue("Ident" /* IDENT */, "space")) {
       parser.advance();
+      parser.insert(new _SpaceNode());
+      parser.traverseUp();
       let className = parseClass(parser);
-      const spaceNode = new _SpaceNode();
       if (className) {
-        spaceNode.setAttribute("className", className);
+        parser.setAttribute("className", className);
       }
-      parser.insert(spaceNode);
+      parser.traverseDown();
       return true;
     }
     return false;
@@ -1138,7 +1172,7 @@ var BtnNode = class _BtnNode extends Node {
       if (!ExpressionNode.parse(parser)) {
         throw new Error("Expected an expression");
       }
-      parser.setAttribute("expression");
+      parser.setAttribute("text");
       if (ArrowNode.parse(parser)) {
         if (!ExpressionNode.parse(parser)) {
           throw new Error("Expected an expression");
@@ -1151,7 +1185,7 @@ var BtnNode = class _BtnNode extends Node {
     return false;
   }
   compile(compiler) {
-    const expression = compile_expression_into_value_default.compileExpressionIntoValue(compiler, this.getAttribute("expression"));
+    const expression = compile_expression_into_value_default.compileExpressionIntoValue(compiler, this.getAttribute("text"));
     const className = this.getAttribute("className");
     const url = compile_expression_into_value_default.compileExpressionIntoValue(compiler, this.getAttribute("url"));
     const width = compiler.get("currWidth");
@@ -1189,10 +1223,10 @@ var fs = __toESM(require("fs"), 1);
 
 // src/nodes/DefNode.ts
 var DefNode = class _DefNode extends Node {
-  defName;
+  variableName;
   constructor(defName, value) {
     super(value);
-    this.defName = defName;
+    this.variableName = defName;
   }
   static parse(parser) {
     if (parser.acceptWithValue("Ident" /* IDENT */, "def")) {
@@ -1209,8 +1243,11 @@ var DefNode = class _DefNode extends Node {
     }
     return false;
   }
+  getVariableName() {
+    return this.variableName;
+  }
   compile(compiler) {
-    compiler.define(this.defName, this.getValue());
+    compiler.define(this.variableName, this.getValue());
   }
 };
 
@@ -1644,47 +1681,6 @@ var Parser = class {
   }
   /**
    *
-   * @param types
-   */
-  acceptNextChain(...types) {
-    let result = true;
-    for (let i = 0; i < types.length; i++) {
-      let token = this.getOffsetToken(i);
-      if (!token) {
-        return false;
-      }
-      result = result && token.type === types[i];
-    }
-    return result;
-  }
-  /**
-   *
-   * @param offset
-   */
-  getValueAt(offset) {
-    let token = this.getOffsetToken(offset);
-    if (token) {
-      return token.value;
-    }
-    return null;
-  }
-  /**
-   *
-   * @param amount
-   */
-  getValueChain(amount) {
-    let val = "";
-    for (let i = 0; i < amount; i++) {
-      let token = this.getOffsetToken(i);
-      if (!token) {
-        return val;
-      }
-      val += token.value;
-    }
-    return val;
-  }
-  /**
-   *
    */
   in() {
     this.scope = this.getLastNode();
@@ -1762,6 +1758,7 @@ var Elos = class {
   static make(code, path = "") {
     const tokens = new Lexer().tokenize(code);
     const ast = new Parser().parse(tokens);
+    console.log(ast.print());
     return new Compiler({ path }).compile(ast);
   }
   /**

@@ -125,11 +125,9 @@ export default class Parser {
      * @param type
      */
     expect(type: TokenType): boolean {
-
         if (this.accept(type)) {
             return true;
         }
-
         throw new UnexpectedToken(type, this.getCurrentToken());
     }
 
@@ -203,11 +201,9 @@ export default class Parser {
      * @param value
      */
     expectAtWithValue(type: TokenType, offset: number, value: string): boolean {
-
         if (this.acceptAtWithValue(type, offset, value)) {
             return true;
         }
-
         throw new UnexpectedToken(type, this.getCurrentToken());
     }
 
@@ -224,58 +220,6 @@ export default class Parser {
             token.type === type &&
             token.value === value
         );
-    }
-
-    /**
-     *
-     * @param types
-     */
-    acceptNextChain(...types: TokenType[]): boolean {
-
-        let result = true;
-
-        for (let i = 0; i < types.length; i++) {
-
-            let token = this.getOffsetToken(i);
-
-            if (!token) {
-                return false;
-            }
-
-            result = (result && token.type === types[i]);
-        }
-
-        return result;
-    }
-
-    /**
-     *
-     * @param offset
-     */
-    getValueAt(offset: number): string {
-        let token = this.getOffsetToken(offset);
-        if (token) {
-            return token.value;
-        }
-        return null;
-    }
-
-    /**
-     *
-     * @param amount
-     */
-    getValueChain(amount: number): string {
-        let val = '';
-
-        for (let i = 0; i < amount; i++) {
-            let token = this.getOffsetToken(i);
-            if (! token) {
-                return val;
-            }
-            val += token.value;
-        }
-
-        return val;
     }
 
     /**

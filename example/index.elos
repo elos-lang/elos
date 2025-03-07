@@ -5,4 +5,21 @@ def $tpl "default"
 
 body {
 	btn.class "test" -> "https://www.google.be"
+	txt "Something"
+	txt "Something"
+	txt "Something"
+	txt "Something"
+	cols {
+		col {
+			txt "Wow"
+			txt "Wow"
+			txt "Wow"
+		}
+		col {
+			txt "Something"
+		}
+	}
+	group {
+		txt "Something"
+	}
 }

@@ -2,6 +2,7 @@ import {Nullable} from "../types/nullable";
 import {AttributeValue} from "../types/attribute";
 import Parser from "./Parser";
 import Compiler from "../compiler/Compiler";
+import ExpressionNode from "../nodes/ExpressionNode";
 
 export default class Node {
 
@@ -116,6 +117,13 @@ export default class Node {
     /**
      *
      */
+    getAttributes(): Record<string, AttributeValue> {
+        return this.attributes;
+    }
+
+    /**
+     *
+     */
     removeLastChild() {
         this.children.pop();
     }
@@ -128,6 +136,41 @@ export default class Node {
         return false;
     }
 
+    /**
+     *
+     * @param compiler
+     */
     compile(compiler: Compiler) {
+    }
+
+    print(): string {
+
+        const printNode = (node: Node, indentAmount: number = 0): string => {
+
+            const nodeName = node.getName();
+            const nodeValue = node.getValue();
+
+            let attributes = node.getAttributes();
+            let attributesString = [];
+            for (let attribute in attributes) {
+                let attrValue = attributes[attribute];
+                if (attrValue instanceof Node) {
+                    const attrNodeValue = attrValue.getValue();
+                    attrValue = `${attrValue.getName()}${attrNodeValue ? `(${attrNodeValue})` : ''}`;
+                }
+                attributesString.push(`${attribute}=${attrValue}`);
+            }
+
+            let tabs = indentAmount > 0 ? "   ".repeat(indentAmount - 1) + "└──" : "";
+            let output = [`${tabs}${nodeName}${nodeValue ? `(${nodeValue})` : ''} ${attributesString.join(' ')}`];
+
+            node.getChildren().forEach(childNode => {
+                output.push(printNode(childNode, indentAmount + 1));
+            });
+
+            return output.join("\n");
+        };
+
+        return printNode(this);
     }
 }
