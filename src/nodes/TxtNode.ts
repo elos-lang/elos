@@ -13,7 +13,6 @@ export default class TxtNode extends Node {
     static parse(parser: Parser) {
 
         if (parser.acceptWithValue(TokenType.IDENT, 'txt')) {
-
             parser.advance();
             parser.insert(new TxtNode());
             parser.traverseUp();
@@ -29,7 +28,6 @@ export default class TxtNode extends Node {
             parser.setAttribute('text');
 
             if (ArrowNode.parse(parser)) {
-
                 if (! ExpressionNode.parse(parser)) {
                     throw new Error('Expected an expression');
                 }

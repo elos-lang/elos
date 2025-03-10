@@ -5,11 +5,13 @@ import Parser from "../parser/Parser";
 import Compiler from "../compiler/Compiler";
 import VariablePrimitiveNode from "./primitives/VariablePrimitiveNode";
 import OperatorNode from "./OperatorNode";
+import NumberPrimitiveNode from "./primitives/NumberPrimitiveNode";
 
 export default class ExpressionNode extends Node {
 
     static parse(parser: Parser): boolean {
         if (
+            NumberPrimitiveNode.parse(parser) ||
             VariablePrimitiveNode.parse(parser) ||
             ColorPrimitiveNode.parse(parser) ||
             StringPrimitiveNode.parse(parser)

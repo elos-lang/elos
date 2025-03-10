@@ -542,52 +542,6 @@ var ArrowNode = class extends Node {
   }
 };
 
-// src/nodes/ImgNode.ts
-var ImgNode = class _ImgNode extends Node {
-  url;
-  constructor(value, url = null) {
-    super(value);
-    this.url = url;
-  }
-  static parse(parser) {
-    if (parser.acceptWithValue("Ident" /* IDENT */, "img")) {
-      parser.advance();
-      parser.expect("String" /* STRING */);
-      let value = parser.getCurrentValue();
-      parser.advance();
-      if (ArrowNode.parse(parser)) {
-        parser.expect("String" /* STRING */);
-        let urlValue = parser.getCurrentValue();
-        parser.insert(new _ImgNode(value, urlValue));
-        parser.advance();
-        return true;
-      }
-      parser.insert(new _ImgNode(value));
-      return true;
-    }
-    return false;
-  }
-  compile(compiler) {
-    const scrollBarWidth = 15;
-    const width = parseInt(compiler.variable("width"));
-    const mediaQueryWidth = width + parseInt(compiler.variable("edge")) * 2 + scrollBarWidth;
-    const imgId = compiler.remember("imgId", parseInt(compiler.get("imgId")) + 1);
-    const currWidth = parseInt(compiler.get("currWidth"));
-    compiler.writeLnHead(`<style media="screen and (min-width:${mediaQueryWidth}px)">`);
-    compiler.writeLnHead(`.elos-img-${imgId} {`);
-    compiler.writeLnHead(`width: ${currWidth}px !important;`);
-    compiler.writeLnHead("}");
-    compiler.writeLnHead("</style>");
-    if (this.url) {
-      compiler.writeLn(`<a href="${this.url}" target="_blank" style="text-decoration: none;">`);
-    }
-    compiler.writeLn(`<img class="elos-img-${imgId}" border="0" src="${this.getValue()}" style="display:block; border: 0; width: 100%;"/>`);
-    if (this.url) {
-      compiler.writeLn(`</a>`);
-    }
-  }
-};
-
 // src/parser/helpers/parse-class.ts
 function parseClass(parser) {
   if (parser.skipWithValue("Symbol" /* SYMBOL */, ".")) {
@@ -598,6 +552,165 @@ function parseClass(parser) {
   }
   return null;
 }
+
+// src/nodes/primitives/ColorPrimitiveNode.ts
+var ColorPrimitiveNode = class _ColorPrimitiveNode extends Node {
+  static parse(parser) {
+    if (parser.accept("Color" /* COLOR */)) {
+      parser.insert(new _ColorPrimitiveNode(parser.getCurrentValue()));
+      parser.advance();
+      return true;
+    }
+    return false;
+  }
+  compile(compiler) {
+    compiler.write(`#${this.getValue()}`);
+  }
+};
+
+// src/nodes/primitives/StringPrimitiveNode.ts
+var StringPrimitiveNode = class _StringPrimitiveNode extends Node {
+  static parse(parser) {
+    if (parser.accept("String" /* STRING */)) {
+      parser.insert(new _StringPrimitiveNode(parser.getCurrentValue()));
+      parser.advance();
+      return true;
+    }
+    return false;
+  }
+  compile(compiler) {
+    compiler.write(this.value);
+  }
+};
+
+// src/nodes/primitives/VariablePrimitiveNode.ts
+var VariablePrimitiveNode = class _VariablePrimitiveNode extends Node {
+  static parse(parser) {
+    if (parser.accept("Var" /* VAR */)) {
+      parser.insert(new _VariablePrimitiveNode(parser.getCurrentValue()));
+      parser.advance();
+      return true;
+    }
+    return false;
+  }
+  compile(compiler) {
+    compiler.write(compiler.variable(this.value));
+  }
+};
+
+// src/nodes/OperatorNode.ts
+var OperatorNode = class _OperatorNode extends Node {
+  static parse(parser) {
+    if (parser.skipWithValue("Symbol" /* SYMBOL */, "+")) {
+      parser.insert(new _OperatorNode("+"));
+      return true;
+    }
+    return false;
+  }
+  compile(compiler) {
+  }
+};
+
+// src/nodes/primitives/NumberPrimitiveNode.ts
+var NumberPrimitiveNode = class _NumberPrimitiveNode extends Node {
+  static parse(parser) {
+    if (parser.accept("Number" /* NUMBER */)) {
+      parser.insert(new _NumberPrimitiveNode(parser.getCurrentValue()));
+      parser.advance();
+      return true;
+    }
+    return false;
+  }
+  compile(compiler) {
+    compiler.write(this.value);
+  }
+};
+
+// src/nodes/ExpressionNode.ts
+var ExpressionNode = class _ExpressionNode extends Node {
+  static parse(parser) {
+    if (NumberPrimitiveNode.parse(parser) || VariablePrimitiveNode.parse(parser) || ColorPrimitiveNode.parse(parser) || StringPrimitiveNode.parse(parser)) {
+      if (parser.getScope().getName() !== this.name) {
+        parser.wrap(new _ExpressionNode());
+      }
+      if (OperatorNode.parse(parser)) {
+        if (!this.parse(parser)) {
+          throw new Error("Unexpected token " + parser.getCurrentToken().type);
+        }
+      } else {
+        parser.traverseDown();
+      }
+      return true;
+    }
+    return false;
+  }
+  compile(compiler) {
+    this.getChildren().forEach((child, i) => {
+      child.compile(compiler);
+    });
+  }
+};
+
+// src/compiler/helpers/compile-expression-into-value.ts
+var compile_expression_into_value_default = {
+  compileExpressionIntoValue(compiler, expression) {
+    if (!expression) {
+      return null;
+    }
+    const compilerClone = compiler.clone();
+    expression.compile(compilerClone);
+    return compilerClone.getBody();
+  }
+};
+
+// src/nodes/ImgNode.ts
+var ImgNode = class _ImgNode extends Node {
+  static parse(parser) {
+    if (parser.acceptWithValue("Ident" /* IDENT */, "img")) {
+      parser.advance();
+      parser.insert(new _ImgNode());
+      parser.traverseUp();
+      let className = parseClass(parser);
+      if (className) {
+        parser.setAttribute("className", className);
+      }
+      if (!ExpressionNode.parse(parser)) {
+        throw new Error("Expected an expression");
+      }
+      parser.setAttribute("src");
+      if (ArrowNode.parse(parser)) {
+        if (!ExpressionNode.parse(parser)) {
+          throw new Error("Expected an expression");
+        }
+        parser.setAttribute("url");
+      }
+      parser.traverseDown();
+      return true;
+    }
+  }
+  compile(compiler) {
+    const src = compile_expression_into_value_default.compileExpressionIntoValue(compiler, this.getAttribute("src"));
+    const className = this.getAttribute("className");
+    const url = compile_expression_into_value_default.compileExpressionIntoValue(compiler, this.getAttribute("url"));
+    const scrollBarWidth = 15;
+    const width = parseInt(compiler.variable("width"));
+    const mediaQueryWidth = width + parseInt(compiler.variable("edge")) * 2 + scrollBarWidth;
+    const imgId = compiler.remember("imgId", parseInt(compiler.get("imgId")) + 1);
+    const currWidth = parseInt(compiler.get("currWidth"));
+    compiler.writeLnHead(`<style media="screen and (min-width:${mediaQueryWidth}px)">`);
+    compiler.writeLnHead(`.elos-img-${imgId} {`);
+    compiler.writeLnHead(`width: ${currWidth}px !important;`);
+    compiler.writeLnHead("}");
+    compiler.writeLnHead("</style>");
+    if (url) {
+      compiler.writeLn(`<a href="${url}" target="_blank" style="text-decoration: none;">`);
+    }
+    compiler.writeLn(`<img class="elos-img-${imgId}" border="0" src="${src}" style="display:block; border: 0; width: 100%;"/>`);
+    if (url) {
+      compiler.writeLn(`</a>`);
+    }
+  }
+};
 
 // src/parser/helpers/compile-style-attrs.ts
 var propMap = {
@@ -730,32 +843,31 @@ var TxtNode = class _TxtNode extends Node {
   static parse(parser) {
     if (parser.acceptWithValue("Ident" /* IDENT */, "txt")) {
       parser.advance();
+      parser.insert(new _TxtNode());
+      parser.traverseUp();
       let className = parseClass(parser);
-      parser.expect("String" /* STRING */);
-      let textValue = parser.getCurrentValue();
-      parser.advance();
-      const txtNode = new _TxtNode(textValue);
       if (className) {
-        txtNode.setAttribute("className", className);
+        parser.setAttribute("className", className);
       }
+      if (!ExpressionNode.parse(parser)) {
+        throw new Error("Expected an expression");
+      }
+      parser.setAttribute("text");
       if (ArrowNode.parse(parser)) {
-        parser.expect("String" /* STRING */);
-        let urlValue = parser.getCurrentValue();
-        if (urlValue) {
-          txtNode.setAttribute("url", urlValue);
+        if (!ExpressionNode.parse(parser)) {
+          throw new Error("Expected an expression");
         }
-        parser.insert(txtNode);
-        parser.advance();
-        return true;
+        parser.setAttribute("url");
       }
-      parser.insert(txtNode);
+      parser.traverseDown();
       return true;
     }
     return false;
   }
   compile(compiler) {
-    const url = this.getAttribute("url") || null;
-    const className = this.getAttribute("className") || null;
+    const text = compile_expression_into_value_default.compileExpressionIntoValue(compiler, this.getAttribute("text"));
+    const className = this.getAttribute("className");
+    const url = compile_expression_into_value_default.compileExpressionIntoValue(compiler, this.getAttribute("url"));
     const width = compiler.variable("width");
     const css = compile_style_attrs_default.compileStyleAttrs(compiler, "txt", className, {
       "font-size": "12px",
@@ -770,96 +882,13 @@ var TxtNode = class _TxtNode extends Node {
     if (url) {
       compiler.writeLn(`<a href="${url}" target="_blank" style="${cssString}">`);
     }
-    compiler.writeLn(`${this.getValue()}`);
+    compiler.writeLn(text);
     if (url) {
       compiler.writeLn(`</a>`);
     }
     compiler.writeLn(`</td>`);
     compiler.writeLn("</tr>");
     compiler.writeLn("</table>");
-  }
-};
-
-// src/nodes/primitives/ColorPrimitiveNode.ts
-var ColorPrimitiveNode = class _ColorPrimitiveNode extends Node {
-  static parse(parser) {
-    if (parser.accept("Color" /* COLOR */)) {
-      parser.insert(new _ColorPrimitiveNode(parser.getCurrentValue()));
-      parser.advance();
-      return true;
-    }
-    return false;
-  }
-  compile(compiler) {
-    compiler.write(`#${this.getValue()}`);
-  }
-};
-
-// src/nodes/primitives/StringPrimitiveNode.ts
-var StringPrimitiveNode = class _StringPrimitiveNode extends Node {
-  static parse(parser) {
-    if (parser.accept("String" /* STRING */)) {
-      parser.insert(new _StringPrimitiveNode(parser.getCurrentValue()));
-      parser.advance();
-      return true;
-    }
-    return false;
-  }
-  compile(compiler) {
-    compiler.write(this.value);
-  }
-};
-
-// src/nodes/primitives/VariablePrimitiveNode.ts
-var VariablePrimitiveNode = class _VariablePrimitiveNode extends Node {
-  static parse(parser) {
-    if (parser.accept("Var" /* VAR */)) {
-      parser.insert(new _VariablePrimitiveNode(parser.getCurrentValue()));
-      parser.advance();
-      return true;
-    }
-    return false;
-  }
-  compile(compiler) {
-    compiler.write(compiler.variable(this.value));
-  }
-};
-
-// src/nodes/OperatorNode.ts
-var OperatorNode = class _OperatorNode extends Node {
-  static parse(parser) {
-    if (parser.skipWithValue("Symbol" /* SYMBOL */, "+")) {
-      parser.insert(new _OperatorNode("+"));
-      return true;
-    }
-    return false;
-  }
-  compile(compiler) {
-  }
-};
-
-// src/nodes/ExpressionNode.ts
-var ExpressionNode = class _ExpressionNode extends Node {
-  static parse(parser) {
-    if (VariablePrimitiveNode.parse(parser) || ColorPrimitiveNode.parse(parser) || StringPrimitiveNode.parse(parser)) {
-      if (parser.getScope().getName() !== this.name) {
-        parser.wrap(new _ExpressionNode());
-      }
-      if (OperatorNode.parse(parser)) {
-        if (!this.parse(parser)) {
-          throw new Error("Unexpected token " + parser.getCurrentToken().type);
-        }
-      } else {
-        parser.traverseDown();
-      }
-      return true;
-    }
-    return false;
-  }
-  compile(compiler) {
-    this.getChildren().forEach((child, i) => {
-      child.compile(compiler);
-    });
   }
 };
 
@@ -1111,18 +1140,6 @@ var SpaceNode = class _SpaceNode extends Node {
   }
 };
 
-// src/compiler/helpers/compile-expression-into-value.ts
-var compile_expression_into_value_default = {
-  compileExpressionIntoValue(compiler, expression) {
-    if (!expression) {
-      return null;
-    }
-    const compilerClone = compiler.clone();
-    expression.compile(compilerClone);
-    return compilerClone.getBody();
-  }
-};
-
 // src/nodes/BtnNode.ts
 var BtnNode = class _BtnNode extends Node {
   static parse(parser) {
@@ -1188,31 +1205,31 @@ import * as fs from "node:fs";
 
 // src/nodes/DefNode.ts
 var DefNode = class _DefNode extends Node {
-  variableName;
-  constructor(defName, value) {
-    super(value);
-    this.variableName = defName;
-  }
   static parse(parser) {
     if (parser.acceptWithValue("Ident" /* IDENT */, "def")) {
       parser.advance();
+      const defNode = new _DefNode();
+      parser.insert(defNode);
+      parser.traverseUp();
       if (parser.expect("Var" /* VAR */)) {
-        let defName = parser.getCurrentValue();
+        defNode.setValue(parser.getCurrentValue());
         parser.advance();
-        if (parser.accept("String" /* STRING */) || parser.accept("Number" /* NUMBER */)) {
-          parser.insert(new _DefNode(defName, parser.getCurrentValue()));
-          parser.advance();
-          return true;
-        }
       }
+      if (!ExpressionNode.parse(parser)) {
+        throw new Error("Expected an expression");
+      }
+      parser.setAttribute("value");
+      parser.traverseDown();
+      return true;
     }
     return false;
   }
   getVariableName() {
-    return this.variableName;
+    return this.getValue();
   }
   compile(compiler) {
-    compiler.define(this.variableName, this.getValue());
+    const value = compile_expression_into_value_default.compileExpressionIntoValue(compiler, this.getAttribute("value"));
+    compiler.define(this.getVariableName(), value);
   }
 };
 
@@ -1723,7 +1740,6 @@ var Elos = class {
   static make(code, path = "") {
     const tokens = new Lexer().tokenize(code);
     const ast = new Parser().parse(tokens);
-    console.log(ast.print());
     return new Compiler({ path }).compile(ast);
   }
   /**

@@ -2,46 +2,48 @@ import Node from "../parser/Node";
 import Parser from "../parser/Parser";
 import {TokenType} from "../types/token-type";
 import ArrowNode from "./ArrowNode";
-import {Nullable} from "../types/nullable";
 import Compiler from "../compiler/Compiler";
+import parseClass from "../parser/helpers/parse-class";
+import ExpressionNode from "./ExpressionNode";
+import expressionCompiler from "../compiler/helpers/compile-expression-into-value";
 
 export default class ImgNode extends Node {
-
-    private url: Nullable<string>;
-
-    constructor(value: string, url: string = null) {
-        super(value);
-        this.url = url;
-    }
 
     static parse(parser: Parser) {
 
         if (parser.acceptWithValue(TokenType.IDENT, 'img')) {
             parser.advance();
+            parser.insert(new ImgNode());
+            parser.traverseUp();
 
-            parser.expect(TokenType.STRING);
-            let value = parser.getCurrentValue();
-            parser.advance();
-
-            if (ArrowNode.parse(parser)) {
-
-                parser.expect(TokenType.STRING);
-                let urlValue = parser.getCurrentValue();
-
-                parser.insert(new ImgNode(value, urlValue));
-                parser.advance();
-                return true;
+            let className = parseClass(parser);
+            if (className) {
+                parser.setAttribute('className', className);
             }
 
-            parser.insert(new ImgNode(value));
+            if (! ExpressionNode.parse(parser)) {
+                throw new Error('Expected an expression');
+            }
+            parser.setAttribute('src');
+
+            if (ArrowNode.parse(parser)) {
+                if (! ExpressionNode.parse(parser)) {
+                    throw new Error('Expected an expression');
+                }
+                parser.setAttribute('url');
+            }
+
+            parser.traverseDown();
 
             return true;
         }
-
-        return false;
     }
 
     compile(compiler: Compiler) {
+
+        const src = expressionCompiler.compileExpressionIntoValue(compiler, this.getAttribute('src') as ExpressionNode);
+        const className = this.getAttribute('className') as string;
+        const url = expressionCompiler.compileExpressionIntoValue(compiler, this.getAttribute('url') as ExpressionNode);
 
         const scrollBarWidth = 15;
         const width = parseInt(compiler.variable('width') as string);
@@ -56,13 +58,13 @@ export default class ImgNode extends Node {
         compiler.writeLnHead('}');
         compiler.writeLnHead('</style>');
 
-        if (this.url) {
-            compiler.writeLn(`<a href="${this.url}" target="_blank" style="text-decoration: none;">`);
+        if (url) {
+            compiler.writeLn(`<a href="${url}" target="_blank" style="text-decoration: none;">`);
         }
 
-        compiler.writeLn(`<img class="elos-img-${imgId}" border="0" src="${this.getValue()}" style="display:block; border: 0; width: 100%;"/>`);
+        compiler.writeLn(`<img class="elos-img-${imgId}" border="0" src="${src}" style="display:block; border: 0; width: 100%;"/>`);
 
-        if (this.url) {
+        if (url) {
             compiler.writeLn(`</a>`);
         }
     }

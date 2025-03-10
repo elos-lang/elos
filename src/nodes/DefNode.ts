@@ -2,19 +2,38 @@ import Node from "../parser/Node";
 import Parser from "../parser/Parser";
 import {TokenType} from "../types/token-type";
 import Compiler from "../compiler/Compiler";
+import ExpressionNode from "./ExpressionNode";
+import expressionCompiler from "../compiler/helpers/compile-expression-into-value";
 
 export default class DefNode extends Node {
 
-    private readonly variableName: string;
-
-    constructor(defName: string, value: string) {
-        super(value);
-
-        this.variableName = defName;
-    }
-
     static parse(parser: Parser): boolean {
 
+        if (parser.acceptWithValue(TokenType.IDENT, 'def')) {
+            parser.advance();
+
+            const defNode = new DefNode();
+
+            parser.insert(defNode);
+            parser.traverseUp();
+
+            if (parser.expect(TokenType.VAR)) {
+                defNode.setValue(parser.getCurrentValue());
+                parser.advance();
+            }
+
+            if (! ExpressionNode.parse(parser)) {
+                throw new Error('Expected an expression');
+            }
+            parser.setAttribute('value');
+
+            parser.traverseDown();
+            return true;
+        }
+
+        return false;
+
+        /*
         if (parser.acceptWithValue(TokenType.IDENT, 'def')) {
             parser.advance();
 
@@ -32,14 +51,16 @@ export default class DefNode extends Node {
             }
         }
 
-        return false;
+        return false;*/
     }
 
     public getVariableName(): string {
-        return this.variableName;
+        return this.getValue();
     }
 
     compile(compiler: Compiler) {
-        compiler.define(this.variableName, this.getValue());
+        const value = expressionCompiler.compileExpressionIntoValue(compiler, this.getAttribute('value') as ExpressionNode);
+
+        compiler.define(this.getVariableName(), value);
     }
 }

@@ -5,23 +5,24 @@ import BodyNode from "../src/nodes/BodyNode";
 import BtnNode from "../src/nodes/BtnNode";
 import ExpressionNode from "../src/nodes/ExpressionNode";
 import TxtNode from "../src/nodes/TxtNode";
+import ImgNode from "../src/nodes/ImgNode";
 
 const makeParser = () => {
 	return new Parser();
 };
 
-test('txt node parsing', () => {
+test('img node parsing', () => {
 	const parser = makeParser();
 	const ast = parser.parse(tokens.wrapInBody([
 		{
-			value: 'txt',
+			value: 'img',
 			type: TokenType.IDENT,
 			line: 1,
 			position: 1,
 			end: false,
 		},
 		{
-			value: 'text',
+			value: 'https://placehold.co/600x400/EEE/31343C',
 			type: TokenType.STRING,
 			line: 1,
 			position: 1,
@@ -52,16 +53,16 @@ test('txt node parsing', () => {
 
 
 	const bodyNode = ast.getChildren()[0] as BodyNode;
-	const txtNode = bodyNode.getChildren()[0] as TxtNode;
-	const textExpressionNode = txtNode.getAttribute('text') as ExpressionNode;
-	const urlExpressionNode = txtNode.getAttribute('url') as ExpressionNode;
+	const imgNode = bodyNode.getChildren()[0] as ImgNode;
+	const srcExpressionNode = imgNode.getAttribute('src') as ExpressionNode;
+	const urlExpressionNode = imgNode.getAttribute('url') as ExpressionNode;
 
-	expect(txtNode).toBeInstanceOf(TxtNode);
-	expect(txtNode.getName()).toEqual('TxtNode');
+	expect(imgNode).toBeInstanceOf(ImgNode);
+	expect(imgNode.getName()).toEqual('ImgNode');
 
 	// Test for text expression
-	expect(textExpressionNode).toBeInstanceOf(ExpressionNode);
-	expect(textExpressionNode.getChildren()[0].getValue()).toEqual('text');
+	expect(srcExpressionNode).toBeInstanceOf(ExpressionNode);
+	expect(srcExpressionNode.getChildren()[0].getValue()).toEqual('https://placehold.co/600x400/EEE/31343C');
 
 	// Test for url expression
 	expect(urlExpressionNode).toBeInstanceOf(ExpressionNode);

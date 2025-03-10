@@ -1,6 +1,7 @@
 import Parser from "../src/parser/Parser";
 import {TokenType} from "../src/types/token-type";
 import DefNode from "../src/nodes/DefNode";
+import ExpressionNode from "../src/nodes/ExpressionNode";
 
 const makeParser = () => {
 	return new Parser();
@@ -33,9 +34,10 @@ test('variable definition parsing', () => {
 	]);
 
 	const defNode = ast.getChildren()[0] as DefNode;
+	const valueExpressionNode = defNode.getAttribute('value') as ExpressionNode;
 
 	expect(defNode).toBeInstanceOf(DefNode);
 	expect(defNode.getName()).toEqual('DefNode');
 	expect(defNode.getVariableName()).toEqual('variable');
-	expect(defNode.getValue()).toEqual('value');
+	expect(valueExpressionNode.getChildren()[0].getValue()).toEqual('value');
 });

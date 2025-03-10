@@ -50,9 +50,9 @@ See [Contributing Guide](CONTRIBUTING.md).
 - Primitives:
   - Use Expressions where applicable
     - **TODO:**
-      - DefNode
-      - TxtNode
-      - ImgNode
+      - ~~DefNode~~
+      - ~~TxtNode~~
+      - ~~ImgNode~~
   - ~~Variables~~
   - ~~String~~
   - ~~Number~~

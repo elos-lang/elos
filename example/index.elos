@@ -17,6 +17,7 @@ body {
 		}
 		col {
 			txt "Something"
+			img "https://placehold.co/600x400/EEE/31343C" -> "https://www.google.be"
 		}
 	}
 	group {
