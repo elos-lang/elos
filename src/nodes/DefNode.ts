@@ -32,26 +32,6 @@ export default class DefNode extends Node {
         }
 
         return false;
-
-        /*
-        if (parser.acceptWithValue(TokenType.IDENT, 'def')) {
-            parser.advance();
-
-            if (parser.expect(TokenType.VAR)) {
-
-                let defName = parser.getCurrentValue();
-                parser.advance();
-
-                if (parser.accept(TokenType.STRING) || parser.accept(TokenType.NUMBER)) {
-                    parser.insert(new DefNode(defName, parser.getCurrentValue()));
-                    parser.advance();
-
-                    return true;
-                }
-            }
-        }
-
-        return false;*/
     }
 
     public getVariableName(): string {

@@ -139,58 +139,69 @@ var grammar_default = {
   REGEX_COLOR_START: /\#/,
   COMMENT_SYMBOL: "/",
   BLOCK_OPEN_SYMBOL: "{",
-  BLOCK_CLOSE_SYMBOL: "}"
+  BLOCK_CLOSE_SYMBOL: "}",
+  STRING_ESCAPE_SYMBOL: "\\"
 };
 
 // src/lexer/Lexer.ts
 var Lexer = class {
   /**
-   *
+   * The source code to tokenize
+   * @private
+   */
+  source;
+  /**
+   * The current mode of lexing
    * @private
    */
   mode = 0 /* ALL */;
   /**
-   *
+   * The current position of the cursor
    * @private
    */
   cursor = 0;
   /**
-   *
+   * The position of the cursor at the start of the mode
    * @private
    */
-  end = 0;
+  modeStartCursor = 0;
   /**
-   *
+   * The current line, starting at line 1
    * @private
    */
   line = 1;
   /**
-   *
+   * The current position on the current line, starting at 1
    * @private
    */
   column = 1;
   /**
-   *
-   * @private
-   */
-  tokens = [];
-  /**
-   *
-   * @private
-   */
-  value = "";
-  /**
-   *
+   * The current character
    * @private
    */
   character = "";
   /**
-   *
+   * The next character, handy for simple look-ahead
    * @private
    */
   nextCharacter = "";
   /**
-   *
+   * The index of the last character, also the amount of characters
+   * @private
+   */
+  end = 0;
+  /**
+   * The current token stream being created
+   * @private
+   */
+  tokens = [];
+  /**
+   * The current value being lexed
+   * @private
+   */
+  value = "";
+  /**
+   * The current delimiter (e.g. string delimiter or boundary)
    * @private
    */
   delimiter = "";
@@ -199,12 +210,14 @@ var Lexer = class {
    * @param text
    */
   tokenize(text) {
-    this.end = text.length;
+    this.source = text;
+    this.end = this.source.length;
     while (this.cursor < this.end) {
-      this.character = text[this.cursor];
-      this.nextCharacter = text[this.cursor + 1] || null;
+      this.character = this.source[this.cursor];
+      this.nextCharacter = this.source[this.cursor + 1] || null;
       if (this.mode === 0 /* ALL */) {
         this.mode = this.determineMode();
+        this.modeStartCursor = this.cursor;
       }
       switch (this.mode) {
         case 7 /* STRING */:
@@ -300,7 +313,13 @@ var Lexer = class {
     }
   }
   lexString() {
-    if (this.delimiter !== this.character) {
+    let escSequence = this.character === grammar_default.STRING_ESCAPE_SYMBOL;
+    if (escSequence) {
+      this.cursor += 1;
+      this.character = this.source[this.cursor];
+      this.nextCharacter = this.source[this.cursor + 1] || null;
+    }
+    if (this.character !== this.delimiter || escSequence) {
       this.value += this.character;
     }
     this.cursor++;
@@ -313,7 +332,7 @@ var Lexer = class {
         end: this.atEnd(true)
       });
       this.cursor++;
-      this.column += this.value.length + 2;
+      this.column += this.cursor - this.modeStartCursor;
       this.mode = 0 /* ALL */;
       this.delimiter = "";
     }
@@ -329,7 +348,7 @@ var Lexer = class {
         position: this.column,
         end: this.atEnd()
       });
-      this.column++;
+      this.column += this.cursor - this.modeStartCursor;
       this.mode = 0 /* ALL */;
     }
   }
@@ -370,7 +389,7 @@ var Lexer = class {
         end: this.atEnd()
       });
       this.mode = 0 /* ALL */;
-      this.column += this.value.length + 1;
+      this.column += this.cursor - this.modeStartCursor;
       this.delimiter = "";
     }
   }
@@ -388,7 +407,7 @@ var Lexer = class {
         end: this.atEnd()
       });
       this.mode = 0 /* ALL */;
-      this.column += this.value.length + 1;
+      this.column += this.cursor - this.modeStartCursor;
       this.delimiter = "";
     }
   }
@@ -558,36 +577,6 @@ var Node = class _Node {
   }
 };
 
-// src/parser/AstNode.ts
-var AstNode = class extends Node {
-  compile(compiler) {
-    this.getChildren().forEach((child) => child.compile(compiler));
-  }
-};
-
-// src/nodes/ArrowNode.ts
-var ArrowNode = class extends Node {
-  static parse(parser) {
-    if (parser.acceptWithValue("Symbol" /* SYMBOL */, "-")) {
-      parser.expectAtWithValue("Symbol" /* SYMBOL */, 1, ">");
-      parser.advance(2);
-      return true;
-    }
-    return false;
-  }
-};
-
-// src/parser/helpers/parse-class.ts
-function parseClass(parser) {
-  if (parser.skipWithValue("Symbol" /* SYMBOL */, ".")) {
-    parser.expect("Ident" /* IDENT */);
-    let className = parser.getCurrentValue();
-    parser.advance();
-    return className;
-  }
-  return null;
-}
-
 // src/nodes/primitives/ColorPrimitiveNode.ts
 var ColorPrimitiveNode = class _ColorPrimitiveNode extends Node {
   static parse(parser) {
@@ -695,6 +684,127 @@ var compile_expression_into_value_default = {
     const compilerClone = compiler.clone();
     expression.compile(compilerClone);
     return compilerClone.getBody();
+  }
+};
+
+// src/nodes/DefNode.ts
+var DefNode = class _DefNode extends Node {
+  static parse(parser) {
+    if (parser.acceptWithValue("Ident" /* IDENT */, "def")) {
+      parser.advance();
+      const defNode = new _DefNode();
+      parser.insert(defNode);
+      parser.traverseUp();
+      if (parser.expect("Var" /* VAR */)) {
+        defNode.setValue(parser.getCurrentValue());
+        parser.advance();
+      }
+      if (!ExpressionNode.parse(parser)) {
+        throw new Error("Expected an expression");
+      }
+      parser.setAttribute("value");
+      parser.traverseDown();
+      return true;
+    }
+    return false;
+  }
+  getVariableName() {
+    return this.getValue();
+  }
+  compile(compiler) {
+    const value = compile_expression_into_value_default.compileExpressionIntoValue(compiler, this.getAttribute("value"));
+    compiler.define(this.getVariableName(), value);
+  }
+};
+
+// src/nodes/StylePropertyNode.ts
+var StylePropertyNode = class _StylePropertyNode extends Node {
+  property;
+  constructor(property, value) {
+    super(value);
+    this.property = property;
+  }
+  static parse(parser) {
+    if (parser.accept("Ident" /* IDENT */)) {
+      let property = parser.getCurrentValue();
+      parser.advance();
+      if (parser.accept("Number" /* NUMBER */) || parser.accept("String" /* STRING */)) {
+        let value = parser.getCurrentValue();
+        parser.advance();
+        parser.insert(new _StylePropertyNode(property, value));
+        return true;
+      }
+    }
+    return false;
+  }
+  compile(compiler) {
+    const parent = this.getParent();
+    const name = parent.getValue();
+    const style = parent.isClass ? compiler.get("classes") : compiler.get("identStyles");
+    if (!style[name]) {
+      style[name] = [];
+    }
+    style[name] = [...style[name], [this.property, this.getValue()]];
+  }
+};
+
+// src/parser/helpers/parse-class.ts
+function parseClass(parser) {
+  if (parser.skipWithValue("Symbol" /* SYMBOL */, ".")) {
+    parser.expect("Ident" /* IDENT */);
+    let className = parser.getCurrentValue();
+    parser.advance();
+    return className;
+  }
+  return null;
+}
+
+// src/nodes/StyleNode.ts
+var StyleNode = class _StyleNode extends Node {
+  isClass;
+  constructor(name, isClass) {
+    super(name);
+    this.isClass = isClass;
+  }
+  static parse(parser) {
+    if (parser.skipWithValue("Ident" /* IDENT */, "style")) {
+      let identifier = "";
+      if (parser.expect("Ident" /* IDENT */)) {
+        identifier = parser.getCurrentValue();
+        parser.advance();
+      }
+      let className = parseClass(parser);
+      let isClass = className !== null;
+      if (parser.expectWithValue("Symbol" /* SYMBOL */, grammar_default.BLOCK_OPEN_SYMBOL)) {
+        parser.advance();
+        parser.insert(new _StyleNode(className ? className : identifier, isClass));
+        parser.in();
+      }
+      while (StylePropertyNode.parse(parser)) ;
+      if (parser.expectWithValue("Symbol" /* SYMBOL */, grammar_default.BLOCK_CLOSE_SYMBOL)) {
+        parser.out();
+        parser.advance();
+      }
+      return true;
+    }
+    return false;
+  }
+  compile(compiler) {
+    this.getChildren().forEach((child) => child.compile(compiler));
+  }
+};
+
+// src/nodes/IncludeNode.ts
+var fs = __toESM(require("fs"), 1);
+
+// src/nodes/ArrowNode.ts
+var ArrowNode = class extends Node {
+  static parse(parser) {
+    if (parser.acceptWithValue("Symbol" /* SYMBOL */, "-") && parser.expectAtWithValue("Symbol" /* SYMBOL */, 1, ">")) {
+      parser.advance(2);
+      return true;
+    }
+    return false;
   }
 };
 
@@ -1235,104 +1345,10 @@ var BtnNode = class _BtnNode extends Node {
   }
 };
 
-// src/nodes/IncludeNode.ts
-var fs = __toESM(require("fs"), 1);
-
-// src/nodes/DefNode.ts
-var DefNode = class _DefNode extends Node {
-  static parse(parser) {
-    if (parser.acceptWithValue("Ident" /* IDENT */, "def")) {
-      parser.advance();
-      const defNode = new _DefNode();
-      parser.insert(defNode);
-      parser.traverseUp();
-      if (parser.expect("Var" /* VAR */)) {
-        defNode.setValue(parser.getCurrentValue());
-        parser.advance();
-      }
-      if (!ExpressionNode.parse(parser)) {
-        throw new Error("Expected an expression");
-      }
-      parser.setAttribute("value");
-      parser.traverseDown();
-      return true;
-    }
-    return false;
-  }
-  getVariableName() {
-    return this.getValue();
-  }
-  compile(compiler) {
-    const value = compile_expression_into_value_default.compileExpressionIntoValue(compiler, this.getAttribute("value"));
-    compiler.define(this.getVariableName(), value);
-  }
-};
-
-// src/nodes/StylePropertyNode.ts
-var StylePropertyNode = class _StylePropertyNode extends Node {
-  property;
-  constructor(property, value) {
-    super(value);
-    this.property = property;
-  }
-  static parse(parser) {
-    if (parser.accept("Ident" /* IDENT */)) {
-      let property = parser.getCurrentValue();
-      parser.advance();
-      if (parser.accept("Number" /* NUMBER */) || parser.accept("String" /* STRING */)) {
-        let value = parser.getCurrentValue();
-        parser.advance();
-        parser.insert(new _StylePropertyNode(property, value));
-        return true;
-      }
-    }
-    return false;
-  }
-  compile(compiler) {
-    const parent = this.getParent();
-    const name = parent.getValue();
-    const style = parent.isClass ? compiler.get("classes") : compiler.get("identStyles");
-    if (!style[name]) {
-      style[name] = [];
-    }
-    style[name] = [...style[name], [this.property, this.getValue()]];
-  }
-};
-
-// src/nodes/StyleNode.ts
-var StyleNode = class _StyleNode extends Node {
-  isClass;
-  constructor(name, isClass) {
-    super(name);
-    this.isClass = isClass;
-  }
-  static parse(parser) {
-    if (parser.skipWithValue("Ident" /* IDENT */, "style")) {
-      let identifier = "";
-      if (parser.expect("Ident" /* IDENT */)) {
-        identifier = parser.getCurrentValue();
-        parser.advance();
-      }
-      let className = parseClass(parser);
-      let isClass = className !== null;
-      if (parser.expectWithValue("Symbol" /* SYMBOL */, grammar_default.BLOCK_OPEN_SYMBOL)) {
-        parser.advance();
-        parser.insert(new _StyleNode(className ? className : identifier, isClass));
-        parser.in();
-      }
-      while (StylePropertyNode.parse(parser)) ;
-      if (parser.expectWithValue("Symbol" /* SYMBOL */, grammar_default.BLOCK_CLOSE_SYMBOL)) {
-        parser.out();
-        parser.advance();
-      }
-      return true;
-    }
-    return false;
-  }
-  compile(compiler) {
-    this.getChildren().forEach((child) => child.compile(compiler));
-  }
-};
+// src/parser/helpers/parse-body.ts
+function parseBody(parser) {
+  while (IncludeNode.parse(parser) || SpaceNode.parse(parser) || ColsNode.parse(parser) || GroupNode.parse(parser) || ImgNode.parse(parser) || LineNode.parse(parser) || TxtNode.parse(parser) || BtnNode.parse(parser) || RawNode.parse(parser)) ;
+}
 
 // src/parser/helpers/parse-head.ts
 function parseHead(parser) {
@@ -1433,11 +1449,6 @@ var IncludeNode = class _IncludeNode extends Node {
   }
 };
 
-// src/parser/helpers/parse-body.ts
-function parseBody(parser) {
-  while (IncludeNode.parse(parser) || SpaceNode.parse(parser) || ColsNode.parse(parser) || GroupNode.parse(parser) || ImgNode.parse(parser) || LineNode.parse(parser) || TxtNode.parse(parser) || BtnNode.parse(parser) || RawNode.parse(parser)) ;
-}
-
 // src/nodes/BodyNode.ts
 var BodyNode = class _BodyNode extends Node {
   static parse(parser) {
@@ -1488,8 +1499,8 @@ var BodyNode = class _BodyNode extends Node {
   }
 };
 
-// src/nodes/RootNode.ts
-var RootNode = class extends Node {
+// src/parser/AstNode.ts
+var AstNode = class extends Node {
   static parse(parser) {
     while (DefNode.parse(parser) || StyleNode.parse(parser) || IncludeNode.parse(parser)) ;
     if (BodyNode.parse(parser)) {
@@ -1499,6 +1510,7 @@ var RootNode = class extends Node {
     return false;
   }
   compile(compiler) {
+    this.getChildren().forEach((child) => child.compile(compiler));
   }
 };
 
@@ -1562,7 +1574,7 @@ var Parser = class {
     if (this.cursor > this.tokens.length - 1) {
       return;
     }
-    if (RootNode.parse(this)) {
+    if (AstNode.parse(this)) {
       this.parseAll();
     }
   }
@@ -1774,6 +1786,7 @@ var Elos = class {
    */
   static make(code, path = "") {
     const tokens = new Lexer().tokenize(code);
+    console.log(tokens);
     const ast = new Parser().parse(tokens);
     return new Compiler({ path }).compile(ast);
   }

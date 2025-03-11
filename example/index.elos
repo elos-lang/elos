@@ -1,26 +1,2 @@
-include "includes/defs"
-include "includes/" + "style"
-
-def $tpl "default"
-
-body {
-	btn.class "test" -> "https://www.google.be"
-	txt "Something"
-	txt "Something"
-	txt "Something"
-	txt "Something"
-	cols {
-		col {
-			txt "Wow"
-			txt "Wow"
-			txt "Wow"
-		}
-		col {
-			txt "Something"
-			img "https://placehold.co/600x400/EEE/31343C" -> "https://www.google.be"
-		}
-	}
-	group {
-		txt "Something"
-	}
-}
+def $message "abcde"
+body { txt $message txt $message }

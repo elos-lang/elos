@@ -6,64 +6,76 @@ import {TokenType} from "../types/token-type";
 export default class Lexer {
 
     /**
-     *
+     * The source code to tokenize
+     * @private
+     */
+    private source: string;
+
+    /**
+     * The current mode of lexing
      * @private
      */
     private mode: LexMode = LexMode.ALL;
 
     /**
-     *
+     * The current position of the cursor
      * @private
      */
     private cursor: number = 0;
 
     /**
-     *
+     * The position of the cursor at the start of the mode
      * @private
      */
-    private end: number = 0;
+    private modeStartCursor: number = 0;
 
     /**
-     *
+     * The current line, starting at line 1
      * @private
      */
     private line: number = 1;
 
     /**
-     *
+     * The current position on the current line, starting at 1
      * @private
      */
     private column: number = 1;
 
     /**
-     *
-     * @private
-     */
-    private tokens: TokenStream = [];
-
-    /**
-     *
-     * @private
-     */
-    private value: string = '';
-
-    /**
-     *
+     * The current character
      * @private
      */
     private character: string = '';
 
     /**
-     *
+     * The next character, handy for simple look-ahead
      * @private
      */
     private nextCharacter: string = '';
 
     /**
-     *
+     * The index of the last character, also the amount of characters
      * @private
      */
-    private delimiter: string = '';
+    private end: number = 0;
+
+    /**
+     * The current token stream being created
+     * @private
+     */
+    private tokens: TokenStream = [];
+
+    /**
+     * The current value being lexed
+     * @private
+     */
+    private value: string = '';
+
+    /**
+     * The current delimiter (e.g. string delimiter or boundary)
+     * @private
+     */
+    private delimiter: string = ''
 
     /**
      * Transforms code into a TokenStream
@@ -71,16 +83,18 @@ export default class Lexer {
      */
     tokenize(text: string): TokenStream {
 
-        this.end = text.length;
+        this.source = text;
+        this.end = this.source.length;
 
         while (this.cursor < this.end) {
 
-            this.character = text[this.cursor];
-            this.nextCharacter = text[this.cursor+1] || null;
+            this.character = this.source[this.cursor];
+            this.nextCharacter = this.source[this.cursor+1] || null;
 
             // Determine the mode
             if (this.mode === LexMode.ALL) {
                 this.mode = this.determineMode();
+                this.modeStartCursor = this.cursor;
             }
 
             switch (this.mode) {
@@ -200,7 +214,19 @@ export default class Lexer {
 
     private lexString() {
 
-        if (this.delimiter !== this.character) {
+        let escSequence = (this.character === grammar.STRING_ESCAPE_SYMBOL);
+
+        // String escaping
+        if (escSequence) {
+            this.cursor += 1;
+            // We directly alter the character and nextCharacter,
+            // so we can directly consume them further down in the method
+            this.character = this.source[this.cursor];
+            this.nextCharacter = this.source[this.cursor + 1] || null;
+        }
+
+        if (this.character !== this.delimiter || escSequence) {
+            // Consume the character
             this.value += this.character;
         }
 
@@ -215,7 +241,7 @@ export default class Lexer {
                 end: this.atEnd(true),
             });
             this.cursor++;
-            this.column += this.value.length + 2; // We add 2 characters to account for the start & stop delimiter characters
+            this.column += this.cursor - this.modeStartCursor;
             this.mode = LexMode.ALL;
             this.delimiter = '';
         }
@@ -233,7 +259,7 @@ export default class Lexer {
                 position: this.column,
                 end: this.atEnd(),
             });
-            this.column++;
+            this.column += this.cursor - this.modeStartCursor;
             this.mode = LexMode.ALL;
         }
     }
@@ -282,7 +308,7 @@ export default class Lexer {
                 end: this.atEnd(),
             });
             this.mode = LexMode.ALL;
-            this.column += this.value.length + 1; // We add 1 character to account for the # at the start
+            this.column += this.cursor - this.modeStartCursor;
             this.delimiter = '';
         }
     }
@@ -303,7 +329,7 @@ export default class Lexer {
                 end: this.atEnd(),
             });
             this.mode = LexMode.ALL;
-            this.column += this.value.length + 1; // We add 1 character to account for the $ at the start
+            this.column += this.cursor - this.modeStartCursor;
             this.delimiter = '';
         }
     }

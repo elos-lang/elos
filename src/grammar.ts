@@ -16,5 +16,7 @@ export default {
     COMMENT_SYMBOL: '/',
 
     BLOCK_OPEN_SYMBOL: '{',
-    BLOCK_CLOSE_SYMBOL: '}'
+    BLOCK_CLOSE_SYMBOL: '}',
+
+    STRING_ESCAPE_SYMBOL: '\\',
 };

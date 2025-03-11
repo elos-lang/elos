@@ -207,6 +207,61 @@ test('string tokenization', () => {
 	});
 });
 
+test('escaped string tokenization', () => {
+	const lexer = makeLexer();
+	const tokens = lexer.tokenize('"a \\"random\\" string"');
+
+	expect(tokens[0]).toEqual({
+		type: TokenType.STRING,
+		value: 'a "random" string',
+		line: 1,
+		position: 1,
+		end: true
+	});
+});
+
+test('escaped string sequence tokenization', () => {
+	const lexer = makeLexer();
+	const tokens = lexer.tokenize('"abcde" "abcde"');
+
+	expect(tokens[0]).toEqual({
+		type: TokenType.STRING,
+		value: 'abcde',
+		line: 1,
+		position: 1,
+		end: false
+	});
+
+	expect(tokens[1]).toEqual({
+		type: TokenType.STRING,
+		value: 'abcde',
+		line: 1,
+		position: 9,
+		end: true
+	});
+});
+
+test('escaped string sequence tokenization', () => {
+	const lexer = makeLexer();
+	const tokens = lexer.tokenize('"abcd\\e" "abcd\\e"');
+
+	expect(tokens[0]).toEqual({
+		type: TokenType.STRING,
+		value: 'abcde',
+		line: 1,
+		position: 1,
+		end: false
+	});
+
+	expect(tokens[1]).toEqual({
+		type: TokenType.STRING,
+		value: 'abcde',
+		line: 1,
+		position: 10,
+		end: true
+	});
+});
+
 test('var tokenization', () => {
 	const lexer = makeLexer();
 	const tokens = lexer.tokenize('"a random string" $some_VariableName "a random string" 5');
@@ -313,7 +368,7 @@ test('color tokenization', () => {
 
 test('color tokenization', () => {
 	const lexer = makeLexer();
-	const tokens = lexer.tokenize('ident #F14000 #000000');
+	const tokens = lexer.tokenize('55555 #F14000 #000000');
 
 	expect(tokens[2]).toEqual({
 		type: TokenType.COLOR,
