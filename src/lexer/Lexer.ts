@@ -194,6 +194,10 @@ export default class Lexer {
         return LexMode.UNKNOWN;
     }
 
+    /**
+     * Tokenize identifier
+     * @private
+     */
     private lexIdent() {
 
         this.value += this.character;
@@ -212,6 +216,10 @@ export default class Lexer {
         }
     }
 
+    /**
+     * Tokenize string
+     * @private
+     */
     private lexString() {
 
         let escSequence = (this.character === grammar.STRING_ESCAPE_SYMBOL);
@@ -247,6 +255,10 @@ export default class Lexer {
         }
     }
 
+    /**
+     * Tokenize number
+     * @private
+     */
     private lexNumber() {
         this.value += this.character;
         this.cursor++;
@@ -264,6 +276,10 @@ export default class Lexer {
         }
     }
 
+    /**
+     * Tokenize symbol
+     * @private
+     */
     private lexSymbol() {
 
         this.cursor++;
@@ -279,6 +295,10 @@ export default class Lexer {
         this.mode = LexMode.ALL;
     }
 
+    /**
+     * Tokenize newline
+     * @private
+     */
     private lexNewline() {
         this.cursor++;
         this.line++;
@@ -286,12 +306,20 @@ export default class Lexer {
         this.mode = LexMode.ALL;
     }
 
+    /**
+     * Tokenize whitespace
+     * @private
+     */
     private lexWhitespace() {
         this.cursor++;
         this.column++;
         this.mode = LexMode.ALL;
     }
 
+    /**
+     * Tokenize color
+     * @private
+     */
     private lexColor() {
         if (grammar.REGEX_COLOR.exec(this.character)) {
             this.value += this.character;
@@ -313,6 +341,10 @@ export default class Lexer {
         }
     }
 
+    /**
+     * Tokenize variable
+     * @private
+     */
     private lexVariable() {
         if (grammar.REGEX_VAR.exec(this.character)) {
             this.value += this.character;
@@ -334,6 +366,10 @@ export default class Lexer {
         }
     }
 
+    /**
+     * Tokenize unknown
+     * @private
+     */
     private lexUnknown() {
         this.tokens.push({
             type: TokenType.UNKNOWN,
@@ -347,6 +383,10 @@ export default class Lexer {
         this.mode = LexMode.ALL;
     }
 
+    /**
+     * Tokenize comment
+     * @private
+     */
     private lexComment() {
         this.cursor++;
 
