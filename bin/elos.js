@@ -27,5 +27,5 @@ if (outputFile) {
 	fs.writeFileSync(outputFile, output, 'utf-8');
 	console.log(`Output written to ${outputFile}`);
 } else {
-	console.log(output);
+	process.stdout.write(output);
 }

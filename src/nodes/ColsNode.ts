@@ -53,60 +53,60 @@ export default class ColsNode extends Node {
         const gap = parseInt(compiler.variable('hgap') as string);
         const colWidth = Math.floor((currWidth / colCount) - gap + Math.floor(gap / colCount));
 
-        compiler.writeLn(`<table width="100%;" cellspacing="0" cellpadding="0" style="width: 100%; max-width:${currWidth}px;border:none;border-spacing:0;text-align:left;">`);
-        compiler.writeLn('<tr>');
-        compiler.writeLn('<td>');
+        compiler.writeLineToBody(`<table width="100%;" cellspacing="0" cellpadding="0" style="width: 100%; max-width:${currWidth}px;border:none;border-spacing:0;text-align:left;">`);
+        compiler.writeLineToBody('<tr>');
+        compiler.writeLineToBody('<td>');
 
-        compiler.writeLn('<!--[if mso]>');
-        compiler.writeLn('<table role="presentation" width="100%">');
-        compiler.writeLn('<tr>');
-        compiler.writeLn('<![endif]-->');
+        compiler.writeLineToBody('<!--[if mso]>');
+        compiler.writeLineToBody('<table role="presentation" width="100%">');
+        compiler.writeLineToBody('<tr>');
+        compiler.writeLineToBody('<![endif]-->');
 
         this.getChildren().forEach((child, i) => {
 
             compiler.remember('currWidth', colWidth);
 
-            compiler.writeLnHead(`<style media="screen and (min-width:${mediaQueryWidth}px)">`);
-            compiler.writeLnHead(`.elos-col-${colsId}-${i} {`);
-            compiler.writeLnHead(`float: left;`);
-            compiler.writeLnHead(`max-width: ${colWidth}px !important;`);
+            compiler.writeLineToHead(`<style media="screen and (min-width:${mediaQueryWidth}px)">`);
+            compiler.writeLineToHead(`.elos-col-${colsId}-${i} {`);
+            compiler.writeLineToHead(`float: left;`);
+            compiler.writeLineToHead(`max-width: ${colWidth}px !important;`);
             //compiler.writeLnHead(`padding-left: ${gap/2}px;`);
-            compiler.writeLnHead(`margin-bottom: 0 !important;`);
+            compiler.writeLineToHead(`margin-bottom: 0 !important;`);
 
             if (i < colCount-1) {
-                compiler.writeLnHead(`padding-right: ${gap}px !important;`);
+                compiler.writeLineToHead(`padding-right: ${gap}px !important;`);
             }
 
             if (i===0) {
                 //compiler.writeLnHead(`margin-left: -${gap/2}px;`);
             }
 
-            compiler.writeLnHead('}');
-            compiler.writeLnHead('</style>');
+            compiler.writeLineToHead('}');
+            compiler.writeLineToHead('</style>');
 
-            compiler.writeLn('<!--[if mso]>');
-            compiler.writeLn(`<td style="width: ${colWidth}px; padding: 0;" align="left" valign="top">`);
-            compiler.writeLn('<![endif]-->');
-            compiler.writeLn(`<div class="elos-col-${colsId}-${i}" style="display:inline-block; margin-bottom: ${gap}px; width:100%; vertical-align:top; text-align:left;">`);
+            compiler.writeLineToBody('<!--[if mso]>');
+            compiler.writeLineToBody(`<td style="width: ${colWidth}px; padding: 0;" align="left" valign="top">`);
+            compiler.writeLineToBody('<![endif]-->');
+            compiler.writeLineToBody(`<div class="elos-col-${colsId}-${i}" style="display:inline-block; margin-bottom: ${gap}px; width:100%; vertical-align:top; text-align:left;">`);
 
             child.compile(compiler);
 
-            compiler.writeLn('</div>');
-            compiler.writeLn('<!--[if mso]>');
-            compiler.writeLn('</td>');
-            compiler.writeLn('<![endif]-->');
+            compiler.writeLineToBody('</div>');
+            compiler.writeLineToBody('<!--[if mso]>');
+            compiler.writeLineToBody('</td>');
+            compiler.writeLineToBody('<![endif]-->');
 
         });
 
         compiler.remember('currWidth', currWidth);
 
-        compiler.writeLn('<!--[if mso]>');
-        compiler.writeLn('</tr>');
-        compiler.writeLn('</table>');
-        compiler.writeLn('<![endif]-->');
+        compiler.writeLineToBody('<!--[if mso]>');
+        compiler.writeLineToBody('</tr>');
+        compiler.writeLineToBody('</table>');
+        compiler.writeLineToBody('<![endif]-->');
 
-        compiler.writeLn('</td>');
-        compiler.writeLn('</tr>');
-        compiler.writeLn('</table>');
+        compiler.writeLineToBody('</td>');
+        compiler.writeLineToBody('</tr>');
+        compiler.writeLineToBody('</table>');
     }
 }

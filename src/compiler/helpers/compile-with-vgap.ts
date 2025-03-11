@@ -18,7 +18,7 @@ export default {
         if (totalChildrenCount) {
 
             if (! hasOnlyRawChildren) {
-                compiler.writeLn(`<table role="presentation" style="${cssString}border:none;border-spacing:0;text-align:${align};font-family:Arial,sans-serif;font-size:16px;line-height:22px;color:#363636;">`);
+                compiler.writeLineToBody(`<table role="presentation" style="${cssString}border:none;border-spacing:0;text-align:${align};font-family:Arial,sans-serif;font-size:16px;line-height:22px;color:#363636;">`);
             }
 
             let otherChildIndex = 0;
@@ -27,13 +27,13 @@ export default {
                 if (child instanceof RawNode) {
                     child.compile(compiler);
                 } else {
-                    compiler.writeLn('<tr>');
-                    compiler.writeLn(`<td align="${align}">`);
+                    compiler.writeLineToBody('<tr>');
+                    compiler.writeLineToBody(`<td align="${align}">`);
                     child.compile(compiler);
-                    compiler.writeLn('</td>');
-                    compiler.writeLn('</tr>');
+                    compiler.writeLineToBody('</td>');
+                    compiler.writeLineToBody('</tr>');
                     if (otherChildIndex < otherChildrenCount - 1) {
-                        compiler.writeLn(`<tr><td height="${vgap}"></td></tr>`);
+                        compiler.writeLineToBody(`<tr><td height="${vgap}"></td></tr>`);
                     }
 
                     otherChildIndex++;
@@ -41,7 +41,7 @@ export default {
             });
 
             if (! hasOnlyRawChildren) {
-                compiler.writeLn(`</table>`);
+                compiler.writeLineToBody(`</table>`);
             }
         }
     }

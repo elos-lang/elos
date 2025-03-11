@@ -39,10 +39,10 @@ export default class SpaceNode extends Node {
 
         const cssString = styleCompiler.attrsToCssString(css);
 
-        compiler.writeLn(`<table width="100%;" cellspacing="0" cellpadding="0" style="width: 100%; max-width:${width}px;border:none;border-spacing:0;text-align:left;">`);
-        compiler.writeLn('<tr>');
-        compiler.writeLn(`<td style="${cssString}"></td>`);
-        compiler.writeLn('</tr>');
-        compiler.writeLn('</table>');
+        compiler.writeLineToBody(`<table width="100%;" cellspacing="0" cellpadding="0" style="width: 100%; max-width:${width}px;border:none;border-spacing:0;text-align:left;">`);
+        compiler.writeLineToBody('<tr>');
+        compiler.writeLineToBody(`<td style="${cssString}"></td>`);
+        compiler.writeLineToBody('</tr>');
+        compiler.writeLineToBody('</table>');
     }
 }

@@ -1,113 +1,106 @@
 import {AttributeValue} from "../types/attribute";
 import Node from "../parser/Node";
+import Runtime from "../runtime/Runtime";
+import OutputBuffer from "./OutputBuffer";
+import OutputRenderer from "./OutputRenderer";
 
 export default class Compiler {
 
-    private head: string = '';
+    /**
+     *
+     * @private
+     */
+    private runtime: Runtime;
 
-    private body: string = '';
+    /**
+     * @private
+     */
+    private buffer: OutputBuffer;
 
-    private memory: Record<string, any> = {
-        path: '',
-        variables: {
-            preview: '',
-            edge: 35,
-            hgap: 10,
-            vgap: 10,
-            bgcolor: '#ffffff',
-            width: 650
-        },
-        colsId: 0,
-        imgId: 0,
-        classes: {},
-        identStyles: {}
-    };
+    /**
+     * @private
+     */
+    private renderer: OutputRenderer;
 
-    constructor(memory: Record<string, any> = {}) {
-        Object.assign(this.memory, memory);
+    /**
+     * @param runtime
+     */
+    constructor(runtime: Runtime = null) {
+        this.runtime = runtime ? runtime : new Runtime();
+        this.buffer = new OutputBuffer();
+        this.renderer = new OutputRenderer();
     }
 
-    getMemory(): Record<string, any> {
-        return this.memory;
+    /**
+     *
+     */
+    clone(): Compiler {
+        return new Compiler(this.runtime.clone());
     }
 
-    setMemory(memory: Record<string, any>) {
-        this.memory = memory;
+    /**
+     *
+     * @param compiler
+     */
+    import(compiler: Compiler) {
+        this.runtime.import(compiler.getRuntime());
     }
 
+    /**
+     *
+     */
+    getRuntime(): Runtime {
+        return this.runtime;
+    }
+
+    /**
+     *
+     * @param string
+     */
     write(string: string) {
-        this.body += string;
-    }
-
-    writeLn(string: string) {
-        this.write('\n'+string);
+        this.buffer.writeBody(string);
     }
 
     writeHead(string: string) {
-        this.head += string;
+        this.buffer.writeHead(string);
     }
 
-    writeLnHead(string: string) {
-        this.writeHead('\n'+string);
+    writeLineToBody(string: string) {
+        this.buffer.writeBody('\n'+string);
     }
 
-    define(name: string, value: AttributeValue) {
-        this.memory.variables[name] = value;
+    writeLineToHead(string: string) {
+        this.buffer.writeHead('\n'+string);
+    }
+
+    define(name: string, value: AttributeValue): AttributeValue {
+        this.runtime.setVariable(name, value);
         return value;
     }
 
     variable(name: string): AttributeValue {
-        return (typeof this.memory.variables[name] === 'undefined' ? null : this.memory.variables[name]);
+        return this.runtime.getVariable(name);
     }
 
     remember(name: string, value: AttributeValue) {
-        this.memory[name] = value;
-        return value;
+        return this.runtime.setInternalMemoryItem(name, value);
     }
 
     get(name: string): AttributeValue {
-        return (typeof this.memory[name] === 'undefined' ? null : this.memory[name]);
+        return this.runtime.getInternalMemoryItem(name);
     }
 
     getHead(): string {
-        return this.head;
+        return this.buffer.getHead();
     }
 
     getBody(): string {
-        return this.body;
-    }
-
-    clone(): Compiler {
-        return new Compiler(this.memory);
+        return this.buffer.getBody();
     }
 
     compile(ast: Node) {
 
         ast.compile(this);
-
-        return `
-            <!doctype html>
-            <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
-                <head>
-                    <!--[if !mso]><!-->
-                    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-                    <!--<![endif]-->
-                    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1">
-                        <style type="text/css">
-                          * { padding: 0; margin: 0; }
-                          #outlook a { padding:0; }
-                          body { margin:0;padding:0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%; }
-                          table, td { border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt; }
-                          img { border:0;height:auto;line-height:100%; outline:none;text-decoration:none;-ms-interpolation-mode:bicubic; }
-                          p { display:block;margin:13px 0; }
-                        </style>
-                    ${this.getHead()}
-                </head>
-                <body bgcolor="${this.variable('bgcolor')}">
-                    ${this.getBody()}
-                </body>
-            </html>
-        `;
+        return this.renderer.render(this.buffer, this.runtime.getVariables());
     }
 }

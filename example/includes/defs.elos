@@ -1,5 +1,7 @@
+font "https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+
 def $width 650
-def $hgap 20
+def $edge 15
 def $vgap 15
-def $bgcolor #444444
-def $preview "Welcome to ELOS"
+def $hgap 25
+def $preview "ELOS Language"

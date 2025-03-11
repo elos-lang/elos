@@ -33,95 +33,262 @@ __export(index_exports, {
 });
 module.exports = __toCommonJS(index_exports);
 
-// src/compiler/Compiler.ts
-var Compiler = class _Compiler {
-  head = "";
-  body = "";
-  memory = {
+// src/runtime/Store.ts
+var Store = class {
+  /**
+   * @private
+   */
+  items = {};
+  /**
+   * @param items
+   */
+  constructor(items = {}) {
+    this.items = items;
+  }
+  /**
+   * Sets a value by name
+   * @param name
+   * @param value
+   */
+  set(name, value) {
+    this.items[name] = value;
+    return value;
+  }
+  /**
+   * Gets a value by name
+   * @param name
+   */
+  get(name) {
+    return this.items[name];
+  }
+  /**
+   * Gets all items as an object
+   */
+  getAll() {
+    return this.items;
+  }
+  /**
+   * Extends the items by an object of other items
+   * @param items
+   */
+  extend(items) {
+    Object.assign(this.items, items);
+  }
+};
+
+// src/runtime/Runtime.ts
+var Runtime = class _Runtime {
+  internal = new Store({
     path: "",
-    variables: {
-      preview: "",
-      edge: 35,
-      hgap: 10,
-      vgap: 10,
-      bgcolor: "#ffffff",
-      width: 650
-    },
     colsId: 0,
     imgId: 0,
     classes: {},
     identStyles: {}
-  };
-  constructor(memory = {}) {
-    Object.assign(this.memory, memory);
+  });
+  variables = new Store({
+    preview: "",
+    edge: 35,
+    hgap: 10,
+    vgap: 10,
+    bgcolor: "#ffffff",
+    width: 650
+  });
+  setVariable(name, value) {
+    return this.variables.set(name, value);
   }
-  getMemory() {
-    return this.memory;
+  getVariable(name) {
+    return this.variables.get(name);
   }
-  setMemory(memory) {
-    this.memory = memory;
+  getVariables() {
+    return this.variables;
   }
+  setInternalMemoryItem(name, value) {
+    return this.internal.set(name, value);
+  }
+  getInternalMemoryItem(name) {
+    return this.internal.get(name);
+  }
+  getInternalMemory() {
+    return this.internal;
+  }
+  clone() {
+    const runtime = new _Runtime();
+    runtime.import(this);
+    return runtime;
+  }
+  import(runtime) {
+    this.internal.extend(runtime.getInternalMemory().getAll());
+    this.variables.extend(runtime.getVariables().getAll());
+  }
+};
+
+// src/compiler/OutputBuffer.ts
+var OutputBuffer = class {
+  /**
+   *
+   * @private
+   */
+  head = [];
+  /**
+   *
+   * @private
+   */
+  body = [];
+  /**
+   *
+   * @private
+   */
+  foot = [];
+  /**
+   *
+   * @param string
+   */
+  writeBody(string) {
+    this.body.push(string);
+  }
+  /**
+   *
+   * @param string
+   */
+  writeHead(string) {
+    this.head.push(string);
+  }
+  /**
+   *
+   * @param string
+   */
+  writeFoot(string) {
+    this.foot.push(string);
+  }
+  /**
+   *
+   */
+  getHead() {
+    return this.head.join("");
+  }
+  /**
+   *
+   */
+  getBody() {
+    return this.body.join("");
+  }
+  /**
+   *
+   */
+  getFoot() {
+    return this.foot.join("");
+  }
+};
+
+// src/compiler/OutputRenderer.ts
+var OutputRenderer = class {
+  render(buffer, variables) {
+    return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+	<head>
+		<!--[if !mso]><!-->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<!--<![endif]-->
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+			<style type="text/css">
+			  * { padding: 0; margin: 0; }
+			  #outlook a { padding:0; }
+			  body { margin:0;padding:0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%; }
+			  table, td { border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt; }
+			  img { border:0;height:auto;line-height:100%; outline:none;text-decoration:none;-ms-interpolation-mode:bicubic; }
+			  p { display:block;margin:13px 0; }
+			</style>
+		${buffer.getHead()}
+	</head>
+	<body bgcolor="${variables.get("bgcolor")}">
+		${buffer.getBody()}
+	</body>
+</html>
+        `;
+  }
+};
+
+// src/compiler/Compiler.ts
+var Compiler = class _Compiler {
+  /**
+   *
+   * @private
+   */
+  runtime;
+  /**
+   * @private
+   */
+  buffer;
+  /**
+   * @private
+   */
+  renderer;
+  /**
+   * @param runtime
+   */
+  constructor(runtime = null) {
+    this.runtime = runtime ? runtime : new Runtime();
+    this.buffer = new OutputBuffer();
+    this.renderer = new OutputRenderer();
+  }
+  /**
+   *
+   */
+  clone() {
+    return new _Compiler(this.runtime.clone());
+  }
+  /**
+   *
+   * @param compiler
+   */
+  import(compiler) {
+    this.runtime.import(compiler.getRuntime());
+  }
+  /**
+   *
+   */
+  getRuntime() {
+    return this.runtime;
+  }
+  /**
+   *
+   * @param string
+   */
   write(string) {
-    this.body += string;
-  }
-  writeLn(string) {
-    this.write("\n" + string);
+    this.buffer.writeBody(string);
   }
   writeHead(string) {
-    this.head += string;
+    this.buffer.writeHead(string);
   }
-  writeLnHead(string) {
-    this.writeHead("\n" + string);
+  writeLineToBody(string) {
+    this.buffer.writeBody("\n" + string);
+  }
+  writeLineToHead(string) {
+    this.buffer.writeHead("\n" + string);
   }
   define(name, value) {
-    this.memory.variables[name] = value;
+    this.runtime.setVariable(name, value);
     return value;
   }
   variable(name) {
-    return typeof this.memory.variables[name] === "undefined" ? null : this.memory.variables[name];
+    return this.runtime.getVariable(name);
   }
   remember(name, value) {
-    this.memory[name] = value;
-    return value;
+    return this.runtime.setInternalMemoryItem(name, value);
   }
   get(name) {
-    return typeof this.memory[name] === "undefined" ? null : this.memory[name];
+    return this.runtime.getInternalMemoryItem(name);
   }
   getHead() {
-    return this.head;
+    return this.buffer.getHead();
   }
   getBody() {
-    return this.body;
-  }
-  clone() {
-    return new _Compiler(this.memory);
+    return this.buffer.getBody();
   }
   compile(ast) {
     ast.compile(this);
-    return `
-            <!doctype html>
-            <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
-                <head>
-                    <!--[if !mso]><!-->
-                    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-                    <!--<![endif]-->
-                    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1">
-                        <style type="text/css">
-                          * { padding: 0; margin: 0; }
-                          #outlook a { padding:0; }
-                          body { margin:0;padding:0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%; }
-                          table, td { border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt; }
-                          img { border:0;height:auto;line-height:100%; outline:none;text-decoration:none;-ms-interpolation-mode:bicubic; }
-                          p { display:block;margin:13px 0; }
-                        </style>
-                    ${this.getHead()}
-                </head>
-                <body bgcolor="${this.variable("bgcolor")}">
-                    ${this.getBody()}
-                </body>
-            </html>
-        `;
+    return this.renderer.render(this.buffer, this.runtime.getVariables());
   }
 };
 
@@ -297,6 +464,10 @@ var Lexer = class {
     }
     return 1 /* UNKNOWN */;
   }
+  /**
+   * Tokenize identifier
+   * @private
+   */
   lexIdent() {
     this.value += this.character;
     this.cursor++;
@@ -312,6 +483,10 @@ var Lexer = class {
       this.mode = 0 /* ALL */;
     }
   }
+  /**
+   * Tokenize string
+   * @private
+   */
   lexString() {
     let escSequence = this.character === grammar_default.STRING_ESCAPE_SYMBOL;
     if (escSequence) {
@@ -337,6 +512,10 @@ var Lexer = class {
       this.delimiter = "";
     }
   }
+  /**
+   * Tokenize number
+   * @private
+   */
   lexNumber() {
     this.value += this.character;
     this.cursor++;
@@ -352,6 +531,10 @@ var Lexer = class {
       this.mode = 0 /* ALL */;
     }
   }
+  /**
+   * Tokenize symbol
+   * @private
+   */
   lexSymbol() {
     this.cursor++;
     this.tokens.push({
@@ -364,17 +547,29 @@ var Lexer = class {
     this.column++;
     this.mode = 0 /* ALL */;
   }
+  /**
+   * Tokenize newline
+   * @private
+   */
   lexNewline() {
     this.cursor++;
     this.line++;
     this.column = 1;
     this.mode = 0 /* ALL */;
   }
+  /**
+   * Tokenize whitespace
+   * @private
+   */
   lexWhitespace() {
     this.cursor++;
     this.column++;
     this.mode = 0 /* ALL */;
   }
+  /**
+   * Tokenize color
+   * @private
+   */
   lexColor() {
     if (grammar_default.REGEX_COLOR.exec(this.character)) {
       this.value += this.character;
@@ -393,6 +588,10 @@ var Lexer = class {
       this.delimiter = "";
     }
   }
+  /**
+   * Tokenize variable
+   * @private
+   */
   lexVariable() {
     if (grammar_default.REGEX_VAR.exec(this.character)) {
       this.value += this.character;
@@ -411,6 +610,10 @@ var Lexer = class {
       this.delimiter = "";
     }
   }
+  /**
+   * Tokenize unknown
+   * @private
+   */
   lexUnknown() {
     this.tokens.push({
       type: "Unknown" /* UNKNOWN */,
@@ -423,6 +626,10 @@ var Lexer = class {
     this.column++;
     this.mode = 0 /* ALL */;
   }
+  /**
+   * Tokenize comment
+   * @private
+   */
   lexComment() {
     this.cursor++;
     if (grammar_default.REGEX_NEWLINE.exec(this.nextCharacter)) {
@@ -842,23 +1049,27 @@ var ImgNode = class _ImgNode extends Node {
     const mediaQueryWidth = width + parseInt(compiler.variable("edge")) * 2 + scrollBarWidth;
     const imgId = compiler.remember("imgId", parseInt(compiler.get("imgId")) + 1);
     const currWidth = parseInt(compiler.get("currWidth"));
-    compiler.writeLnHead(`<style media="screen and (min-width:${mediaQueryWidth}px)">`);
-    compiler.writeLnHead(`.elos-img-${imgId} {`);
-    compiler.writeLnHead(`width: ${currWidth}px !important;`);
-    compiler.writeLnHead("}");
-    compiler.writeLnHead("</style>");
+    compiler.writeLineToHead(`<style media="screen and (min-width:${mediaQueryWidth}px)">`);
+    compiler.writeLineToHead(`.elos-img-${imgId} {`);
+    compiler.writeLineToHead(`width: ${currWidth}px !important;`);
+    compiler.writeLineToHead("}");
+    compiler.writeLineToHead("</style>");
     if (url) {
-      compiler.writeLn(`<a href="${url}" target="_blank" style="text-decoration: none;">`);
+      compiler.writeLineToBody(`<a href="${url}" target="_blank" style="text-decoration: none;">`);
     }
-    compiler.writeLn(`<img class="elos-img-${imgId}" border="0" src="${src}" style="display:block; border: 0; width: 100%;"/>`);
+    compiler.writeLineToBody(`<img class="elos-img-${imgId}" border="0" src="${src}" style="display:block; border: 0; width: 100%;"/>`);
     if (url) {
-      compiler.writeLn(`</a>`);
+      compiler.writeLineToBody(`</a>`);
     }
   }
 };
 
 // src/parser/helpers/compile-style-attrs.ts
 var propMap = {
+  font: {
+    type: "string",
+    cssProperty: "font-family"
+  },
   size: {
     type: "integer",
     unit: "px",
@@ -973,13 +1184,13 @@ var LineNode = class _LineNode extends Node {
       }
     );
     const cssString = compile_style_attrs_default.attrsToCssString(css);
-    compiler.writeLn(
+    compiler.writeLineToBody(
       `<table width="100%;" cellspacing="0" cellpadding="0" style="width: 100%; max-width:${width}px;border:none;border-spacing:0;text-align:left;">`
     );
-    compiler.writeLn("<tr>");
-    compiler.writeLn(`<td style="${cssString}"></td>`);
-    compiler.writeLn("</tr>");
-    compiler.writeLn("</table>");
+    compiler.writeLineToBody("<tr>");
+    compiler.writeLineToBody(`<td style="${cssString}"></td>`);
+    compiler.writeLineToBody("</tr>");
+    compiler.writeLineToBody("</table>");
   }
 };
 
@@ -1015,25 +1226,26 @@ var TxtNode = class _TxtNode extends Node {
     const url = compile_expression_into_value_default.compileExpressionIntoValue(compiler, this.getAttribute("url"));
     const width = compiler.variable("width");
     const css = compile_style_attrs_default.compileStyleAttrs(compiler, "txt", className, {
+      "font-family": "Arial",
       "font-size": "12px",
       "color": "#000000",
       "line-height": "16px",
       "text-decoration": "none"
     });
     const cssString = compile_style_attrs_default.attrsToCssString(css);
-    compiler.writeLn(`<table cellspacing="0" cellpadding="0" style="max-width:${width}px;border:none;border-spacing:0;text-align:left;">`);
-    compiler.writeLn("<tr>");
-    compiler.writeLn(`<td style="${cssString}">`);
+    compiler.writeLineToBody(`<table cellspacing="0" cellpadding="0" style="max-width:${width}px;border:none;border-spacing:0;text-align:left;">`);
+    compiler.writeLineToBody("<tr>");
+    compiler.writeLineToBody(`<td style="${cssString}">`);
     if (url) {
-      compiler.writeLn(`<a href="${url}" target="_blank" style="${cssString}">`);
+      compiler.writeLineToBody(`<a href="${url}" target="_blank" style="${cssString}">`);
     }
-    compiler.writeLn(text);
+    compiler.writeLineToBody(text);
     if (url) {
-      compiler.writeLn(`</a>`);
+      compiler.writeLineToBody(`</a>`);
     }
-    compiler.writeLn(`</td>`);
-    compiler.writeLn("</tr>");
-    compiler.writeLn("</table>");
+    compiler.writeLineToBody(`</td>`);
+    compiler.writeLineToBody("</tr>");
+    compiler.writeLineToBody("</table>");
   }
 };
 
@@ -1069,26 +1281,26 @@ var compile_with_vgap_default = {
     const cssString = align === "center" /* CENTER */ ? "" : "width: 100%;";
     if (totalChildrenCount) {
       if (!hasOnlyRawChildren) {
-        compiler.writeLn(`<table role="presentation" style="${cssString}border:none;border-spacing:0;text-align:${align};font-family:Arial,sans-serif;font-size:16px;line-height:22px;color:#363636;">`);
+        compiler.writeLineToBody(`<table role="presentation" style="${cssString}border:none;border-spacing:0;text-align:${align};font-family:Arial,sans-serif;font-size:16px;line-height:22px;color:#363636;">`);
       }
       let otherChildIndex = 0;
       children.forEach((child, index) => {
         if (child instanceof RawNode) {
           child.compile(compiler);
         } else {
-          compiler.writeLn("<tr>");
-          compiler.writeLn(`<td align="${align}">`);
+          compiler.writeLineToBody("<tr>");
+          compiler.writeLineToBody(`<td align="${align}">`);
           child.compile(compiler);
-          compiler.writeLn("</td>");
-          compiler.writeLn("</tr>");
+          compiler.writeLineToBody("</td>");
+          compiler.writeLineToBody("</tr>");
           if (otherChildIndex < otherChildrenCount - 1) {
-            compiler.writeLn(`<tr><td height="${vgap}"></td></tr>`);
+            compiler.writeLineToBody(`<tr><td height="${vgap}"></td></tr>`);
           }
           otherChildIndex++;
         }
       });
       if (!hasOnlyRawChildren) {
-        compiler.writeLn(`</table>`);
+        compiler.writeLineToBody(`</table>`);
       }
     }
   }
@@ -1131,25 +1343,25 @@ var GroupNode = class _GroupNode extends Node {
     const align = css["text-align"];
     const currWidth = parseInt(currentWidth);
     compiler.remember("currWidth", currWidth - padding * 2);
-    compiler.writeLn(`<table width="100%;" cellspacing="0" cellpadding="0" style="width:100%;max-width:${currWidth}px;border:none;border-spacing:0;text-align:${align};">`);
-    compiler.writeLn("<tr>");
-    compiler.writeLn(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
-    compiler.writeLn(`<td bgcolor="${bgColor}" height="${padding}"></td>`);
-    compiler.writeLn(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
-    compiler.writeLn("</tr>");
-    compiler.writeLn("<tr>");
-    compiler.writeLn(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
-    compiler.writeLn(`<td bgcolor="${bgColor}" align="${align}">`);
+    compiler.writeLineToBody(`<table width="100%;" cellspacing="0" cellpadding="0" style="width:100%;max-width:${currWidth}px;border:none;border-spacing:0;text-align:${align};">`);
+    compiler.writeLineToBody("<tr>");
+    compiler.writeLineToBody(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
+    compiler.writeLineToBody(`<td bgcolor="${bgColor}" height="${padding}"></td>`);
+    compiler.writeLineToBody(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
+    compiler.writeLineToBody("</tr>");
+    compiler.writeLineToBody("<tr>");
+    compiler.writeLineToBody(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
+    compiler.writeLineToBody(`<td bgcolor="${bgColor}" align="${align}">`);
     compile_with_vgap_default.compileWithVgap(compiler, this.getChildren(), align);
-    compiler.writeLn("</td>");
-    compiler.writeLn(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
-    compiler.writeLn("</tr>");
-    compiler.writeLn("<tr>");
-    compiler.writeLn(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
-    compiler.writeLn(`<td bgcolor="${bgColor}" height="${padding}"></td>`);
-    compiler.writeLn(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
-    compiler.writeLn("</tr>");
-    compiler.writeLn("</table>");
+    compiler.writeLineToBody("</td>");
+    compiler.writeLineToBody(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
+    compiler.writeLineToBody("</tr>");
+    compiler.writeLineToBody("<tr>");
+    compiler.writeLineToBody(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
+    compiler.writeLineToBody(`<td bgcolor="${bgColor}" height="${padding}"></td>`);
+    compiler.writeLineToBody(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
+    compiler.writeLineToBody("</tr>");
+    compiler.writeLineToBody("</table>");
     compiler.remember("currWidth", currWidth);
   }
 };
@@ -1211,45 +1423,45 @@ var ColsNode = class _ColsNode extends Node {
     const mediaQueryWidth = width + parseInt(compiler.variable("edge")) * 2 + scrollBarWidth;
     const gap = parseInt(compiler.variable("hgap"));
     const colWidth = Math.floor(currWidth / colCount - gap + Math.floor(gap / colCount));
-    compiler.writeLn(`<table width="100%;" cellspacing="0" cellpadding="0" style="width: 100%; max-width:${currWidth}px;border:none;border-spacing:0;text-align:left;">`);
-    compiler.writeLn("<tr>");
-    compiler.writeLn("<td>");
-    compiler.writeLn("<!--[if mso]>");
-    compiler.writeLn('<table role="presentation" width="100%">');
-    compiler.writeLn("<tr>");
-    compiler.writeLn("<![endif]-->");
+    compiler.writeLineToBody(`<table width="100%;" cellspacing="0" cellpadding="0" style="width: 100%; max-width:${currWidth}px;border:none;border-spacing:0;text-align:left;">`);
+    compiler.writeLineToBody("<tr>");
+    compiler.writeLineToBody("<td>");
+    compiler.writeLineToBody("<!--[if mso]>");
+    compiler.writeLineToBody('<table role="presentation" width="100%">');
+    compiler.writeLineToBody("<tr>");
+    compiler.writeLineToBody("<![endif]-->");
     this.getChildren().forEach((child, i) => {
       compiler.remember("currWidth", colWidth);
-      compiler.writeLnHead(`<style media="screen and (min-width:${mediaQueryWidth}px)">`);
-      compiler.writeLnHead(`.elos-col-${colsId}-${i} {`);
-      compiler.writeLnHead(`float: left;`);
-      compiler.writeLnHead(`max-width: ${colWidth}px !important;`);
-      compiler.writeLnHead(`margin-bottom: 0 !important;`);
+      compiler.writeLineToHead(`<style media="screen and (min-width:${mediaQueryWidth}px)">`);
+      compiler.writeLineToHead(`.elos-col-${colsId}-${i} {`);
+      compiler.writeLineToHead(`float: left;`);
+      compiler.writeLineToHead(`max-width: ${colWidth}px !important;`);
+      compiler.writeLineToHead(`margin-bottom: 0 !important;`);
       if (i < colCount - 1) {
-        compiler.writeLnHead(`padding-right: ${gap}px !important;`);
+        compiler.writeLineToHead(`padding-right: ${gap}px !important;`);
       }
       if (i === 0) {
       }
-      compiler.writeLnHead("}");
-      compiler.writeLnHead("</style>");
-      compiler.writeLn("<!--[if mso]>");
-      compiler.writeLn(`<td style="width: ${colWidth}px; padding: 0;" align="left" valign="top">`);
-      compiler.writeLn("<![endif]-->");
-      compiler.writeLn(`<div class="elos-col-${colsId}-${i}" style="display:inline-block; margin-bottom: ${gap}px; width:100%; vertical-align:top; text-align:left;">`);
+      compiler.writeLineToHead("}");
+      compiler.writeLineToHead("</style>");
+      compiler.writeLineToBody("<!--[if mso]>");
+      compiler.writeLineToBody(`<td style="width: ${colWidth}px; padding: 0;" align="left" valign="top">`);
+      compiler.writeLineToBody("<![endif]-->");
+      compiler.writeLineToBody(`<div class="elos-col-${colsId}-${i}" style="display:inline-block; margin-bottom: ${gap}px; width:100%; vertical-align:top; text-align:left;">`);
       child.compile(compiler);
-      compiler.writeLn("</div>");
-      compiler.writeLn("<!--[if mso]>");
-      compiler.writeLn("</td>");
-      compiler.writeLn("<![endif]-->");
+      compiler.writeLineToBody("</div>");
+      compiler.writeLineToBody("<!--[if mso]>");
+      compiler.writeLineToBody("</td>");
+      compiler.writeLineToBody("<![endif]-->");
     });
     compiler.remember("currWidth", currWidth);
-    compiler.writeLn("<!--[if mso]>");
-    compiler.writeLn("</tr>");
-    compiler.writeLn("</table>");
-    compiler.writeLn("<![endif]-->");
-    compiler.writeLn("</td>");
-    compiler.writeLn("</tr>");
-    compiler.writeLn("</table>");
+    compiler.writeLineToBody("<!--[if mso]>");
+    compiler.writeLineToBody("</tr>");
+    compiler.writeLineToBody("</table>");
+    compiler.writeLineToBody("<![endif]-->");
+    compiler.writeLineToBody("</td>");
+    compiler.writeLineToBody("</tr>");
+    compiler.writeLineToBody("</table>");
   }
 };
 
@@ -1277,11 +1489,11 @@ var SpaceNode = class _SpaceNode extends Node {
       "height": `${vgap}px`
     });
     const cssString = compile_style_attrs_default.attrsToCssString(css);
-    compiler.writeLn(`<table width="100%;" cellspacing="0" cellpadding="0" style="width: 100%; max-width:${width}px;border:none;border-spacing:0;text-align:left;">`);
-    compiler.writeLn("<tr>");
-    compiler.writeLn(`<td style="${cssString}"></td>`);
-    compiler.writeLn("</tr>");
-    compiler.writeLn("</table>");
+    compiler.writeLineToBody(`<table width="100%;" cellspacing="0" cellpadding="0" style="width: 100%; max-width:${width}px;border:none;border-spacing:0;text-align:left;">`);
+    compiler.writeLineToBody("<tr>");
+    compiler.writeLineToBody(`<td style="${cssString}"></td>`);
+    compiler.writeLineToBody("</tr>");
+    compiler.writeLineToBody("</table>");
   }
 };
 
@@ -1331,17 +1543,17 @@ var BtnNode = class _BtnNode extends Node {
     const padding = css["padding"];
     const borderRadius = css["border-radius"];
     const cssString = compile_style_attrs_default.attrsToCssString(css);
-    compiler.writeLn(`<table border="0" cellPadding="0" cellSpacing="0" role="presentation" style="border-collapse:separate;line-height:100%;">`);
-    compiler.writeLn("<tbody>");
-    compiler.writeLn("<tr>");
-    compiler.writeLn(`<td align="center" bgcolor="${bgColor}" role="presentation" style="border:none;border-radius:${borderRadius};cursor:auto;mso-padding-alt:${padding};background:${bgColor};" valign="middle">`);
-    compiler.writeLn(`<a href="${url ? url : "#"}" style="display:inline-block;margin:0;${cssString}" target="_blank">`);
-    compiler.writeLn(expression);
-    compiler.writeLn("</a>");
-    compiler.writeLn("</td>");
-    compiler.writeLn("</tr>");
-    compiler.writeLn("</tbody>");
-    compiler.writeLn("</table>");
+    compiler.writeLineToBody(`<table border="0" cellPadding="0" cellSpacing="0" role="presentation" style="border-collapse:separate;line-height:100%;">`);
+    compiler.writeLineToBody("<tbody>");
+    compiler.writeLineToBody("<tr>");
+    compiler.writeLineToBody(`<td align="center" bgcolor="${bgColor}" role="presentation" style="border:none;border-radius:${borderRadius};cursor:auto;mso-padding-alt:${padding};background:${bgColor};" valign="middle">`);
+    compiler.writeLineToBody(`<a href="${url ? url : "#"}" style="display:inline-block;margin:0;${cssString}" target="_blank">`);
+    compiler.writeLineToBody(expression);
+    compiler.writeLineToBody("</a>");
+    compiler.writeLineToBody("</td>");
+    compiler.writeLineToBody("</tr>");
+    compiler.writeLineToBody("</tbody>");
+    compiler.writeLineToBody("</table>");
   }
 };
 
@@ -1350,9 +1562,35 @@ function parseBody(parser) {
   while (IncludeNode.parse(parser) || SpaceNode.parse(parser) || ColsNode.parse(parser) || GroupNode.parse(parser) || ImgNode.parse(parser) || LineNode.parse(parser) || TxtNode.parse(parser) || BtnNode.parse(parser) || RawNode.parse(parser)) ;
 }
 
+// src/nodes/FontNode.ts
+var FontNode = class _FontNode extends Node {
+  static parse(parser) {
+    if (parser.acceptWithValue("Ident" /* IDENT */, "font")) {
+      parser.advance();
+      parser.insert(new _FontNode());
+      parser.traverseUp();
+      if (!ExpressionNode.parse(parser)) {
+        throw new Error("Expected an expression");
+      }
+      parser.setAttribute("fontSrc");
+      parser.traverseDown();
+      return true;
+    }
+    return false;
+  }
+  compile(compiler) {
+    const fontSrc = compile_expression_into_value_default.compileExpressionIntoValue(compiler, this.getAttribute("fontSrc"));
+    compiler.writeHead(`
+			<style>
+			@import url('${fontSrc}');
+			</style>
+		`);
+  }
+};
+
 // src/parser/helpers/parse-head.ts
 function parseHead(parser) {
-  while (DefNode.parse(parser) || StyleNode.parse(parser) || IncludeNode.parse(parser)) ;
+  while (DefNode.parse(parser) || StyleNode.parse(parser) || IncludeNode.parse(parser) || FontNode.parse(parser)) ;
 }
 
 // src/events/Manager.ts
@@ -1443,7 +1681,7 @@ var IncludeNode = class _IncludeNode extends Node {
     } else {
       compile_with_vgap_default.compileWithVgap(clonedCompiler, ast.getChildren());
     }
-    compiler.setMemory(clonedCompiler.getMemory());
+    compiler.import(clonedCompiler);
     compiler.writeHead(clonedCompiler.getHead());
     compiler.write(clonedCompiler.getBody());
   }
@@ -1475,34 +1713,34 @@ var BodyNode = class _BodyNode extends Node {
     const totalWidth = width + edge * 2;
     compiler.remember("currWidth", width);
     if (preview) {
-      compiler.writeLn('<div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">');
-      compiler.writeLn(preview);
-      compiler.writeLn(`</div>`);
+      compiler.writeLineToBody('<div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">');
+      compiler.writeLineToBody(preview);
+      compiler.writeLineToBody(`</div>`);
     }
-    compiler.writeLn('<table role="presentation" style="width:100%;border:none;border-spacing:0;">');
-    compiler.writeLn("<tr>");
-    compiler.writeLn('<td align="center" style="padding:0;">');
-    compiler.writeLn(`<table role="presentation" style="width:100%;max-width:${totalWidth}px;border:none;border-spacing:0;text-align:left;font-family:Arial,sans-serif;font-size:16px;line-height:22px;color:#363636;">`);
-    compiler.writeLn("<tr>");
-    compiler.writeLn(`<td width="${edge}">`);
-    compiler.writeLn("</td>");
-    compiler.writeLn(`<td style="max-width: ${width}px;">`);
+    compiler.writeLineToBody('<table role="presentation" style="width:100%;border:none;border-spacing:0;">');
+    compiler.writeLineToBody("<tr>");
+    compiler.writeLineToBody('<td align="center" style="padding:0;">');
+    compiler.writeLineToBody(`<table role="presentation" style="width:100%;max-width:${totalWidth}px;border:none;border-spacing:0;text-align:left;font-family:Arial,sans-serif;font-size:16px;line-height:22px;color:#363636;">`);
+    compiler.writeLineToBody("<tr>");
+    compiler.writeLineToBody(`<td width="${edge}">`);
+    compiler.writeLineToBody("</td>");
+    compiler.writeLineToBody(`<td style="max-width: ${width}px;">`);
     compile_with_vgap_default.compileWithVgap(compiler, this.getChildren());
-    compiler.writeLn("</td>");
-    compiler.writeLn(`<td width="${edge}">`);
-    compiler.writeLn("</td>");
-    compiler.writeLn("</tr>");
-    compiler.writeLn("</table>");
-    compiler.writeLn("</td>");
-    compiler.writeLn("</tr>");
-    compiler.writeLn("</table>");
+    compiler.writeLineToBody("</td>");
+    compiler.writeLineToBody(`<td width="${edge}">`);
+    compiler.writeLineToBody("</td>");
+    compiler.writeLineToBody("</tr>");
+    compiler.writeLineToBody("</table>");
+    compiler.writeLineToBody("</td>");
+    compiler.writeLineToBody("</tr>");
+    compiler.writeLineToBody("</table>");
   }
 };
 
 // src/parser/AstNode.ts
 var AstNode = class extends Node {
   static parse(parser) {
-    while (DefNode.parse(parser) || StyleNode.parse(parser) || IncludeNode.parse(parser)) ;
+    while (DefNode.parse(parser) || StyleNode.parse(parser) || IncludeNode.parse(parser) || FontNode.parse(parser)) ;
     if (BodyNode.parse(parser)) {
       parser.advance();
       return true;
@@ -1786,9 +2024,10 @@ var Elos = class {
    */
   static make(code, path = "") {
     const tokens = new Lexer().tokenize(code);
-    console.log(tokens);
     const ast = new Parser().parse(tokens);
-    return new Compiler({ path }).compile(ast);
+    const runtime = new Runtime();
+    runtime.setInternalMemoryItem("path", path);
+    return new Compiler(runtime).compile(ast);
   }
   /**
    * @param eventId

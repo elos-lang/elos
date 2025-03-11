@@ -52,20 +52,20 @@ export default class ImgNode extends Node {
         const imgId = compiler.remember('imgId', parseInt(compiler.get('imgId') as string) + 1);
         const currWidth = parseInt(compiler.get('currWidth') as string);
 
-        compiler.writeLnHead(`<style media="screen and (min-width:${mediaQueryWidth}px)">`);
-        compiler.writeLnHead(`.elos-img-${imgId} {`);
-        compiler.writeLnHead(`width: ${currWidth}px !important;`);
-        compiler.writeLnHead('}');
-        compiler.writeLnHead('</style>');
+        compiler.writeLineToHead(`<style media="screen and (min-width:${mediaQueryWidth}px)">`);
+        compiler.writeLineToHead(`.elos-img-${imgId} {`);
+        compiler.writeLineToHead(`width: ${currWidth}px !important;`);
+        compiler.writeLineToHead('}');
+        compiler.writeLineToHead('</style>');
 
         if (url) {
-            compiler.writeLn(`<a href="${url}" target="_blank" style="text-decoration: none;">`);
+            compiler.writeLineToBody(`<a href="${url}" target="_blank" style="text-decoration: none;">`);
         }
 
-        compiler.writeLn(`<img class="elos-img-${imgId}" border="0" src="${src}" style="display:block; border: 0; width: 100%;"/>`);
+        compiler.writeLineToBody(`<img class="elos-img-${imgId}" border="0" src="${src}" style="display:block; border: 0; width: 100%;"/>`);
 
         if (url) {
-            compiler.writeLn(`</a>`);
+            compiler.writeLineToBody(`</a>`);
         }
     }
 }

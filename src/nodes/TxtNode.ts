@@ -51,6 +51,7 @@ export default class TxtNode extends Node {
         const width = compiler.variable('width');
 
         const css = styleCompiler.compileStyleAttrs(compiler, 'txt', className, {
+            'font-family': 'Arial',
             'font-size': '12px',
             'color': '#000000',
             'line-height': '16px',
@@ -59,22 +60,22 @@ export default class TxtNode extends Node {
 
         const cssString = styleCompiler.attrsToCssString(css);
 
-        compiler.writeLn(`<table cellspacing="0" cellpadding="0" style="max-width:${width}px;border:none;border-spacing:0;text-align:left;">`);
-        compiler.writeLn('<tr>');
-        compiler.writeLn(`<td style="${cssString}">`);
+        compiler.writeLineToBody(`<table cellspacing="0" cellpadding="0" style="max-width:${width}px;border:none;border-spacing:0;text-align:left;">`);
+        compiler.writeLineToBody('<tr>');
+        compiler.writeLineToBody(`<td style="${cssString}">`);
 
         if (url) {
-            compiler.writeLn(`<a href="${url}" target="_blank" style="${cssString}">`);
+            compiler.writeLineToBody(`<a href="${url}" target="_blank" style="${cssString}">`);
         }
 
-        compiler.writeLn(text);
+        compiler.writeLineToBody(text);
 
         if (url) {
-            compiler.writeLn(`</a>`);
+            compiler.writeLineToBody(`</a>`);
         }
 
-        compiler.writeLn(`</td>`);
-        compiler.writeLn('</tr>');
-        compiler.writeLn('</table>');
+        compiler.writeLineToBody(`</td>`);
+        compiler.writeLineToBody('</tr>');
+        compiler.writeLineToBody('</table>');
     }
 }

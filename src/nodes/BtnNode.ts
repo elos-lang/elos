@@ -70,16 +70,16 @@ export default class BtnNode extends Node {
 
         const cssString = styleCompiler.attrsToCssString(css);
 
-        compiler.writeLn(`<table border="0" cellPadding="0" cellSpacing="0" role="presentation" style="border-collapse:separate;line-height:100%;">`);
-        compiler.writeLn('<tbody>');
-        compiler.writeLn('<tr>');
-        compiler.writeLn(`<td align="center" bgcolor="${bgColor}" role="presentation" style="border:none;border-radius:${borderRadius};cursor:auto;mso-padding-alt:${padding};background:${bgColor};" valign="middle">`);
-        compiler.writeLn(`<a href="${url ? url : '#'}" style="display:inline-block;margin:0;${cssString}" target="_blank">`);
-        compiler.writeLn(expression);
-        compiler.writeLn('</a>');
-        compiler.writeLn('</td>');
-        compiler.writeLn('</tr>');
-        compiler.writeLn('</tbody>');
-        compiler.writeLn('</table>');
+        compiler.writeLineToBody(`<table border="0" cellPadding="0" cellSpacing="0" role="presentation" style="border-collapse:separate;line-height:100%;">`);
+        compiler.writeLineToBody('<tbody>');
+        compiler.writeLineToBody('<tr>');
+        compiler.writeLineToBody(`<td align="center" bgcolor="${bgColor}" role="presentation" style="border:none;border-radius:${borderRadius};cursor:auto;mso-padding-alt:${padding};background:${bgColor};" valign="middle">`);
+        compiler.writeLineToBody(`<a href="${url ? url : '#'}" style="display:inline-block;margin:0;${cssString}" target="_blank">`);
+        compiler.writeLineToBody(expression);
+        compiler.writeLineToBody('</a>');
+        compiler.writeLineToBody('</td>');
+        compiler.writeLineToBody('</tr>');
+        compiler.writeLineToBody('</tbody>');
+        compiler.writeLineToBody('</table>');
     }
 }

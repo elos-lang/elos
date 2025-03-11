@@ -1,6 +1,10 @@
 import Compiler from "../../compiler/Compiler";
 
 const propMap = {
+    font: {
+        type: 'string',
+        cssProperty: 'font-family',
+    },
     size: {
         type: 'integer',
         unit: 'px',

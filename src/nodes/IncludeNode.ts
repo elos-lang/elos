@@ -72,7 +72,8 @@ export default class IncludeNode extends Node {
             compilerHelpers.compileWithVgap(clonedCompiler, ast.getChildren());
         }
 
-        compiler.setMemory(clonedCompiler.getMemory());
+        compiler.import(clonedCompiler);
+
         compiler.writeHead(clonedCompiler.getHead());
         compiler.write(clonedCompiler.getBody());
     }

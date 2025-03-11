@@ -3,6 +3,7 @@ import Lexer from "./lexer/Lexer";
 import Parser from "./parser/Parser";
 import {EventListener} from "./types/event-listener";
 import {Manager} from "./events/Manager";
+import Runtime from "./runtime/Runtime";
 
 export default class Elos {
 
@@ -13,7 +14,11 @@ export default class Elos {
 	public static make(code: string, path: string = '') {
 		const tokens = (new Lexer()).tokenize(code);
 		const ast = (new Parser()).parse(tokens);
-		return (new Compiler({ path })).compile(ast);
+
+		const runtime = new Runtime();
+		runtime.setInternalMemoryItem('path', path);
+
+		return (new Compiler(runtime)).compile(ast);
 	}
 
 	/**

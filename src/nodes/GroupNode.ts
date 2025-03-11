@@ -62,31 +62,31 @@ export default class GroupNode extends Node {
         const currWidth = parseInt(currentWidth);
         compiler.remember('currWidth', currWidth - (padding*2));
 
-        compiler.writeLn(`<table width="100%;" cellspacing="0" cellpadding="0" style="width:100%;max-width:${currWidth}px;border:none;border-spacing:0;text-align:${align};">`);
+        compiler.writeLineToBody(`<table width="100%;" cellspacing="0" cellpadding="0" style="width:100%;max-width:${currWidth}px;border:none;border-spacing:0;text-align:${align};">`);
 
-        compiler.writeLn('<tr>');
-        compiler.writeLn(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
-        compiler.writeLn(`<td bgcolor="${bgColor}" height="${padding}"></td>`);
-        compiler.writeLn(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
-        compiler.writeLn('</tr>');
+        compiler.writeLineToBody('<tr>');
+        compiler.writeLineToBody(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
+        compiler.writeLineToBody(`<td bgcolor="${bgColor}" height="${padding}"></td>`);
+        compiler.writeLineToBody(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
+        compiler.writeLineToBody('</tr>');
 
-        compiler.writeLn('<tr>');
-        compiler.writeLn(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
-        compiler.writeLn(`<td bgcolor="${bgColor}" align="${align}">`);
+        compiler.writeLineToBody('<tr>');
+        compiler.writeLineToBody(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
+        compiler.writeLineToBody(`<td bgcolor="${bgColor}" align="${align}">`);
 
         compilerHelpers.compileWithVgap(compiler, this.getChildren(), align);
 
-        compiler.writeLn('</td>');
-        compiler.writeLn(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
-        compiler.writeLn('</tr>');
+        compiler.writeLineToBody('</td>');
+        compiler.writeLineToBody(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
+        compiler.writeLineToBody('</tr>');
 
-        compiler.writeLn('<tr>');
-        compiler.writeLn(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
-        compiler.writeLn(`<td bgcolor="${bgColor}" height="${padding}"></td>`);
-        compiler.writeLn(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
-        compiler.writeLn('</tr>');
+        compiler.writeLineToBody('<tr>');
+        compiler.writeLineToBody(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
+        compiler.writeLineToBody(`<td bgcolor="${bgColor}" height="${padding}"></td>`);
+        compiler.writeLineToBody(`<td bgcolor="${bgColor}" width="${padding}"></td>`);
+        compiler.writeLineToBody('</tr>');
 
-        compiler.writeLn('</table>');
+        compiler.writeLineToBody('</table>');
 
         compiler.remember('currWidth', currWidth);
     }

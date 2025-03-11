@@ -5,6 +5,7 @@ import DefNode from "../nodes/DefNode";
 import StyleNode from "../nodes/StyleNode";
 import IncludeNode from "../nodes/IncludeNode";
 import BodyNode from "../nodes/BodyNode";
+import FontNode from "../nodes/FontNode";
 
 export default class AstNode extends Node {
 
@@ -13,7 +14,8 @@ export default class AstNode extends Node {
         while (
             DefNode.parse(parser) ||
             StyleNode.parse(parser) ||
-            IncludeNode.parse(parser)
+            IncludeNode.parse(parser) ||
+            FontNode.parse(parser)
         );
 
         if (BodyNode.parse(parser)) {

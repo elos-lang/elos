@@ -1,2 +1,14 @@
-def $message "abcde"
-body { txt $message txt $message }
+include "includes/defs"
+include "includes/style"
+
+body {
+	include "includes/header"
+	cols {
+		col {
+			include "includes/card"
+		}
+		col {
+			include "includes/card"
+		}
+	}
+}
