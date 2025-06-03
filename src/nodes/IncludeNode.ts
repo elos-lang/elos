@@ -12,12 +12,15 @@ import {EventId} from "../types/event-id";
 import ExpressionNode from "./ExpressionNode";
 import Lexer from "../lexer/Lexer";
 import expressionCompiler from "../compiler/helpers/compile-expression-into-value";
+import ArgumentListNode from "./ArgumentListNode";
+import ArgumentNode from "./ArgumentNode";
+import grammar from "../grammar";
 
 export default class IncludeNode extends Node {
 
     static parse(parser: Parser): boolean {
 
-        if (parser.acceptWithValue(TokenType.IDENT, 'include')) {
+        if (parser.acceptWithValue(TokenType.IDENT, grammar.INCLUDE_NODE_KEYWORD)) {
             parser.advance();
             parser.insert(new IncludeNode());
             parser.traverseUp();
@@ -27,6 +30,10 @@ export default class IncludeNode extends Node {
             }
             parser.setAttribute('fileName');
 
+            if (ArgumentListNode.parse(parser)) {
+                parser.setAttribute('argumentList');
+            }
+
             parser.traverseDown();
             return true;
         }
@@ -35,6 +42,13 @@ export default class IncludeNode extends Node {
     }
 
     compile(compiler: Compiler) {
+
+        const argumentListNode = this.getAttribute('argumentList');
+        let argumentNodes: ArgumentNode[] = [];
+
+        if (argumentListNode instanceof ArgumentListNode) {
+            argumentNodes = argumentListNode.getChildren() as ArgumentNode[];
+        }
 
         // Compile fileName expression
         const file = expressionCompiler.compileExpressionIntoValue(compiler, this.getAttribute('fileName') as ExpressionNode);
@@ -63,6 +77,11 @@ export default class IncludeNode extends Node {
 
         // Compile
         const clonedCompiler = compiler.clone();
+
+        argumentNodes.forEach((argNode) => {
+            const compiledValue = expressionCompiler.compileExpressionIntoValue(compiler, argNode.getAttribute('value') as ExpressionNode);
+            clonedCompiler.define(argNode.getVariableName(), compiledValue);
+        });
 
         // Check if include is being used in the root (AstNode)
         if (this.getParent() instanceof AstNode) {

@@ -1,7 +1,7 @@
 font "https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
 
-def $width 650
+def $width 500
 def $edge 15
-def $vgap 15
+def $vgap 10
 def $hgap 25
 def $preview "ELOS Language"

@@ -50,7 +50,7 @@ var Runtime = class _Runtime {
     classes: {},
     identStyles: {}
   });
-  variables = new Store({
+  globalVariables = new Store({
     preview: "",
     edge: 35,
     hgap: 10,
@@ -59,13 +59,13 @@ var Runtime = class _Runtime {
     width: 650
   });
   setVariable(name, value) {
-    return this.variables.set(name, value);
+    return this.globalVariables.set(name, value);
   }
   getVariable(name) {
-    return this.variables.get(name);
+    return this.globalVariables.get(name);
   }
   getVariables() {
-    return this.variables;
+    return this.globalVariables;
   }
   setInternalMemoryItem(name, value) {
     return this.internal.set(name, value);
@@ -83,7 +83,7 @@ var Runtime = class _Runtime {
   }
   import(runtime) {
     this.internal.extend(runtime.getInternalMemory().getAll());
-    this.variables.extend(runtime.getVariables().getAll());
+    this.globalVariables.extend(runtime.getVariables().getAll());
   }
 };
 
@@ -272,13 +272,16 @@ var grammar_default = {
   COMMENT_SYMBOL: "/",
   BLOCK_OPEN_SYMBOL: "{",
   BLOCK_CLOSE_SYMBOL: "}",
-  STRING_ESCAPE_SYMBOL: "\\"
+  ARG_LIST_OPEN_SYMBOL: "(",
+  ARG_LIST_CLOSE_SYMBOL: ")",
+  STRING_ESCAPE_SYMBOL: "\\",
+  INCLUDE_NODE_KEYWORD: "include"
 };
 
 // src/lexer/Lexer.ts
 var Lexer = class {
   /**
-   * The source code to tokenize
+   * The source code to tokenize4
    * @private
    */
   source;
@@ -1609,10 +1612,56 @@ var Manager = class {
   }
 };
 
+// src/nodes/ArgumentNode.ts
+var ArgumentNode = class _ArgumentNode extends Node {
+  static parse(parser) {
+    if (parser.accept("Var" /* VAR */)) {
+      parser.insert(new _ArgumentNode(parser.getCurrentValue()));
+      parser.advance();
+      parser.traverseUp();
+      if (!ExpressionNode.parse(parser)) {
+        throw new Error("Expected an expression");
+      }
+      parser.setAttribute("value");
+      parser.traverseDown();
+      return true;
+    }
+    return false;
+  }
+  getVariableName() {
+    return this.getValue();
+  }
+  compile(compiler) {
+  }
+};
+
+// src/nodes/ArgumentListNode.ts
+var ArgumentListNode = class _ArgumentListNode extends Node {
+  static parse(parser) {
+    if (parser.skipWithValue("Symbol" /* SYMBOL */, grammar_default.ARG_LIST_OPEN_SYMBOL)) {
+      parser.insert(new _ArgumentListNode());
+      parser.traverseUp();
+      this.parseArgumentNodes(parser);
+      if (parser.skipWithValue("Symbol" /* SYMBOL */, grammar_default.ARG_LIST_CLOSE_SYMBOL)) {
+        parser.traverseDown();
+      }
+      return true;
+    }
+    return false;
+  }
+  static parseArgumentNodes(parser) {
+    if (ArgumentNode.parse(parser)) {
+      if (parser.skipWithValue("Symbol" /* SYMBOL */, ",")) {
+        this.parseArgumentNodes(parser);
+      }
+    }
+  }
+};
+
 // src/nodes/IncludeNode.ts
 var IncludeNode = class _IncludeNode extends Node {
   static parse(parser) {
-    if (parser.acceptWithValue("Ident" /* IDENT */, "include")) {
+    if (parser.acceptWithValue("Ident" /* IDENT */, grammar_default.INCLUDE_NODE_KEYWORD)) {
       parser.advance();
       parser.insert(new _IncludeNode());
       parser.traverseUp();
@@ -1620,12 +1669,20 @@ var IncludeNode = class _IncludeNode extends Node {
         throw new Error("Expected an expression");
       }
       parser.setAttribute("fileName");
+      if (ArgumentListNode.parse(parser)) {
+        parser.setAttribute("argumentList");
+      }
       parser.traverseDown();
       return true;
     }
     return false;
   }
   compile(compiler) {
+    const argumentListNode = this.getAttribute("argumentList");
+    let argumentNodes = [];
+    if (argumentListNode instanceof ArgumentListNode) {
+      argumentNodes = argumentListNode.getChildren();
+    }
     const file = compile_expression_into_value_default.compileExpressionIntoValue(compiler, this.getAttribute("fileName"));
     const path = compiler.get("path");
     const filename = `${path}/${file}.elos`;
@@ -1641,6 +1698,10 @@ var IncludeNode = class _IncludeNode extends Node {
     const ast = parser.getAst();
     ast.setParent(this.getParent());
     const clonedCompiler = compiler.clone();
+    argumentNodes.forEach((argNode) => {
+      const compiledValue = compile_expression_into_value_default.compileExpressionIntoValue(compiler, argNode.getAttribute("value"));
+      clonedCompiler.define(argNode.getVariableName(), compiledValue);
+    });
     if (this.getParent() instanceof AstNode) {
       clonedCompiler.compile(ast);
     } else {

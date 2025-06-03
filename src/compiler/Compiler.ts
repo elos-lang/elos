@@ -99,7 +99,6 @@ export default class Compiler {
     }
 
     compile(ast: Node) {
-
         ast.compile(this);
         return this.renderer.render(this.buffer, this.runtime.getVariables());
     }

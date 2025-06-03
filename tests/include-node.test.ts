@@ -1,6 +1,5 @@
 import Parser from "../src/parser/Parser";
 import {TokenType} from "../src/types/token-type";
-import DefNode from "../src/nodes/DefNode";
 import IncludeNode from "../src/nodes/IncludeNode";
 import ExpressionNode from "../src/nodes/ExpressionNode";
 

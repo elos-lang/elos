@@ -20,7 +20,7 @@ style btn {
 	font "Montserrat"
 	bgcolor "#9750a1"
 	size 14
-	padding 15
+	padding 10
 }
 
 style group {

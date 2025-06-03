@@ -18,5 +18,10 @@ export default {
     BLOCK_OPEN_SYMBOL: '{',
     BLOCK_CLOSE_SYMBOL: '}',
 
+    ARG_LIST_OPEN_SYMBOL: '(',
+    ARG_LIST_CLOSE_SYMBOL: ')',
+
     STRING_ESCAPE_SYMBOL: '\\',
+
+    INCLUDE_NODE_KEYWORD: 'include',
 };

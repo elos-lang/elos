@@ -1,4 +1,4 @@
-img "https://placehold.co/600x250"
+img "https://placehold.co/600x250" -> $url
 space
-txt.hero "Welcome to ELOS" -> "http://elos-lang.com"
+txt.hero $title -> $url
 space

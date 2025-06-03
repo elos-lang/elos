@@ -1,14 +1,42 @@
 include "includes/defs"
 include "includes/style"
 
+style txt.title {
+	size 50
+	color "#f14000"
+}
+
 body {
-	include "includes/header"
+	include "includes/header" (
+		$title "Welcome!",
+		$url "https://elos-lang.com"
+	)
 	cols {
 		col {
-			include "includes/card"
+			include "includes/card" (
+				$title "Card 1" + "ok",
+				$description "Description card 1",
+				$url "https://www.elos-lang.com",
+				$btnText "Read docs"
+			)
 		}
 		col {
-			include "includes/card"
+			include "includes/card" (
+				$title "Card 2" + "ok",
+				$description "Description card 1",
+				$url "https://www.elos-lang.com",
+				$btnText "Read docs"
+			)
+		}
+	}
+	group {
+		cols {
+			col {
+				include "includes/card"
+			}
+			col {
+				include "includes/card"
+			}
 		}
 	}
 }

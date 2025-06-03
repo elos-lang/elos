@@ -6,7 +6,7 @@ import {TokenType} from "../types/token-type";
 export default class Lexer {
 
     /**
-     * The source code to tokenize
+     * The source code to tokenize4
      * @private
      */
     private source: string;

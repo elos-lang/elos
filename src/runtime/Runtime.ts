@@ -11,7 +11,7 @@ export default class Runtime {
 		identStyles: {}
 	});
 
-	private variables = new Store<AttributeValue>({
+	private globalVariables = new Store<AttributeValue>({
 		preview: '',
 		edge: 35,
 		hgap: 10,
@@ -21,15 +21,15 @@ export default class Runtime {
 	});
 
 	public setVariable(name: string, value: AttributeValue) {
-		return this.variables.set(name, value);
+		return this.globalVariables.set(name, value);
 	}
 
 	public getVariable(name: string): AttributeValue {
-		return this.variables.get(name);
+		return this.globalVariables.get(name);
 	}
 
 	public getVariables(): Store<AttributeValue> {
-		return this.variables;
+		return this.globalVariables;
 	}
 
 	public setInternalMemoryItem(name: string, value: any): any {
@@ -52,6 +52,6 @@ export default class Runtime {
 
 	public import(runtime: Runtime) {
 		this.internal.extend(runtime.getInternalMemory().getAll());
-		this.variables.extend(runtime.getVariables().getAll());
+		this.globalVariables.extend(runtime.getVariables().getAll());
 	}
 }
