@@ -24,7 +24,7 @@ var Store = class {
    * @param name
    */
   get(name) {
-    return this.items[name];
+    return this.items[name] || null;
   }
   /**
    * Gets all items as an object
@@ -38,6 +38,12 @@ var Store = class {
    */
   extend(items) {
     Object.assign(this.items, items);
+  }
+  /**
+   *
+   */
+  clear() {
+    this.items = {};
   }
 };
 
@@ -58,6 +64,36 @@ var Runtime = class _Runtime {
     bgcolor: "#ffffff",
     width: 650
   });
+  localVariables = new Store({});
+  /**
+   * @param name
+   * @param value
+   */
+  setLocalVariable(name, value) {
+    return this.localVariables.set(name, value);
+  }
+  /**
+   * @param name
+   */
+  getLocalVariable(name) {
+    return this.localVariables.get(name);
+  }
+  /**
+   *
+   */
+  getLocalVariables() {
+    return this.localVariables;
+  }
+  /**
+   *
+   */
+  flushLocalVariables() {
+    this.localVariables.clear();
+  }
+  /**
+   * @param name
+   * @param value
+   */
   setVariable(name, value) {
     return this.globalVariables.set(name, value);
   }
@@ -84,6 +120,7 @@ var Runtime = class _Runtime {
   import(runtime) {
     this.internal.extend(runtime.getInternalMemory().getAll());
     this.globalVariables.extend(runtime.getVariables().getAll());
+    this.localVariables.extend(runtime.getLocalVariables().getAll());
   }
 };
 
@@ -232,11 +269,32 @@ var Compiler = class _Compiler {
   writeLineToHead(string) {
     this.buffer.writeHead("\n" + string);
   }
+  /**
+   * @param name
+   * @param value
+   */
+  defineLocal(name, value) {
+    this.runtime.setLocalVariable(name, value);
+    return value;
+  }
+  /**
+   *
+   */
+  flushLocalVariables() {
+    this.runtime.flushLocalVariables();
+  }
+  /**
+   * @param name
+   * @param value
+   */
   define(name, value) {
     this.runtime.setVariable(name, value);
     return value;
   }
   variable(name) {
+    if (this.runtime.getLocalVariable(name)) {
+      return this.runtime.getLocalVariable(name);
+    }
     return this.runtime.getVariable(name);
   }
   remember(name, value) {
@@ -1700,7 +1758,7 @@ var IncludeNode = class _IncludeNode extends Node {
     const clonedCompiler = compiler.clone();
     argumentNodes.forEach((argNode) => {
       const compiledValue = compile_expression_into_value_default.compileExpressionIntoValue(compiler, argNode.getAttribute("value"));
-      clonedCompiler.define(argNode.getVariableName(), compiledValue);
+      clonedCompiler.defineLocal(argNode.getVariableName(), compiledValue);
     });
     if (this.getParent() instanceof AstNode) {
       clonedCompiler.compile(ast);
@@ -1710,6 +1768,7 @@ var IncludeNode = class _IncludeNode extends Node {
     compiler.import(clonedCompiler);
     compiler.writeHead(clonedCompiler.getHead());
     compiler.write(clonedCompiler.getBody());
+    compiler.flushLocalVariables();
   }
 };
 

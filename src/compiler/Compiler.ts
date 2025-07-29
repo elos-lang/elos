@@ -10,12 +10,12 @@ export default class Compiler {
      *
      * @private
      */
-    private runtime: Runtime;
+    private readonly runtime: Runtime;
 
     /**
      * @private
      */
-    private buffer: OutputBuffer;
+    private readonly buffer: OutputBuffer;
 
     /**
      * @private
@@ -73,12 +73,36 @@ export default class Compiler {
         this.buffer.writeHead('\n'+string);
     }
 
+    /**
+     * @param name
+     * @param value
+     */
+    defineLocal(name: string, value: AttributeValue): AttributeValue {
+        this.runtime.setLocalVariable(name, value);
+        return value;
+    }
+
+    /**
+     *
+     */
+    flushLocalVariables() {
+        this.runtime.flushLocalVariables();
+    }
+
+    /**
+     * @param name
+     * @param value
+     */
     define(name: string, value: AttributeValue): AttributeValue {
         this.runtime.setVariable(name, value);
         return value;
     }
 
     variable(name: string): AttributeValue {
+        if (this.runtime.getLocalVariable(name)) {
+            return this.runtime.getLocalVariable(name);
+        }
+
         return this.runtime.getVariable(name);
     }
 

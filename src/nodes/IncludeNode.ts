@@ -78,9 +78,10 @@ export default class IncludeNode extends Node {
         // Compile
         const clonedCompiler = compiler.clone();
 
+        // Define locale variables
         argumentNodes.forEach((argNode) => {
             const compiledValue = expressionCompiler.compileExpressionIntoValue(compiler, argNode.getAttribute('value') as ExpressionNode);
-            clonedCompiler.define(argNode.getVariableName(), compiledValue);
+            clonedCompiler.defineLocal(argNode.getVariableName(), compiledValue);
         });
 
         // Check if include is being used in the root (AstNode)
@@ -95,5 +96,7 @@ export default class IncludeNode extends Node {
 
         compiler.writeHead(clonedCompiler.getHead());
         compiler.write(clonedCompiler.getBody());
+
+        compiler.flushLocalVariables();
     }
 }

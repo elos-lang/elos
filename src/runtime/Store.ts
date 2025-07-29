@@ -3,7 +3,7 @@ export default class Store<T> {
 	/**
 	 * @private
 	 */
-	private readonly items: Record<string, T> = {};
+	private items: Record<string, T> = {};
 
 	/**
 	 * @param items
@@ -26,8 +26,8 @@ export default class Store<T> {
 	 * Gets a value by name
 	 * @param name
 	 */
-	public get(name: string): T {
-		return this.items[name];
+	public get(name: string): T | null {
+		return this.items[name] || null;
 	}
 
 	/**
@@ -43,5 +43,12 @@ export default class Store<T> {
 	 */
 	public extend(items: Record<string, T>) {
 		Object.assign(this.items, items);
+	}
+
+	/**
+	 *
+	 */
+	public clear(): void {
+		this.items = {};
 	}
 }

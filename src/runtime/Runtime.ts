@@ -20,6 +20,41 @@ export default class Runtime {
 		width: 650
 	});
 
+	private localVariables = new Store<AttributeValue>({});
+
+	/**
+	 * @param name
+	 * @param value
+	 */
+	public setLocalVariable(name: string, value: AttributeValue) {
+		return this.localVariables.set(name, value);
+	}
+
+	/**
+	 * @param name
+	 */
+	public getLocalVariable(name: string): AttributeValue {
+		return this.localVariables.get(name);
+	}
+
+	/**
+	 *
+	 */
+	public getLocalVariables(): Store<AttributeValue> {
+		return this.localVariables;
+	}
+
+	/**
+	 *
+	 */
+	public flushLocalVariables() {
+		this.localVariables.clear();
+	}
+
+	/**
+	 * @param name
+	 * @param value
+	 */
 	public setVariable(name: string, value: AttributeValue) {
 		return this.globalVariables.set(name, value);
 	}
@@ -53,5 +88,6 @@ export default class Runtime {
 	public import(runtime: Runtime) {
 		this.internal.extend(runtime.getInternalMemory().getAll());
 		this.globalVariables.extend(runtime.getVariables().getAll());
+		this.localVariables.extend(runtime.getLocalVariables().getAll());
 	}
 }

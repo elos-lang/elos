@@ -35,7 +35,6 @@ export class Manager {
 	 * @param data
 	 */
 	static emit(id: string, data: object): void {
-
 		if (! this.listeners || ! this.listeners[id]) {
 			return;
 		}
@@ -48,7 +47,6 @@ export class Manager {
 	 * Process the event queue
 	 */
 	static process(): void {
-
 		if (! this.queue.length) {
 			return;
 		}
