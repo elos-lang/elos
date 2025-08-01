@@ -74,99 +74,56 @@ See [Contributing Guide](CONTRIBUTING.md).
 
 ### Language design example
 ```
-def $preview "Welcome to ELOS!"
+def $preview "Welcome to ELOS Language!"
 def $width 750
 def $hgap 25
 def $vgap 25
 
-style group {
-    padding 25
-}
+include "includes/style"
 
-style btn {
-    size 14
-    bgcolor "#f14000"
-}
+// this is a single-line comment
 
-style txt {
-    size 14
-    color "#333333"
-}
-
-style .footer {
-    bgcolor "#cccccc"
-}
-
-style .cta {
-    padding 50
-    bgcolor "#f10000"
-}
-
-style .h {
-    color "red"
-    size 18
-    transform "uppercase"
-}
-
-style .hh {
-    color "blue"
-    size 16
+style txt.title {
+	size 50
+	color "#f14000"
 }
 
 body {
+    img "https://placehold.co/600x250" -> "https://www.elos-lang.com"
     space
-    img "https://dummyimage.com/600x200/000/fff" -> "https://www.google.be"
+    txt.hero "ELOS Language" -> "https://www.elos-lang.com"
+    space
+    cols {
+        col {
+            include "includes/card" (
+                $title "Card 1",
+                $description "Description card 1",
+                $url "https://www.elos-lang.com",
+                $btnText "Nice!"
+            )
+        }
+        col {
+            include "includes/card" (
+                $title "Card 2",
+                $description "Description card 1",
+                $url "https://www.elos-lang.com",
+                $btnText "Read docs"
+            )
+        }
+    }
+    space
     group {
-        txt.h "Welcome to ELOS"
-        space
         cols {
             col {
-                img "https://dummyimage.com/600x400/000/fff"
+                include "includes/card"
             }
             col {
-                img "https://dummyimage.com/600x400/000/fff"
-            }
-            col {
-                img "https://dummyimage.com/600x400/000/fff"
+                include "includes/card"
             }
         }
     }
-    group.cta {
-        btn "Discover more" -> "https://github.com/elos-lang/"
-    }
-    group {
-        cols {
-            col {
-                include "includes/card" (
-                    $title "Welcome to " + "Elos",
-                    $description "Description card 1",
-                    $url "https://www.elos-lang.com",
-                    $btnText "Nice!"
-                )
-            }
-            col {
-                include "includes/card" (
-                    $title "Welcome to " + "Elos",
-                    $description "Description card 1",
-                    $url "https://www.elos-lang.com",
-                    $btnText "Nice!"
-                )
-            }
-        }
-    }
-    line
     group.footer {
-        cols {
-            col {
-                txt.hh "Welcome to ELOS"
-                img "https://dummyimage.com/600x400/000/fff"
-            }
-            col {
-                txt.hh "Welcome to ELOS"
-                img "https://dummyimage.com/600x400/000/fff"
-            }
-        }
+        txt "Footer"
     }
-    space
 }
 ```
