@@ -27,7 +27,7 @@ export default class Store<T> {
 	 * @param name
 	 */
 	public get(name: string): T | null {
-		return this.items[name] || null;
+		return this.items[name] ?? null;
 	}
 
 	/**

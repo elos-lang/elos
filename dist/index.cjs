@@ -59,7 +59,7 @@ var Store = class {
    * @param name
    */
   get(name) {
-    return this.items[name] || null;
+    return this.items[name] ?? null;
   }
   /**
    * Gets all items as an object

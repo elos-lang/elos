@@ -27,3 +27,7 @@ style group {
 	bgcolor "#f0f0f0"
 	padding 15
 }
+
+style group.footer {
+	bgcolor "#cccccc"
+}
