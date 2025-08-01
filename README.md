@@ -84,8 +84,8 @@ include "includes/style"
 // this is a single-line comment
 
 style txt.title {
-	size 50
-	color "#f14000"
+    size 50
+    color "#f14000"
 }
 
 body {
