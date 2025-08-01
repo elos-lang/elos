@@ -3,6 +3,8 @@ import Node from "../parser/Node";
 import Runtime from "../runtime/Runtime";
 import OutputBuffer from "./OutputBuffer";
 import OutputRenderer from "./OutputRenderer";
+import {Manager} from "../events/Manager";
+import {EventId} from "../types/event-id";
 
 export default class Compiler {
 
@@ -123,7 +125,17 @@ export default class Compiler {
     }
 
     compile(ast: Node) {
+
+        // Emit event COMPILING_START
+        Manager.emit(EventId.COMPILING_START, { ast });
+
         ast.compile(this);
-        return this.renderer.render(this.buffer, this.runtime.getVariables());
+
+        const output = this.renderer.render(this.buffer, this.runtime.getVariables());
+
+        // Emit event COMPILING_END
+        Manager.emit(EventId.COMPILING_END, { output });
+
+        return output;
     }
 }

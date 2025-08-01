@@ -2,6 +2,8 @@ import grammar from "../grammar";
 import {LexMode} from "../types/lex-mode";
 import {TokenStream} from "../types/token-stream";
 import {TokenType} from "../types/token-type";
+import {Manager} from "../events/Manager";
+import {EventId} from "../types/event-id";
 
 export default class Lexer {
 
@@ -81,7 +83,12 @@ export default class Lexer {
      * Transforms code into a TokenStream
      * @param text
      */
-    tokenize(text: string): TokenStream {
+    public tokenize(text: string): TokenStream {
+
+        // Emit event LEXING_START
+        Manager.emit(EventId.LEXING_START, {
+            sourceCode: text,
+        });
 
         this.source = text;
         this.end = this.source.length;
@@ -130,6 +137,11 @@ export default class Lexer {
                     break;
             }
         }
+
+        // Emit event LEXING_END
+        Manager.emit(EventId.LEXING_END, {
+            tokenStream: this.tokens,
+        });
 
         return this.tokens;
     }

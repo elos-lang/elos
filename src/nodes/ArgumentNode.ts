@@ -3,7 +3,6 @@ import Parser from "../parser/Parser";
 import {TokenType} from "../types/token-type";
 import Compiler from "../compiler/Compiler";
 import ExpressionNode from "./ExpressionNode";
-import expressionCompiler from "../compiler/helpers/compile-expression-into-value";
 
 export default class ArgumentNode extends Node {
 
