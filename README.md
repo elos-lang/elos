@@ -137,12 +137,20 @@ body {
     group {
         cols {
             col {
-                txt "Welcome to ELOS"
-                img "https://dummyimage.com/600x400/000/fff"
+                include "includes/card" (
+                    $title "Welcome to " + "Elos",
+                    $description "Description card 1",
+                    $url "https://www.elos-lang.com",
+                    $btnText "Nice!"
+                )
             }
             col {
-                txt "Welcome to ELOS"
-                img "https://dummyimage.com/600x400/000/fff"
+                include "includes/card" (
+                    $title "Welcome to " + "Elos",
+                    $description "Description card 1",
+                    $url "https://www.elos-lang.com",
+                    $btnText "Nice!"
+                )
             }
         }
     }
