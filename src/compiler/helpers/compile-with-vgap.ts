@@ -1,7 +1,7 @@
-import Compiler from "../Compiler";
-import Node from "../../parser/Node";
-import RawNode from "../../nodes/RawNode";
-import {AlignmentOption} from "../../types/alignment-option";
+import Compiler from '../Compiler';
+import Node from '../../parser/Node';
+import RawNode from '../../nodes/RawNode';
+import { AlignmentOption } from '../../types/alignment-option';
 
 export default {
     compileWithVgap(compiler: Compiler, children: Node[], align: AlignmentOption = AlignmentOption.LEFT) {
@@ -22,7 +22,7 @@ export default {
             }
 
             let otherChildIndex = 0;
-            children.forEach((child, index) => {
+            children.forEach((child) => {
 
                 if (child instanceof RawNode) {
                     child.compile(compiler);
@@ -41,7 +41,7 @@ export default {
             });
 
             if (! hasOnlyRawChildren) {
-                compiler.writeLineToBody(`</table>`);
+                compiler.writeLineToBody('</table>');
             }
         }
     }

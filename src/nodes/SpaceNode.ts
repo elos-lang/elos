@@ -1,9 +1,9 @@
-import Node from "../parser/Node";
-import parseClass from "../parser/helpers/parse-class";
-import styleCompiler from "../parser/helpers/compile-style-attrs";
-import Parser from "../parser/Parser";
-import {TokenType} from "../types/token-type";
-import Compiler from "../compiler/Compiler";
+import Node from '../parser/Node';
+import parseClass from '../parser/helpers/parse-class';
+import styleCompiler from '../parser/helpers/compile-style-attrs';
+import Parser from '../parser/Parser';
+import { TokenType } from '../types/token-type';
+import Compiler from '../compiler/Compiler';
 
 export default class SpaceNode extends Node {
 
@@ -15,7 +15,7 @@ export default class SpaceNode extends Node {
             parser.insert(new SpaceNode());
             parser.traverseUp();
 
-            let className = parseClass(parser);
+            const className = parseClass(parser);
             if (className) {
                 parser.setAttribute('className', className);
             }

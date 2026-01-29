@@ -1,10 +1,10 @@
-import Node from "../parser/Node";
-import StylePropertyNode from "./StylePropertyNode";
-import parseClass from "../parser/helpers/parse-class";
-import config from "../grammar";
-import {TokenType} from "../types/token-type";
-import Parser from "../parser/Parser";
-import Compiler from "../compiler/Compiler";
+import Node from '../parser/Node';
+import StylePropertyNode from './StylePropertyNode';
+import parseClass from '../parser/helpers/parse-class';
+import config from '../grammar';
+import { TokenType } from '../types/token-type';
+import Parser from '../parser/Parser';
+import Compiler from '../compiler/Compiler';
 
 export default class StyleNode extends Node {
 
@@ -26,8 +26,8 @@ export default class StyleNode extends Node {
                 parser.advance();
             }
 
-            let className = parseClass(parser);
-            let isClass = (className !== null);
+            const className = parseClass(parser);
+            const isClass = (className !== null);
 
             if (parser.expectWithValue(TokenType.SYMBOL, config.BLOCK_OPEN_SYMBOL)) {
                 parser.advance();

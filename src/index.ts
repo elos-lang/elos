@@ -1,3 +1,3 @@
-import Elos from "./Elos";
+import Elos from './Elos';
 
-export {Elos};
+export { Elos };

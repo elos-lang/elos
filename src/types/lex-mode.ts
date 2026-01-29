@@ -1,13 +1,13 @@
 export enum LexMode {
-	ALL,
-	UNKNOWN,
-	IDENT,
-	NUMBER,
-	SYMBOL,
-	WHITESPACE,
-	NEWLINE,
-	STRING,
-	VAR,
-	COLOR,
-	COMMENT
+    ALL,
+    UNKNOWN,
+    IDENT,
+    NUMBER,
+    SYMBOL,
+    WHITESPACE,
+    NEWLINE,
+    STRING,
+    VAR,
+    COLOR,
+    COMMENT
 }

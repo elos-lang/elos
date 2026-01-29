@@ -1,13 +1,13 @@
-import Node from "../parser/Node";
-import parseBody from "../parser/helpers/parse-body";
-import styleCompiler from "../parser/helpers/compile-style-attrs";
-import parseClass from "../parser/helpers/parse-class";
-import config from "../grammar";
-import compilerHelpers from "../compiler/helpers/compile-with-vgap";
-import {TokenType} from "../types/token-type";
-import Parser from "../parser/Parser";
-import {AlignmentOption} from "../types/alignment-option";
-import Compiler from "../compiler/Compiler";
+import Node from '../parser/Node';
+import parseBody from '../parser/helpers/parse-body';
+import styleCompiler from '../parser/helpers/compile-style-attrs';
+import parseClass from '../parser/helpers/parse-class';
+import config from '../grammar';
+import compilerHelpers from '../compiler/helpers/compile-with-vgap';
+import { TokenType } from '../types/token-type';
+import Parser from '../parser/Parser';
+import { AlignmentOption } from '../types/alignment-option';
+import Compiler from '../compiler/Compiler';
 
 export default class GroupNode extends Node {
 
@@ -16,7 +16,7 @@ export default class GroupNode extends Node {
         if (parser.acceptWithValue(TokenType.IDENT, 'group')) {
             parser.advance();
 
-            let className = parseClass(parser);
+            const className = parseClass(parser);
 
             if (parser.expectWithValue(TokenType.SYMBOL, config.BLOCK_OPEN_SYMBOL)) {
                 parser.advance();

@@ -1,8 +1,7 @@
-import {Nullable} from "../types/nullable";
-import {AttributeValue} from "../types/attribute";
-import Parser from "./Parser";
-import Compiler from "../compiler/Compiler";
-import ExpressionNode from "../nodes/ExpressionNode";
+import { Nullable } from '../types/nullable';
+import { AttributeValue } from '../types/attribute';
+import Parser from './Parser';
+import Compiler from '../compiler/Compiler';
 
 export default class Node {
 
@@ -130,17 +129,18 @@ export default class Node {
 
     /**
      *
-     * @param parser
+     * @param _parser
      */
-    parse(parser: Parser): boolean {
+    parse(_parser: Parser): boolean {
         return false;
     }
 
     /**
      *
-     * @param compiler
+     * @param _compiler
      */
-    compile(compiler: Compiler) {
+    compile(_compiler: Compiler) {
+        //
     }
 
     print(): string {
@@ -150,9 +150,9 @@ export default class Node {
             const nodeName = node.getName();
             const nodeValue = node.getValue();
 
-            let attributes = node.getAttributes();
-            let attributesString = [];
-            for (let attribute in attributes) {
+            const attributes = node.getAttributes();
+            const attributesString = [];
+            for (const attribute in attributes) {
                 let attrValue = attributes[attribute];
                 if (attrValue instanceof Node) {
                     const attrNodeValue = attrValue.getValue();
@@ -161,14 +161,14 @@ export default class Node {
                 attributesString.push(`${attribute}=${attrValue}`);
             }
 
-            let tabs = indentAmount > 0 ? "   ".repeat(indentAmount - 1) + "└──" : "";
-            let output = [`${tabs}${nodeName}${nodeValue ? `(${nodeValue})` : ''} ${attributesString.join(' ')}`];
+            const tabs = indentAmount > 0 ? '   '.repeat(indentAmount - 1) + '└──' : '';
+            const output = [`${tabs}${nodeName}${nodeValue ? `(${nodeValue})` : ''} ${attributesString.join(' ')}`];
 
             node.getChildren().forEach(childNode => {
                 output.push(printNode(childNode, indentAmount + 1));
             });
 
-            return output.join("\n");
+            return output.join('\n');
         };
 
         return printNode(this);

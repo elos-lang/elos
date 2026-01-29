@@ -1,10 +1,10 @@
-import Node from "../parser/Node";
-import parseBody from "../parser/helpers/parse-body";
-import compilerHelpers from "../compiler/helpers/compile-with-vgap";
-import config from "../grammar";
-import Parser from "../parser/Parser";
-import {TokenType} from "../types/token-type";
-import Compiler from "../compiler/Compiler";
+import Node from '../parser/Node';
+import parseBody from '../parser/helpers/parse-body';
+import compilerHelpers from '../compiler/helpers/compile-with-vgap';
+import config from '../grammar';
+import Parser from '../parser/Parser';
+import { TokenType } from '../types/token-type';
+import Compiler from '../compiler/Compiler';
 
 export default class BodyNode extends Node {
 
@@ -46,7 +46,7 @@ export default class BodyNode extends Node {
         if (preview) {
             compiler.writeLineToBody('<div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">');
             compiler.writeLineToBody(preview);
-            compiler.writeLineToBody(`</div>`);
+            compiler.writeLineToBody('</div>');
         }
 
         compiler.writeLineToBody('<table role="presentation" style="width:100%;border:none;border-spacing:0;">');

@@ -1,14 +1,14 @@
-import Node from "../parser/Node";
-import Parser from "../parser/Parser";
-import {TokenType} from "../types/token-type";
-import Compiler from "../compiler/Compiler";
-import ExpressionNode from "./ExpressionNode";
+import Node from '../parser/Node';
+import Parser from '../parser/Parser';
+import { TokenType } from '../types/token-type';
+import Compiler from '../compiler/Compiler';
+import ExpressionNode from './ExpressionNode';
 
 export default class ArgumentNode extends Node {
 
     static parse(parser: Parser): boolean {
 
-        if (parser.accept(TokenType.VAR)) {
+        if (parser.accept(TokenType.IDENT)) {
 
             parser.insert(new ArgumentNode(parser.getCurrentValue()));
             parser.advance();
@@ -31,10 +31,9 @@ export default class ArgumentNode extends Node {
         return this.getValue();
     }
 
-    compile(compiler: Compiler) {
+    compile(_compiler: Compiler) {
         /*
         const value = expressionCompiler.compileExpressionIntoValue(compiler, this.getAttribute('value') as ExpressionNode);
-
         compiler.define(this.getVariableName(), value);
         */
     }

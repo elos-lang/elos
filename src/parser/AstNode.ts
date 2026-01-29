@@ -1,11 +1,11 @@
-import Node from "./Node";
-import Compiler from "../compiler/Compiler";
-import Parser from "./Parser";
-import DefNode from "../nodes/DefNode";
-import StyleNode from "../nodes/StyleNode";
-import IncludeNode from "../nodes/IncludeNode";
-import BodyNode from "../nodes/BodyNode";
-import FontNode from "../nodes/FontNode";
+import Node from './Node';
+import Compiler from '../compiler/Compiler';
+import Parser from './Parser';
+import DefNode from '../nodes/DefNode';
+import StyleNode from '../nodes/StyleNode';
+import IncludeNode from '../nodes/IncludeNode';
+import BodyNode from '../nodes/BodyNode';
+import FontNode from '../nodes/FontNode';
 
 export default class AstNode extends Node {
 

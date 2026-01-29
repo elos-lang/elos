@@ -1,3 +1,3 @@
-import {EventListener} from "./event-listener";
+import { EventListener } from './event-listener';
 
 export type EventQueueTuple = [EventListener, object];

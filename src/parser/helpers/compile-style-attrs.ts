@@ -1,4 +1,4 @@
-import Compiler from "../../compiler/Compiler";
+import Compiler from '../../compiler/Compiler';
 
 const propMap = {
     font: {
@@ -80,9 +80,9 @@ export default {
                         css[cssProp] = prop[1];
                         break;
                     case 'integer':
-                        const unit = (propMap[prop[0]]['unit'] ? 'px' : '');
+                    { const unit = (propMap[prop[0]]['unit'] ? 'px' : '');
                         css[cssProp] = parseInt(prop[1])+unit;
-                        break;
+                        break; }
                 }
             }
         });
@@ -92,7 +92,7 @@ export default {
     attrsToCssString(cssProps) {
         let output = '';
 
-        for (let prop in cssProps) {
+        for (const prop in cssProps) {
             output += `${prop}: ${cssProps[prop]};`;
         }
 

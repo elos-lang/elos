@@ -1,16 +1,16 @@
-import Compiler from "../Compiler";
-import ExpressionNode from "../../nodes/ExpressionNode";
-import {Nullable} from "../../types/nullable";
+import Compiler from '../Compiler';
+import ExpressionNode from '../../nodes/ExpressionNode';
+import { Nullable } from '../../types/nullable';
 
 export default {
-	compileExpressionIntoValue(compiler: Compiler, expression: Nullable<ExpressionNode>): Nullable<string> {
+    compileExpressionIntoValue(compiler: Compiler, expression: Nullable<ExpressionNode>): Nullable<string> {
 
-		if (! expression) {
-			return null;
-		}
+        if (! expression) {
+            return null;
+        }
 
-		const compilerClone = compiler.clone();
-		expression.compile(compilerClone);
-		return compilerClone.getBody();
-	}
+        const compilerClone = compiler.clone();
+        expression.compile(compilerClone);
+        return compilerClone.getBody();
+    }
 };

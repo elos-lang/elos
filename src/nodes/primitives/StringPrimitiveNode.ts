@@ -1,9 +1,9 @@
-"use strict";
+'use strict';
 
-import Node from "../../parser/Node";
-import {TokenType} from "../../types/token-type";
-import Parser from "../../parser/Parser";
-import Compiler from "../../compiler/Compiler";
+import Node from '../../parser/Node';
+import { TokenType } from '../../types/token-type';
+import Parser from '../../parser/Parser';
+import Compiler from '../../compiler/Compiler';
 
 export default class StringPrimitiveNode extends Node {
 

@@ -1,10 +1,10 @@
-import {AttributeValue} from "../types/attribute";
-import Node from "../parser/Node";
-import Runtime from "../runtime/Runtime";
-import OutputBuffer from "./OutputBuffer";
-import OutputRenderer from "./OutputRenderer";
-import {Manager} from "../events/Manager";
-import {EventId} from "../types/event-id";
+import { AttributeValue, InternalValue } from '../types/attribute';
+import Node from '../parser/Node';
+import Runtime from '../runtime/Runtime';
+import OutputBuffer from './OutputBuffer';
+import OutputRenderer from './OutputRenderer';
+import { Manager } from '../events/Manager';
+import { EventId } from '../types/event-id';
 
 export default class Compiler {
 
@@ -108,11 +108,11 @@ export default class Compiler {
         return this.runtime.getVariable(name);
     }
 
-    remember(name: string, value: AttributeValue) {
+    remember(name: string, value: InternalValue) {
         return this.runtime.setInternalMemoryItem(name, value);
     }
 
-    get(name: string): AttributeValue {
+    get(name: string): InternalValue {
         return this.runtime.getInternalMemoryItem(name);
     }
 

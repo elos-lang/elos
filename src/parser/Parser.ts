@@ -1,12 +1,12 @@
-import {TokenStream} from "../types/token-stream";
-import Node from "./Node";
-import AstNode from "./AstNode";
-import {TokenType} from "../types/token-type";
-import UnexpectedToken from "../errors/UnexpectedToken";
-import {Nullable} from "../types/nullable";
-import {Token} from "../types/token";
-import {Manager} from "../events/Manager";
-import {EventId} from "../types/event-id";
+import { TokenStream } from '../types/token-stream';
+import Node from './Node';
+import AstNode from './AstNode';
+import { TokenType } from '../types/token-type';
+import UnexpectedToken from '../errors/UnexpectedToken';
+import { Nullable } from '../types/nullable';
+import { Token } from '../types/token';
+import { Manager } from '../events/Manager';
+import { EventId } from '../types/event-id';
 
 export default class Parser {
 

@@ -96,18 +96,18 @@ body {
     cols {
         col {
             include "includes/card" (
-                $title "Card 1",
-                $description "Description card 1",
-                $url "https://www.elos-lang.com",
-                $btnText "Nice!"
+                title "Card 1",
+                description "Description card 1",
+                url "https://www.elos-lang.com",
+                btnText "Nice!"
             )
         }
         col {
             include "includes/card" (
-                $title "Card 2",
-                $description "Description card 1",
-                $url "https://www.elos-lang.com",
-                $btnText "Read docs"
+                title "Card 2",
+                description "Description card 1",
+                url "https://www.elos-lang.com",
+                btnText "Read docs"
             )
         }
     }

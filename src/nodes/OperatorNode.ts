@@ -1,20 +1,23 @@
-import Node from "../parser/Node";
-import Parser from "../parser/Parser";
-import {TokenType} from "../types/token-type";
-import Compiler from "../compiler/Compiler";
+import Node from '../parser/Node';
+import Parser from '../parser/Parser';
+import { TokenType } from '../types/token-type';
+import Compiler from '../compiler/Compiler';
 
 export default class OperatorNode extends Node {
 
-  static parse(parser: Parser): boolean {
-    if (parser.skipWithValue(TokenType.SYMBOL, '+')) {
-      parser.insert(new OperatorNode('+'));
-      return true;
+    static parse(parser: Parser): boolean {
+        if (parser.skipWithValue(TokenType.SYMBOL, '+')) {
+            parser.insert(new OperatorNode('+'));
+            return true;
+        }
+
+        return false;
     }
 
-    return false;
-  }
-
-  compile(compiler: Compiler) {
+    /**
+     * @param _compiler
+     */
+    compile(_compiler: Compiler) {
     //
-  }
+    }
 }

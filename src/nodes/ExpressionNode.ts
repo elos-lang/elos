@@ -1,11 +1,11 @@
-import Node from "../parser/Node";
-import ColorPrimitiveNode from "./primitives/ColorPrimitiveNode";
-import StringPrimitiveNode from "./primitives/StringPrimitiveNode";
-import Parser from "../parser/Parser";
-import Compiler from "../compiler/Compiler";
-import VariablePrimitiveNode from "./primitives/VariablePrimitiveNode";
-import OperatorNode from "./OperatorNode";
-import NumberPrimitiveNode from "./primitives/NumberPrimitiveNode";
+import Node from '../parser/Node';
+import ColorPrimitiveNode from './primitives/ColorPrimitiveNode';
+import StringPrimitiveNode from './primitives/StringPrimitiveNode';
+import Parser from '../parser/Parser';
+import Compiler from '../compiler/Compiler';
+import VariablePrimitiveNode from './primitives/VariablePrimitiveNode';
+import OperatorNode from './OperatorNode';
+import NumberPrimitiveNode from './primitives/NumberPrimitiveNode';
 
 export default class ExpressionNode extends Node {
 
@@ -37,7 +37,7 @@ export default class ExpressionNode extends Node {
     }
 
     compile(compiler: Compiler) {
-        this.getChildren().forEach((child, i) => {
+        this.getChildren().forEach((child) => {
             child.compile(compiler);
         });
     }

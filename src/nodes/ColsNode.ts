@@ -1,10 +1,10 @@
-import Node from "../parser/Node";
-import ColNode from "./ColNode";
-import Parser from "../parser/Parser";
-import {TokenType} from "../types/token-type";
-import Compiler from "../compiler/Compiler";
-import parseClass from "../parser/helpers/parse-class";
-import config from "../grammar";
+import Node from '../parser/Node';
+import ColNode from './ColNode';
+import Parser from '../parser/Parser';
+import { TokenType } from '../types/token-type';
+import Compiler from '../compiler/Compiler';
+import parseClass from '../parser/helpers/parse-class';
+import config from '../grammar';
 
 export default class ColsNode extends Node {
 
@@ -13,7 +13,7 @@ export default class ColsNode extends Node {
         if (parser.acceptWithValue(TokenType.IDENT, 'cols')) {
             parser.advance();
 
-            let className = parseClass(parser);
+            const className = parseClass(parser);
 
             if (parser.expectWithValue(TokenType.SYMBOL, config.BLOCK_OPEN_SYMBOL)) {
                 parser.advance();
@@ -68,10 +68,10 @@ export default class ColsNode extends Node {
 
             compiler.writeLineToHead(`<style media="screen and (min-width:${mediaQueryWidth}px)">`);
             compiler.writeLineToHead(`.elos-col-${colsId}-${i} {`);
-            compiler.writeLineToHead(`float: left;`);
+            compiler.writeLineToHead('float: left;');
             compiler.writeLineToHead(`max-width: ${colWidth}px !important;`);
             //compiler.writeLnHead(`padding-left: ${gap/2}px;`);
-            compiler.writeLineToHead(`margin-bottom: 0 !important;`);
+            compiler.writeLineToHead('margin-bottom: 0 !important;');
 
             if (i < colCount-1) {
                 compiler.writeLineToHead(`padding-right: ${gap}px !important;`);

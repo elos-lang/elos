@@ -1,9 +1,9 @@
-import grammar from "../grammar";
-import {LexMode} from "../types/lex-mode";
-import {TokenStream} from "../types/token-stream";
-import {TokenType} from "../types/token-type";
-import {Manager} from "../events/Manager";
-import {EventId} from "../types/event-id";
+import grammar from '../grammar';
+import { LexMode } from '../types/lex-mode';
+import { TokenStream } from '../types/token-stream';
+import { TokenType } from '../types/token-type';
+import { Manager } from '../events/Manager';
+import { EventId } from '../types/event-id';
 
 export default class Lexer {
 
@@ -234,7 +234,7 @@ export default class Lexer {
      */
     private lexString() {
 
-        let escSequence = (this.character === grammar.STRING_ESCAPE_SYMBOL);
+        const escSequence = (this.character === grammar.STRING_ESCAPE_SYMBOL);
 
         // String escaping
         if (escSequence) {

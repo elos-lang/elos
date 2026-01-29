@@ -1,8 +1,8 @@
-import Node from "../parser/Node";
-import Parser from "../parser/Parser";
-import {TokenType} from "../types/token-type";
-import ArgumentNode from "./ArgumentNode";
-import grammar from "../grammar";
+import Node from '../parser/Node';
+import Parser from '../parser/Parser';
+import { TokenType } from '../types/token-type';
+import ArgumentNode from './ArgumentNode';
+import grammar from '../grammar';
 
 export default class ArgumentListNode extends Node {
 

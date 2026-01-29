@@ -1,12 +1,12 @@
-import Node from "../parser/Node";
-import parseClass from "../parser/helpers/parse-class";
-import styleCompiler from "../parser/helpers/compile-style-attrs";
-import Parser from "../parser/Parser";
-import {TokenType} from "../types/token-type";
-import ArrowNode from "./ArrowNode";
-import Compiler from "../compiler/Compiler";
-import ExpressionNode from "./ExpressionNode";
-import expressionCompiler from "../compiler/helpers/compile-expression-into-value";
+import Node from '../parser/Node';
+import parseClass from '../parser/helpers/parse-class';
+import styleCompiler from '../parser/helpers/compile-style-attrs';
+import Parser from '../parser/Parser';
+import { TokenType } from '../types/token-type';
+import ArrowNode from './ArrowNode';
+import Compiler from '../compiler/Compiler';
+import ExpressionNode from './ExpressionNode';
+import expressionCompiler from '../compiler/helpers/compile-expression-into-value';
 
 export default class TxtNode extends Node {
 
@@ -17,7 +17,7 @@ export default class TxtNode extends Node {
             parser.insert(new TxtNode());
             parser.traverseUp();
 
-            let className = parseClass(parser);
+            const className = parseClass(parser);
             if (className) {
                 parser.setAttribute('className', className);
             }
@@ -71,10 +71,10 @@ export default class TxtNode extends Node {
         compiler.writeLineToBody(text);
 
         if (url) {
-            compiler.writeLineToBody(`</a>`);
+            compiler.writeLineToBody('</a>');
         }
 
-        compiler.writeLineToBody(`</td>`);
+        compiler.writeLineToBody('</td>');
         compiler.writeLineToBody('</tr>');
         compiler.writeLineToBody('</table>');
     }

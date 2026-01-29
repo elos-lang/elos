@@ -1,12 +1,12 @@
-import Node from "../parser/Node";
-import parseClass from "../parser/helpers/parse-class";
-import styleCompiler from "../parser/helpers/compile-style-attrs";
-import Parser from "../parser/Parser";
-import {TokenType} from "../types/token-type";
-import Compiler from "../compiler/Compiler";
-import ArrowNode from "./ArrowNode";
-import ExpressionNode from "./ExpressionNode";
-import expressionCompiler from "../compiler/helpers/compile-expression-into-value";
+import Node from '../parser/Node';
+import parseClass from '../parser/helpers/parse-class';
+import styleCompiler from '../parser/helpers/compile-style-attrs';
+import Parser from '../parser/Parser';
+import { TokenType } from '../types/token-type';
+import Compiler from '../compiler/Compiler';
+import ArrowNode from './ArrowNode';
+import ExpressionNode from './ExpressionNode';
+import expressionCompiler from '../compiler/helpers/compile-expression-into-value';
 
 export default class BtnNode extends Node {
 
@@ -18,7 +18,7 @@ export default class BtnNode extends Node {
             parser.insert(new BtnNode());
             parser.traverseUp();
 
-            let className = parseClass(parser);
+            const className = parseClass(parser);
             if (className) {
                 parser.setAttribute('className', className);
             }
@@ -50,9 +50,9 @@ export default class BtnNode extends Node {
         const className = this.getAttribute('className') as string;
         const url = expressionCompiler.compileExpressionIntoValue(compiler, this.getAttribute('url') as ExpressionNode);
 
-        const width = compiler.get('currWidth');
+        const _width = compiler.get('currWidth');
 
-        let css = styleCompiler.compileStyleAttrs(compiler, 'btn', className, {
+        const css = styleCompiler.compileStyleAttrs(compiler, 'btn', className, {
             'background-color': '#000000',
             'color': '#ffffff',
             'border-radius': '8px',
@@ -70,7 +70,7 @@ export default class BtnNode extends Node {
 
         const cssString = styleCompiler.attrsToCssString(css);
 
-        compiler.writeLineToBody(`<table border="0" cellPadding="0" cellSpacing="0" role="presentation" style="border-collapse:separate;line-height:100%;">`);
+        compiler.writeLineToBody('<table border="0" cellPadding="0" cellSpacing="0" role="presentation" style="border-collapse:separate;line-height:100%;">');
         compiler.writeLineToBody('<tbody>');
         compiler.writeLineToBody('<tr>');
         compiler.writeLineToBody(`<td align="center" bgcolor="${bgColor}" role="presentation" style="border:none;border-radius:${borderRadius};cursor:auto;mso-padding-alt:${padding};background:${bgColor};" valign="middle">`);

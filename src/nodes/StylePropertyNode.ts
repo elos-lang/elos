@@ -1,8 +1,8 @@
-import Node from "../parser/Node";
-import {TokenType} from "../types/token-type";
-import Parser from "../parser/Parser";
-import StyleNode from "./StyleNode";
-import Compiler from "../compiler/Compiler";
+import Node from '../parser/Node';
+import { TokenType } from '../types/token-type';
+import Parser from '../parser/Parser';
+import StyleNode from './StyleNode';
+import Compiler from '../compiler/Compiler';
 
 export default class StylePropertyNode extends Node {
 
@@ -17,11 +17,11 @@ export default class StylePropertyNode extends Node {
 
         if (parser.accept(TokenType.IDENT)) {
 
-            let property = parser.getCurrentValue();
+            const property = parser.getCurrentValue();
             parser.advance();
 
             if (parser.accept(TokenType.NUMBER) || parser.accept(TokenType.STRING)) {
-                let value = parser.getCurrentValue();
+                const value = parser.getCurrentValue();
                 parser.advance();
                 parser.insert(new StylePropertyNode(property, value));
 
